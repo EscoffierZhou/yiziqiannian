@@ -127,17 +127,71 @@
   const bambooIndChar = $("#bambooIndChar");
   const bambooIndStage = $("#bambooIndStage");
 
-  // 九根竹简：九个字形（顺序由早到晚，史实有据）
+  // 九根竹简：九个真实历史字形（从初文「或」到汉隶「國」真实矢量重构）
   const bambooSlipsData = [
-    { char: "或", stage: "西周初文", detail: "西周金文初文 · 无外框", isKey: true },
-    { char: "或", stage: "金文变体", detail: "金文饰笔变体", isKey: false },
-    { char: "國", stage: "早期金文", detail: "刚加上囗外框 · 早期金文", isKey: false },
-    { char: "國", stage: "楚系简文", detail: "清华简 · 楚系战国异形", isKey: false },
-    { char: "國", stage: "秦系战国", detail: "秦系战国版 · 偏平直", isKey: false },
-    { char: "國", stage: "小篆前夜", detail: "小篆前夜 · 趋于对称", isKey: false },
-    { char: "國", stage: "秦小篆", detail: "秦小篆标准形", isKey: false },
-    { char: "國", stage: "秦隶雏形", detail: "秦隶雏形 · 曲线开始拉直", isKey: false },
-    { char: "國", stage: "成熟汉隶", detail: "成熟汉隶版 · 承接楷书", isKey: true }
+    {
+      char: "或",
+      stage: "西周初文",
+      detail: "西周金文初文 · 无外框（一戈一囗守疆）",
+      isKey: true,
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><path d="M68 14 Q64 60 72 106"/><path d="M46 30 L80 24 M70 26 L78 40"/><path d="M64 48 L54 60"/><rect x="22" y="44" width="22" height="24" rx="2"/><line x1="16" y1="88" x2="48" y2="88"/></g></svg>'
+    },
+    {
+      char: "或",
+      stage: "金文变体",
+      detail: "金文饰笔变体 · 加粗肥笔饰点",
+      isKey: false,
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><path d="M66 12 Q61 58 70 108"/><path d="M42 26 L82 22"/><circle cx="66" cy="24" r="4.5" fill="currentColor"/><path d="M72 23 L80 38"/><path d="M62 46 L48 58"/><circle cx="55" cy="52" r="3.5" fill="currentColor"/><path d="M22 46 L42 42 L40 68 L20 70 Z"/><line x1="14" y1="90" x2="48" y2="88" stroke-width="5"/></g></svg>'
+    },
+    {
+      char: "國",
+      stage: "早期金文",
+      detail: "刚加上囗外框 · 早期圆角金文",
+      isKey: false,
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="16" width="76" height="88" rx="14"/><path d="M62 30 Q60 62 65 88"/><path d="M46 38 L72 34 M64 35 L70 46"/><rect x="28" y="50" width="18" height="20" rx="3"/><line x1="25" y1="84" x2="48" y2="84"/></g></svg>'
+    },
+    {
+      char: "國",
+      stage: "楚系简文",
+      detail: "清华简 · 楚系战国舒展异形",
+      isKey: false,
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 22 Q12 60 18 100 Q50 104 82 100 Q88 60 84 22 Q50 16 16 22"/><path d="M64 28 Q58 64 68 88 Q72 92 78 88"/><path d="M44 38 Q58 36 74 32 M64 34 L72 44"/><path d="M28 52 Q38 48 46 52 Q44 68 42 74 Q32 76 26 72 Q26 60 28 52"/><path d="M24 86 Q36 82 48 86"/></g></svg>'
+    },
+    {
+      char: "國",
+      stage: "秦系战国",
+      detail: "秦系战国石刻 · 偏方正平直",
+      isKey: false,
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="18" width="72" height="84" rx="4"/><line x1="64" y1="28" x2="64" y2="88"/><path d="M44 38 L74 35 M64 36 L72 48"/><rect x="28" y="52" width="20" height="20" rx="1"/><line x1="26" y1="84" x2="48" y2="84"/></g></svg>'
+    },
+    {
+      char: "國",
+      stage: "小篆前夜",
+      detail: "小篆前夜 · 趋于对称匀称",
+      isKey: false,
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><rect x="15" y="16" width="70" height="88" rx="8"/><path d="M63 26 C62 50 62 70 63 90"/><path d="M42 36 L73 34 M63 35 L71 46"/><path d="M60 52 L48 64"/><rect x="27" y="52" width="20" height="20" rx="4"/><line x1="25" y1="84" x2="48" y2="84"/></g></svg>'
+    },
+    {
+      char: "國",
+      stage: "秦小篆",
+      detail: "秦小篆标准形 · 李斯玉箸篆",
+      isKey: false,
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 30 C16 18 28 16 50 16 C72 16 84 18 84 30 L84 88 C84 100 72 102 50 102 C28 102 16 100 16 88 Z"/><path d="M62 26 C60 54 60 76 62 92"/><path d="M42 36 C56 34 68 33 74 33 M62 34 C67 40 71 46 72 49"/><path d="M60 52 C54 58 48 64 45 66"/><path d="M28 54 C28 48 34 46 41 46 C48 46 54 48 54 54 L54 66 C54 72 48 74 41 74 C34 74 28 72 28 66 Z"/><path d="M24 84 C34 83 44 83 50 84"/></g></svg>'
+    },
+    {
+      char: "國",
+      stage: "秦隶雏形",
+      detail: "秦隶雏形 · 破圆为方曲线拉直",
+      isKey: false,
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 24 L86 24 L86 96 L14 96 Z"/><path d="M60 32 L60 88"/><path d="M40 40 L76 37 M60 39 L70 50"/><line x1="58" y1="58" x2="48" y2="68"/><rect x="26" y="52" width="22" height="18"/><line x1="22" y1="84" x2="50" y2="84"/></g></svg>'
+    },
+    {
+      char: "國",
+      stage: "成熟汉隶",
+      detail: "成熟汉隶版 · 蚕头燕尾承接楷书",
+      isKey: true,
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 28 Q48 25 88 26 L86 94 L14 94 Z"/><line x1="58" y1="36" x2="58" y2="84" stroke-width="4.5"/><path d="M36 44 Q56 42 78 40 Q82 40 84 38" stroke-width="4.8"/><path d="M58 42 L68 54"/><line x1="56" y1="62" x2="44" y2="72" stroke-width="3.8"/><rect x="24" y="54" width="22" height="16"/><path d="M20 84 Q38 82 50 83" stroke-width="4.2"/></g></svg>'
+    }
   ];
 
   const slipElements = [];
@@ -145,7 +199,7 @@
     const slip = document.createElement("div");
     slip.className = "slip" + (item.isKey ? " slip--key" : "");
     slip.innerHTML =
-      '<span class="slip-char">' + item.char + '</span>' +
+      '<div class="slip-glyph-box" aria-label="' + item.char + '">' + item.svg + '</div>' +
       '<span class="slip-tag">' + item.stage + '</span>';
     slip.dataset.index = idx;
     slip.dataset.char = item.char;
@@ -270,11 +324,19 @@
     },
     {
       name: "早期金文",
-      era: "战国",
-      svg: '<svg viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="14" width="72" height="72" rx="8"/><path d="M62 26 Q60 52 64 74"/><path d="M46 34 L70 30"/><rect x="28" y="44" width="18" height="18" rx="2"/><line x1="26" y1="70" x2="46" y2="70"/></g></svg>'
+      era: "春秋",
+      svg: '<svg viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="14" width="72" height="72" rx="10"/><path d="M62 26 Q60 52 64 74"/><path d="M46 34 L70 30"/><rect x="28" y="44" width="18" height="18" rx="2"/><line x1="26" y1="70" x2="46" y2="70"/></g></svg>'
     },
-    { name: "秦小篆", era: "秦代", glyph: "國" },
-    { name: "成熟汉隶", era: "汉代", glyph: "國" },
+    {
+      name: "秦小篆",
+      era: "秦代",
+      svg: '<svg viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 28 C18 18 28 16 50 16 C72 16 82 18 82 28 L82 86 C82 96 72 98 50 98 C28 98 18 96 18 86 Z"/><path d="M60 26 C58 52 58 74 60 90"/><path d="M42 34 C54 32 66 31 72 31 M60 32 C65 38 69 44 70 47"/><path d="M58 50 C52 56 46 62 43 64"/><path d="M28 52 C28 46 34 44 41 44 C48 44 54 46 54 52 L54 64 C54 70 48 72 41 72 C34 72 28 70 28 64 Z"/><path d="M24 82 C34 81 44 81 50 82"/></g></svg>'
+    },
+    {
+      name: "成熟汉隶",
+      era: "汉代",
+      svg: '<svg viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 26 Q48 23 88 24 L86 92 L14 92 Z"/><line x1="58" y1="34" x2="58" y2="82" stroke-width="4.8"/><path d="M36 42 Q56 40 78 38 Q82 38 84 36" stroke-width="5"/><path d="M58 40 L68 52"/><line x1="56" y1="60" x2="44" y2="70" stroke-width="4"/><rect x="24" y="52" width="22" height="16"/><path d="M20 82 Q38 80 50 81" stroke-width="4.5"/></g></svg>'
+    },
   ];
   glyphData.forEach((g) => {
     const cell = document.createElement("div");

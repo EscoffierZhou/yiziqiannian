@@ -1,0 +1,14 @@
+title: 一字千年 · 从竹简到芯片的中国信息之路
+bambooIndChar: 國
+bambooIndStage: 清华简 · 楚系战国舒展异形
+encChar: 国
+encUnicode: U+56FD · 22269
+encBinary: 0101 0110 1111 1101
+encData: E5 9B BD
+telegraphChar: 國
+telegraphCode: 0948
+paperChar: 國
+printCell0: 國
+chipChar: 国
+aiInputVal: 国
+finalLineFinal: 载体一直在改变，记录文明、守护家国的心意，从未改变。
