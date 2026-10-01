@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>一字千年 · 从竹简到芯片的中国信息之路</title>
+  <meta name="description" content="《一字千年》——让一个汉字「国」穿越竹简、纸、印刷、电、计算机、芯片与人工智能。从竹简到芯片的中国信息之路。" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- 顶部极细滚动进度条 -->
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+  <!-- 边缘 · 文明进度环（隐藏，鼠标靠近右缘时浮现） -->
+  <nav class="ring-nav" id="ringNav" aria-label="文明进度环">
+    <div class="ring-nav__rail" aria-hidden="true"><span class="ring-nav__fill" id="ringFill"></span></div>
+    <button class="ring-node is-active" data-target="scene-opening"><span class="ring-node__dot"></span><span class="ring-node__label">序</span></button>
+    <button class="ring-node" data-target="scene-bamboo"><span class="ring-node__dot"></span><span class="ring-node__label">01 竹简</span></button>
+    <button class="ring-node" data-target="scene-paper"><span class="ring-node__dot"></span><span class="ring-node__label">02 纸</span></button>
+    <button class="ring-node" data-target="scene-print"><span class="ring-node__dot"></span><span class="ring-node__label">03 印刷</span></button>
+    <button class="ring-node" data-target="scene-telecom"><span class="ring-node__dot"></span><span class="ring-node__label">04 电</span></button>
+    <button class="ring-node" data-target="scene-computer"><span class="ring-node__dot"></span><span class="ring-node__label">05 计算机</span></button>
+    <button class="ring-node" data-target="scene-chip"><span class="ring-node__dot"></span><span class="ring-node__label">06 芯片</span></button>
+    <button class="ring-node" data-target="scene-ai"><span class="ring-node__dot"></span><span class="ring-node__label">07 AI</span></button>
+    <button class="ring-node" data-target="scene-ending"><span class="ring-node__dot"></span><span class="ring-node__label">尾</span></button>
+  </nav>
+
+  <main id="scrollRoot">
+
+    <!-- ================================================================
+         序 · 首页
+    ================================================================ -->
+    <section class="scene scene--opening" id="scene-opening">
+      <div class="ink-field" id="inkField" aria-hidden="true"></div>
+      <div class="opening-inner">
+        <div class="glyph-stage" id="glyphStage" aria-label="国">
+          <!-- 初文「或」：以兵守疆 -->
+          <svg class="glyph glyph--oracle" viewBox="0 0 100 100">
+            <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M68 12 Q65 50 72 90"/>
+              <path d="M48 24 L78 20 M67 22 L75 34"/>
+              <rect x="24" y="44" width="24" height="24" rx="2"/>
+              <line x1="20" y1="80" x2="48" y2="80"/>
+            </g>
+          </svg>
+          <!-- 早期金文「國」：增外框囗划定疆域 -->
+          <svg class="glyph glyph--bronze" viewBox="0 0 100 100">
+            <g fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="14" y="14" width="72" height="72" rx="8"/>
+              <path d="M62 26 Q60 52 64 74"/>
+              <path d="M46 34 L70 30"/>
+              <rect x="28" y="44" width="18" height="18" rx="2"/>
+              <line x1="26" y1="70" x2="46" y2="70"/>
+            </g>
+          </svg>
+          <span class="glyph glyph--regular">國</span>
+        </div>
+
+        <div class="opening-copy">
+          <p class="opening-line opening-line--1">两千多年前，它被刻在竹简上。</p>
+          <p class="opening-line opening-line--2">两千多年后，它已经可以被计算机理解。</p>
+          <p class="opening-line opening-line--3">一个字，走了多远？</p>
+        </div>
+
+        <button class="ring-btn" id="startBtn" aria-label="开始探索">
+          <span class="ring-btn__ring" aria-hidden="true"></span>
+          <span class="ring-btn__text">开始探索</span>
+        </button>
+      </div>
+      <div class="scroll-hint" aria-hidden="true"><span class="scroll-hint__text">向下滚动</span><span class="scroll-hint__line"></span></div>
+    </section>
+
+    <!-- ================================================================
+         第一幕 · 竹简
+    ================================================================ -->
+    <section class="scene scene--bamboo" id="scene-bamboo">
+      <header class="scene-head reveal">
+        <span class="scene-kicker">CHAPTER 01</span>
+        <span class="scene-verb">记录</span>
+        <h2 class="scene-title">竹简</h2>
+        <p class="scene-sub">当文字第一次拥有了可以被保存的载体。</p>
+      </header>
+
+      <div class="bamboo-stage reveal">
+        <div class="bamboo-indicator" id="bambooIndicator">
+          <span class="bamboo-ind__label">当前字形：</span>
+          <span class="bamboo-ind__char" id="bambooIndChar">或</span>
+          <span class="bamboo-ind__sep">·</span>
+          <span class="bamboo-ind__stage" id="bambooIndStage">西周金文初文 · 无外框</span>
+        </div>
+        <div class="bamboo-viewport" id="bambooViewport">
+          <div class="bamboo-track" id="bambooTrack"></div>
+          <div class="scan-light" id="scanLight" aria-hidden="true"></div>
+        </div>
+        <p class="hint">← 拖拽竹简 · 滚轮缩放 · 点击竹简查看九简演变 →</p>
+      </div>
+
+      <p class="scene-copy reveal">商周之际，人们把文字刻写在削制过的竹片、木片上，用绳编连成「册」。<br>汉字最早的书写，就诞生在这一枚枚沉重的竹简上。</p>
+
+      <div class="fact reveal"><span class="fact-year">约公元前 433 年</span><span class="fact-text">战国早期 · 曾侯乙墓竹简，现存最早简牍实物之一，距今约 2400 年</span></div>
+
+      <!-- HUD 字形扫描面板 -->
+      <div class="hud" id="glyphHud" hidden>
+        <div class="hud__panel">
+          <button class="hud__close" id="glyphHudClose" aria-label="关闭">×</button>
+          <div class="hud__scanlines" aria-hidden="true"></div>
+          <span class="hud__tag">字符扫描 · GLYPH SCAN</span>
+          <h3 class="hud__title">「国」</h3>
+          <p class="hud__struct">初文为「或」，一戈一囗，以兵守疆；后增「囗」划定疆域。</p>
+          <div class="hud__glyphs" id="hudGlyphs"></div>
+          <p class="hud__note">九简，见一字从本源，历经战国异形、秦代统一、走向隶变的生长之路。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================
+         第二幕 · 纸
+    ================================================================ -->
+    <section class="scene scene--paper" id="scene-paper">
+      <header class="scene-head reveal">
+        <span class="scene-kicker">CHAPTER 02</span>
+        <span class="scene-verb">轻</span>
+        <h2 class="scene-title">纸</h2>
+        <p class="scene-sub">当信息开始变轻。</p>
+      </header>
+
+      <div class="paper-stage reveal">
+        <div class="paper-sheet" id="paperSheet">
+          <span class="paper-char">國</span>
+          <span class="paper-seal" aria-hidden="true">蔡侯纸</span>
+        </div>
+        <p class="hint">拖拽纸张，感受它的轻盈</p>
+      </div>
+
+      <p class="scene-copy reveal">公元 105 年，蔡伦以树皮、麻头、破布、渔网造出轻便廉价的纸。<br>文字从笨重的竹简，走到轻薄的纸上。</p>
+
+      <div class="weight-lab reveal">
+        <p class="weight-lab__question">如果信息越来越轻，世界会发生什么？</p>
+        <div class="weight-slider">
+          <span class="weight-slider__mark" data-v="竹简">竹简</span>
+          <input type="range" id="weightRange" min="0" max="100" value="0" aria-label="信息重量" />
+          <span class="weight-slider__mark" data-v="纸">纸</span>
+        </div>
+        <div class="weight-field" id="weightField" aria-hidden="true"></div>
+        <p class="weight-lab__conclusion" id="weightConclusion">载体越重，信息越少。</p>
+      </div>
+
+      <div class="fact reveal"><span class="fact-year">公元 105 年</span><span class="fact-text">东汉 · 蔡伦改进造纸术，此后纸逐渐取代竹简、帛书</span></div>
+    </section>
+
+    <!-- ================================================================
+         第三幕 · 印刷
+    ================================================================ -->
+    <section class="scene scene--print" id="scene-print">
+      <header class="scene-head reveal">
+        <span class="scene-kicker">CHAPTER 03</span>
+        <span class="scene-verb">复制</span>
+        <h2 class="scene-title">印刷</h2>
+        <p class="scene-sub">当一个字，不再只能被写一次。</p>
+      </header>
+
+      <div class="print-tools reveal" role="tablist" aria-label="印刷方式">
+        <button class="print-tool is-active" data-mode="block" role="tab">雕版</button>
+        <button class="print-tool" data-mode="type" role="tab">活字</button>
+        <button class="print-tool print-tool--copy" id="copyBtn" role="button">复制</button>
+      </div>
+
+      <div class="print-stage reveal">
+        <div class="print-grid" id="printGrid"></div>
+        <p class="print-caption" id="printCaption" aria-live="polite"></p>
+      </div>
+
+      <p class="scene-copy reveal">雕版始于隋唐；北宋庆历年间，毕昇发明活字印刷，比古腾堡铅活字早约四百年。<br>知识不再被手工抄写，而是被成批复制。</p>
+
+      <div class="fact reveal"><span class="fact-year">约 1041—1048 年</span><span class="fact-text">北宋 · 毕昇发明活字印刷术；现存最早雕版印刷品为 868 年《金刚经》</span></div>
+    </section>
+
+    <!-- ================================================================
+         第四幕 · 电与通信
+    ================================================================ -->
+    <section class="scene scene--telecom" id="scene-telecom">
+      <header class="scene-head reveal">
+        <span class="scene-kicker">CHAPTER 04</span>
+        <span class="scene-verb">传递</span>
+        <h2 class="scene-title">电与通信</h2>
+        <p class="scene-sub">信息第一次超越了人的脚步。</p>
+      </header>
+
+      <div class="telecom-keywords reveal" aria-hidden="true">
+        <span>PULSE</span><span>SIGNAL</span><span>DATA</span><span>TRANSMISSION</span>
+      </div>
+
+      <div class="telecom-timeline reveal" role="tablist" aria-label="通信方式">
+        <button class="telecom-step is-active" data-stage="telegraph" role="tab"><span>文字</span></button>
+        <span class="telecom-arrow" aria-hidden="true">→</span>
+        <button class="telecom-step" data-stage="telegraph" role="tab"><span>电报</span></button>
+        <span class="telecom-arrow" aria-hidden="true">→</span>
+        <button class="telecom-step" data-stage="phone" role="tab"><span>电话</span></button>
+        <span class="telecom-arrow" aria-hidden="true">→</span>
+        <button class="telecom-step" data-stage="computer" role="tab"><span>计算机</span></button>
+      </div>
+
+      <div class="telecom-stage reveal" id="telecomStage">
+        <div class="telecom-view is-active" data-view="telegraph">
+          <div class="telecom-char">國</div>
+          <div class="telecom-code" id="telegraphCode">0948</div>
+          <div class="telecom-desc">汉字被编成四位中文电码，借电流穿过山河</div>
+        </div>
+        <div class="telecom-view" data-view="phone">
+          <div class="telecom-char">國</div>
+          <div class="waveform" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="telecom-desc">声音变成电波，一字之音，瞬间千里</div>
+        </div>
+        <div class="telecom-view" data-view="computer">
+          <div class="telecom-screen"><span class="telecom-cursor">國</span><span class="telecom-blink">_</span></div>
+          <div class="telecom-desc">文字登上屏幕，等待被编码成 0 与 1</div>
+        </div>
+      </div>
+
+      <p class="scene-copy reveal">19 世纪，电让信息第一次超越了脚步。电报、电话、计算机……文字开始以「信号」的速度传播。</p>
+
+      <div class="fact reveal"><span class="fact-year">19 世纪 70 年代</span><span class="fact-text">电报传入中国，汉字以中文电码（四位数字）的形式在电线上远行</span></div>
+    </section>
+
+    <!-- ================================================================
+         第五幕 · 计算机
+    ================================================================ -->
+    <section class="scene scene--computer" id="scene-computer">
+      <header class="scene-head reveal">
+        <span class="scene-kicker">CHAPTER 05</span>
+        <span class="scene-verb">编码</span>
+        <h2 class="scene-title">计算机</h2>
+        <p class="scene-sub">当文字开始被机器理解。</p>
+      </header>
+
+      <!-- 高光过渡：繁体「國」→ 简体「国」平滑形变 -->
+      <div class="glyph-morph reveal" id="glyphMorph">
+        <div class="morph-badge">数字时代 · 载体与字形双重演进</div>
+        <div class="morph-display">
+          <div class="morph-item morph-item--trad">
+            <span class="morph-char">國</span>
+            <span class="morph-desc">繁体楷书 · 千年定型</span>
+          </div>
+          <div class="morph-flow">
+            <div class="morph-scan">
+              <span class="morph-arrow">→</span>
+              <span class="morph-bits">0101 0110 1111 1101</span>
+            </div>
+            <span class="morph-hint">形变重构 · 现代规范</span>
+          </div>
+          <div class="morph-item morph-item--simp">
+            <span class="morph-char">国</span>
+            <span class="morph-desc">简体汉字 · 数字新生</span>
+          </div>
+        </div>
+        <p class="morph-motto">信息进入数字时代，字形也迎来现代简化；载体变迁与字形变迁完美同步。</p>
+      </div>
+
+      <div class="encode-lab reveal">
+        <p class="encode-lab__label">输入一个汉字，看它如何变成数据：</p>
+        <div class="encode-input-row">
+          <input class="encode-input" id="encodeInput" type="text" maxlength="1" value="国" placeholder="国" />
+          <button class="thin-btn" id="encodeRun">拆解</button>
+        </div>
+
+        <div class="encode-chain" id="encodeChain">
+          <div class="encode-layer" data-layer="char"><span class="encode-layer__k">字符</span><span class="encode-layer__v" id="encChar">国</span></div>
+          <span class="encode-arrow">↓</span>
+          <div class="encode-layer" data-layer="unicode"><span class="encode-layer__k">Unicode</span><span class="encode-layer__v encode-layer__v--mono" id="encUnicode">U+56FD · 22269</span></div>
+          <span class="encode-arrow">↓</span>
+          <div class="encode-layer" data-layer="binary"><span class="encode-layer__k">二进制</span><span class="encode-layer__v encode-layer__v--mono" id="encBinary">0101 0110 1111 1101</span></div>
+          <span class="encode-arrow">↓</span>
+          <div class="encode-layer" data-layer="data"><span class="encode-layer__k">数据</span><span class="encode-layer__v encode-layer__v--mono" id="encData">E5 9B BD</span></div>
+        </div>
+
+        <canvas class="encode-canvas" id="encodeCanvas" width="800" height="260"></canvas>
+      </div>
+
+      <p class="scene-copy reveal">汉字被编码成 0 和 1——它不再是一幅画，而是一串可以被机器读取的数据。</p>
+
+      <div class="fact reveal"><span class="fact-year">1980 年</span><span class="fact-text">中国发布 GB2312 汉字编码标准，收录 6763 个汉字，让汉字进入数字世界</span></div>
+    </section>
+
+    <!-- ================================================================
+         第六幕 · 芯片
+    ================================================================ -->
+    <section class="scene scene--chip" id="scene-chip">
+      <header class="scene-head reveal">
+        <span class="scene-kicker">CHAPTER 06</span>
+        <span class="scene-verb">计算</span>
+        <h2 class="scene-title">芯片</h2>
+        <p class="scene-sub">现代文明的信息神经中枢。</p>
+      </header>
+
+      <div class="chip-stage reveal">
+        <svg class="chip-board" id="chipBoard" viewBox="0 0 400 400" aria-label="芯片电路">
+          <rect class="chip-body" x="120" y="120" width="160" height="160" rx="8" />
+          <g class="chip-pins" id="chipPins"></g>
+          <g class="chip-traces" id="chipTraces"></g>
+          <g class="chip-zones" id="chipZones"></g>
+          <text class="chip-char" x="200" y="215" text-anchor="middle">国</text>
+        </svg>
+        <div class="chip-legend reveal">
+          <span>字符</span><span>编码</span><span>存储</span><span>计算</span><span>传输</span>
+        </div>
+      </div>
+
+      <div class="chip-lines reveal">
+        <p class="chip-line">文字改变了载体。</p>
+        <p class="chip-line">信息改变了速度。</p>
+        <p class="chip-line chip-line--accent">而现在，信息开始改变自己。</p>
+      </div>
+
+      <div class="fact reveal"><span class="fact-year">1971 年</span><span class="fact-text">第一枚商用微处理器问世，信息处理被刻进指甲大小的硅片</span></div>
+    </section>
+
+    <!-- ================================================================
+         第七幕 · 人工智能
+    ================================================================ -->
+    <section class="scene scene--ai" id="scene-ai">
+      <header class="scene-head reveal">
+        <span class="scene-kicker">CHAPTER 07</span>
+        <span class="scene-verb">理解</span>
+        <h2 class="scene-title">人工智能</h2>
+        <p class="scene-sub">今天，机器不仅存储文字，也开始理解、生成、传播内容。</p>
+      </header>
+
+      <div class="ai-lab reveal">
+        <p class="ai-lab__label">输入一个词，看它如何穿过 AI 的信息流：</p>
+        <div class="encode-input-row">
+          <input class="encode-input" id="aiInput" type="text" maxlength="2" value="国" placeholder="国" />
+          <button class="thin-btn" id="aiRun">生成信息</button>
+        </div>
+
+        <div class="ai-network" id="aiNetwork">
+          <svg class="ai-links" id="aiLinks"></svg>
+          <!-- 节点由 JS 生成，可拖拽 -->
+        </div>
+        <p class="ai-explainer" id="aiExplainer" aria-live="polite">点击任意节点，理解它的含义。</p>
+      </div>
+
+      <p class="scene-copy reveal">字形 → 字符 → 编码 → 数据 → 模型 → 语义 → 内容 → 传播。<br>本环节为真实编码计算 + 规则式生成示意，不依赖外部大模型。</p>
+    </section>
+
+    <!-- ================================================================
+         尾声 · 用户自己的字
+    ================================================================ -->
+    <section class="scene scene--ending" id="scene-ending">
+      <div class="ending-inner reveal">
+        <p class="ending-prompt">现在，轮到你留下一个字。</p>
+        <div class="encode-input-row ending-input-row">
+          <input class="encode-input ending-input" id="finalInput" type="text" maxlength="1" value="家" placeholder="家" />
+          <button class="thin-btn" id="finalRun">凝聚</button>
+        </div>
+
+        <div class="converge-stage" id="convergeStage">
+          <div class="converge-char" id="convergeChar">家</div>
+          <canvas class="converge-canvas" id="convergeCanvas" width="800" height="560"></canvas>
+        </div>
+
+        <div class="ending-lines" id="endingLines">
+          <p class="ending-line">两千多年前，我们把文明刻在竹简上。</p>
+          <p class="ending-line">后来，我们把它写在纸上。</p>
+          <p class="ending-line">我们让它被印刷、被传播、被远距离传递。</p>
+          <p class="ending-line">我们让机器读取文字，让文字成为数据。</p>
+          <p class="ending-line ending-line--accent">今天，我们正在教机器理解文明。</p>
+          <p class="ending-line ending-line--final">载体一直在改变，记录文明、守护家国的心意，从未改变。</p>
+        </div>
+
+        <h1 class="ending-title">一字千年</h1>
+        <p class="ending-sub">从竹简到芯片，中国人的信息之路仍在继续。</p>
+        <p class="ending-motto">技术改变信息的形态，而人决定信息要留下什么。</p>
+        <button class="ring-btn ring-btn--dark" id="restartBtn"><span class="ring-btn__ring" aria-hidden="true"></span><span class="ring-btn__text">重新开始</span></button>
+      </div>
+
+      <footer class="site-footer">
+        <p>《一字千年》· 2026 第十四届全国大学生数字媒体科技作品及创意竞赛</p>
+        <p class="site-footer__tech">技术实现：HTML · CSS · JavaScript · SVG · Canvas（纯前端，无外部依赖）</p>
+      </footer>
+    </section>
+
+  </main>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
