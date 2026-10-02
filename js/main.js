@@ -345,6 +345,7 @@
     slip.dataset.index = idx;
     slip.dataset.char = item.char;
     slip.dataset.stage = item.detail;
+    slip.setAttribute("onclick", "window.selectBambooSlip(" + idx + ")");
     slip.addEventListener("click", (e) => {
       e.stopPropagation();
       selectBambooSlip(idx);
@@ -363,8 +364,13 @@
 
   function selectBambooSlip(idx) {
     if (idx < 0 || idx >= slipElements.length) return;
+    cancelAnimationFrame(momentumId);
     currentSlipIdx = idx;
+    
+    // 立即高亮选中的竹简
     slipElements.forEach((s, i) => s.classList.toggle("is-active", i === idx));
+
+    // 立即更新卡片与指示器数据
     const item = bambooSlipsData[idx];
     const bEra = $("#bambooCardEra");
     const bSource = $("#bambooCardSource");
@@ -377,8 +383,15 @@
     if (bambooIndChar) bambooIndChar.textContent = item.char;
     if (bambooIndStage) bambooIndStage.textContent = item.detail;
 
+    // 卡片呼吸脉冲动效
+    const bCard = $("#bambooCard");
+    if (bCard) {
+      bCard.classList.remove("card-pulse");
+      void bCard.offsetWidth; // 触发 reflow 重启动画
+      bCard.classList.add("card-pulse");
+    }
+
     // 平滑平移居中该竹简（绝对数学几何中心，offsetLeft 纯净无累加误差）
-    cancelAnimationFrame(momentumId);
     const targetSlip = slipElements[idx];
     const viewW = bambooViewport.clientWidth;
     const slipCenter = targetSlip.offsetLeft + targetSlip.offsetWidth / 2;
@@ -386,7 +399,7 @@
     const startXVal = tx;
     const diff = targetTX - startXVal;
     const startTime = performance.now();
-    const duration = 380;
+    const duration = 340;
     isCentering = true;
 
     function animCenter(now) {
@@ -401,11 +414,15 @@
         tx = targetTX;
         bambooTrack.style.transform = "translateX(" + tx + "px) scale(" + scale + ")";
         isCentering = false;
-        updateBambooIndicator();
+        // 牢牢锁定所选竹简的高亮，严禁调用 updateBambooIndicator 篡改选中项
+        slipElements.forEach((s, i) => s.classList.toggle("is-active", i === idx));
       }
     }
     momentumId = requestAnimationFrame(animCenter);
   }
+
+  // 挂载至全局 window 供 HTML 行内 onclick 与跨模块调用
+  window.selectBambooSlip = selectBambooSlip;
 
   function updateBambooIndicator() {
     if (!bambooIndChar || !bambooIndStage || !bambooViewport || slipElements.length === 0) return;
@@ -516,14 +533,19 @@
 
   bambooViewport.addEventListener("pointermove", (e) => {
     if (!dragging) return;
+    const dist = Math.hypot(e.clientX - downX, e.clientY - downY);
+    if (!dragMoved) {
+      if (dist < 8) {
+        // 未超过 8px 绝对位移死区，绝不修改 tx，绝不修改 DOM transform，避免浏览器取消原生 click 事件
+        return;
+      }
+      dragMoved = true;
+    }
     const now = performance.now();
     const dt = Math.max(1, now - lastT);
     vel = (e.clientX - lastX) / dt;
     lastX = e.clientX;
     lastT = now;
-    if (Math.hypot(e.clientX - downX, e.clientY - downY) > 6) {
-      dragMoved = true;
-    }
     tx = Math.max(minX, Math.min(maxX, startTX + (e.clientX - startX)));
     applyBamboo();
   });
@@ -533,12 +555,16 @@
     dragging = false;
     bambooViewport.classList.remove("dragging");
 
-    // 若原地点按未发生显著位移，直接视为点击该竹简
-    if (!dragMoved && downSlip) {
-      const idx = parseInt(downSlip.dataset.index, 10);
-      if (!isNaN(idx)) {
-        selectBambooSlip(idx);
-        return;
+    // 若原地点按未发生显著位移（< 8px），直接作为精准点击处理
+    if (!dragMoved) {
+      const clickSlip = (e.target && e.target.closest) ? e.target.closest(".slip") : downSlip;
+      const finalSlip = clickSlip || downSlip;
+      if (finalSlip && finalSlip.dataset && finalSlip.dataset.index !== undefined) {
+        const idx = parseInt(finalSlip.dataset.index, 10);
+        if (!isNaN(idx)) {
+          selectBambooSlip(idx);
+          return;
+        }
       }
     }
 
