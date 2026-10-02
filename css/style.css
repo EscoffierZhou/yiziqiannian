@@ -460,31 +460,117 @@ button { cursor: pointer; border: none; background: none; }
 .telecom-step {
   padding: 8px 18px; font-size: 14px; letter-spacing: 3px; border-radius: 100px;
   border: 1px solid rgba(114,214,208,.3); color: var(--txt-dim); transition: all .3s var(--ease);
+  cursor: pointer; background: transparent;
 }
 .telecom-step:hover { border-color: var(--cyan); color: var(--cyan); }
-.telecom-step.is-active { border-color: var(--cyan); background: var(--cyan); color: #06222a; box-shadow: 0 0 20px rgba(114,214,208,.35); }
+.telecom-step.is-active { border-color: var(--cyan); background: var(--cyan); color: #06222a; box-shadow: 0 0 20px rgba(114,214,208,.35); font-weight: 600; }
 .telecom-arrow { color: rgba(114,214,208,.4); font-family: var(--mono); }
 
-.telecom-stage { margin-top: 32px; min-height: 210px; display: flex; align-items: center; justify-content: center; }
-.telecom-view { display: none; text-align: center; }
+.telecom-stage { margin-top: 32px; min-height: 290px; display: flex; align-items: center; justify-content: center; width: 100%; }
+.telecom-view { display: none; text-align: center; width: 100%; max-width: 680px; }
 .telecom-view.is-active { display: block; animation: hudIn .5s var(--ease); }
-.telecom-char { font-size: 70px; color: var(--cold-white); margin-bottom: 6px; }
-.telecom-code { font-family: var(--mono); font-size: 24px; color: var(--cyan); letter-spacing: 6px; margin-bottom: 10px; }
-.telecom-desc { font-size: 13px; color: var(--txt-dim); letter-spacing: 2px; }
+
+/* 通信对比卡片 */
+.telecom-card {
+  background: rgba(12,22,30,.7); border: 1px solid rgba(114,214,208,.25); border-radius: 8px;
+  padding: 24px 20px; box-shadow: 0 16px 40px rgba(0,0,0,.5);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.telecom-card--letter {
+  background: rgba(28,24,20,.65); border-color: rgba(224,168,118,.35);
+  box-shadow: 0 16px 40px rgba(0,0,0,.5), 0 0 30px rgba(224,168,118,.06);
+}
+.telecom-card--telegraph {
+  background: rgba(8,20,28,.8); border-color: rgba(114,214,208,.4);
+  box-shadow: 0 16px 40px rgba(0,0,0,.6), 0 0 30px rgba(114,214,208,.12);
+}
+
+/* 时代标识胶囊 */
+.telecom-badge {
+  font-family: var(--sans); font-size: 11px; letter-spacing: 2px; padding: 4px 14px;
+  border-radius: 100px; display: inline-block;
+}
+.telecom-badge--seal {
+  color: #e0a876; border: 1px solid rgba(224,168,118,.4); background: rgba(224,168,118,.08);
+}
+.telecom-badge--pulse {
+  color: var(--cyan); border: 1px solid rgba(114,214,208,.4); background: rgba(114,214,208,.08);
+}
+.telecom-badge--audio {
+  color: #7bed9f; border: 1px solid rgba(123,237,159,.4); background: rgba(123,237,159,.08);
+}
+.telecom-badge--digital {
+  color: #a4b0be; border: 1px solid rgba(164,176,190,.4); background: rgba(164,176,190,.08);
+}
+
+.telecom-char { font-family: var(--serif); font-size: 64px; color: var(--cold-white); line-height: 1; }
+.telecom-char--letter {
+  color: #e0a876; text-shadow: 0 0 20px rgba(224,168,118,.3); font-style: normal;
+}
+.telecom-char--pulse {
+  color: var(--cyan); text-shadow: 0 0 25px rgba(114,214,208,.6);
+  animation: pulseGlow 1.8s ease-in-out infinite alternate;
+}
+@keyframes pulseGlow {
+  from { filter: drop-shadow(0 0 4px rgba(114,214,208,.4)); }
+  to { filter: drop-shadow(0 0 18px rgba(114,214,208,.9)); }
+}
+
+.telecom-subtag {
+  font-size: 12px; color: rgba(224,168,118,.75); letter-spacing: 2px; font-family: var(--sans);
+}
+
+/* 电报与莫尔斯 */
+.telecom-morse {
+  display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 0;
+}
+.morse-signal {
+  font-family: var(--mono); font-size: 20px; letter-spacing: 6px; color: var(--cyan);
+  animation: morseBlink 1.2s steps(2, start) infinite;
+}
+@keyframes morseBlink {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; text-shadow: 0 0 10px var(--cyan); }
+}
+
+.telecom-code {
+  font-family: var(--mono); font-size: 20px; color: var(--cyan); letter-spacing: 5px;
+  background: rgba(114,214,208,.1); border: 1px dashed rgba(114,214,208,.4);
+  padding: 6px 18px; border-radius: 4px; cursor: pointer; transition: all .3s;
+}
+.telecom-code:hover, .telecom-code.pulse-active {
+  background: rgba(114,214,208,.25); border-color: var(--cyan);
+  box-shadow: 0 0 20px rgba(114,214,208,.4);
+}
+
+/* 核心参数对比矩阵 */
+.telecom-metrics {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%;
+  margin: 10px 0 6px; padding: 12px 14px;
+  background: rgba(0,0,0,.25); border-radius: 6px; border: 1px solid rgba(255,255,255,.06);
+}
+.metric-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.metric-label { font-size: 11px; color: var(--txt-dim); letter-spacing: 1px; font-family: var(--sans); }
+.metric-val { font-size: 13px; font-weight: 500; color: var(--cold-white); letter-spacing: 1px; text-align: center; }
+.metric-val--warn { color: #e0a876; }
+.metric-val--fast { color: var(--cyan); font-weight: 600; text-shadow: 0 0 10px rgba(114,214,208,.4); }
+
+.telecom-desc { font-size: 13px; color: var(--txt-dim); letter-spacing: 1.5px; line-height: 1.6; max-width: 580px; }
+
 .telecom-screen {
-  font-family: var(--mono); font-size: 56px; color: #9fffc0; background: #03130a;
-  border: 1px solid #1e4a30; padding: 16px 30px; border-radius: 4px; display: inline-block;
-  box-shadow: 0 0 34px rgba(47,111,82,.35);
+  font-family: var(--mono); font-size: 50px; color: #9fffc0; background: #03130a;
+  border: 1px solid #1e4a30; padding: 12px 26px; border-radius: 4px; display: inline-block;
+  box-shadow: 0 0 34px rgba(47,111,82,.35); line-height: 1;
 }
 .telecom-blink { animation: blink 1s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
 
-.waveform { display: flex; align-items: center; gap: 4px; height: 64px; justify-content: center; margin-bottom: 8px; }
-.waveform i { width: 4px; background: var(--cyan); border-radius: 2px; animation: wave 1s ease-in-out infinite; }
-.waveform i:nth-child(1){height:18px}.waveform i:nth-child(2){height:40px}.waveform i:nth-child(3){height:26px}.waveform i:nth-child(4){height:52px}
-.waveform i:nth-child(5){height:32px}.waveform i:nth-child(6){height:58px}.waveform i:nth-child(7){height:30px}.waveform i:nth-child(8){height:48px}
+.waveform { display: flex; align-items: center; gap: 4px; height: 50px; justify-content: center; margin-bottom: 4px; }
+.waveform i { width: 4px; background: #7bed9f; border-radius: 2px; animation: wave 1s ease-in-out infinite; }
+.waveform i:nth-child(1){height:18px}.waveform i:nth-child(2){height:40px}.waveform i:nth-child(3){height:26px}.waveform i:nth-child(4){height:48px}
+.waveform i:nth-child(5){height:32px}.waveform i:nth-child(6){height:48px}.waveform i:nth-child(7){height:30px}.waveform i:nth-child(8){height:42px}
 .waveform i:nth-child(9){height:22px}.waveform i:nth-child(10){height:40px}.waveform i:nth-child(11){height:26px}.waveform i:nth-child(12){height:44px}
-.waveform i:nth-child(13){height:30px}.waveform i:nth-child(14){height:52px}.waveform i:nth-child(15){height:24px}.waveform i:nth-child(16){height:38px}
+.waveform i:nth-child(13){height:30px}.waveform i:nth-child(14){height:46px}.waveform i:nth-child(15){height:24px}.waveform i:nth-child(16){height:36px}
 @keyframes wave { 0%,100% { transform: scaleY(.45); } 50% { transform: scaleY(1); } }
 
 /* ============================================================
@@ -681,6 +767,7 @@ button { cursor: pointer; border: none; background: none; }
   .ring-nav { display: none; }
   .print-grid { grid-template-columns: repeat(6, 1fr); }
   .telecom-keywords { gap: 14px; }
+  .telecom-metrics { grid-template-columns: 1fr; gap: 8px; }
   .encode-chain { gap: 8px; }
   .ai-node { width: 78px; height: 78px; }
   .ai-node__v { font-size: 18px; }

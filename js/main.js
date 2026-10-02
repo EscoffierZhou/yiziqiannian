@@ -127,70 +127,70 @@
   const bambooIndChar = $("#bambooIndChar");
   const bambooIndStage = $("#bambooIndStage");
 
-  // 九根竹简：九个真实历史字形（从初文「或」到汉隶「國」真实矢量重构）
+  // 九根竹简：九个跨越三千年的真实历史形态（商代甲骨 → 西周金文 → 春秋圆框 → 战国楚简/秦石刻 → 李斯小篆 → 汉代古隶 → 成熟汉隶）
   const bambooSlipsData = [
     {
       char: "或",
-      stage: "西周初文",
-      detail: "西周金文初文 · 无外框（一戈一囗守疆）",
+      stage: "商代甲骨",
+      detail: "商代殷墟卜辞 · 契刻刀锋初文（无框·以戈卫邑）",
       isKey: true,
-      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><path d="M68 14 Q64 60 72 106"/><path d="M46 30 L80 24 M70 26 L78 40"/><path d="M64 48 L54 60"/><rect x="22" y="44" width="22" height="24" rx="2"/><line x1="16" y1="88" x2="48" y2="88"/></g></svg>'
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M68 12 L68 108"/><path d="M42 26 L82 22 M68 24 L78 38"/><path d="M68 46 L54 58"/><path d="M22 52 L36 38 L50 52 L36 66 Z"/><line x1="16" y1="88" x2="52" y2="88"/></g></svg>'
     },
     {
       char: "或",
-      stage: "金文变体",
-      detail: "金文饰笔变体 · 加粗肥笔饰点",
+      stage: "西周早期",
+      detail: "西周何尊金文 · 宅兹中国（无框·浑厚圆润）",
       isKey: false,
-      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><path d="M66 12 Q61 58 70 108"/><path d="M42 26 L82 22"/><circle cx="66" cy="24" r="4.5" fill="currentColor"/><path d="M72 23 L80 38"/><path d="M62 46 L48 58"/><circle cx="55" cy="52" r="3.5" fill="currentColor"/><path d="M22 46 L42 42 L40 68 L20 70 Z"/><line x1="14" y1="90" x2="48" y2="88" stroke-width="5"/></g></svg>'
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><path d="M67 14 Q63 60 70 106"/><path d="M44 28 L80 24 M68 26 L76 40"/><path d="M64 48 L52 60"/><rect x="22" y="44" width="24" height="24" rx="4"/><line x1="16" y1="88" x2="50" y2="88" stroke-width="5"/></g></svg>'
+    },
+    {
+      char: "或",
+      stage: "西周晚期",
+      detail: "西周宗周金文 · 毛公鼎饰笔肥点（无框·团块凝练）",
+      isKey: false,
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"><path d="M66 12 Q61 58 69 108"/><path d="M40 26 L82 22"/><circle cx="66" cy="24" r="4.5" fill="currentColor"/><path d="M72 23 L80 38"/><path d="M62 46 L48 58"/><circle cx="55" cy="52" r="3.5" fill="currentColor"/><path d="M22 46 L44 42 L42 68 L20 70 Z" fill="currentColor" fill-opacity="0.18"/><line x1="14" y1="90" x2="50" y2="88" stroke-width="6"/></g></svg>'
     },
     {
       char: "國",
-      stage: "早期金文",
-      detail: "刚加上囗外框 · 早期圆角金文",
+      stage: "春秋早期",
+      detail: "春秋早期金文 · 圆柔外框始萌（内戈外圆）",
       isKey: false,
-      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="16" width="76" height="88" rx="14"/><path d="M62 30 Q60 62 65 88"/><path d="M46 38 L72 34 M64 35 L70 46"/><rect x="28" y="50" width="18" height="20" rx="3"/><line x1="25" y1="84" x2="48" y2="84"/></g></svg>'
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 36 C16 16 32 14 50 14 C68 14 84 16 84 36 L84 84 C84 104 68 106 50 106 C32 106 16 104 16 84 Z"/><path d="M62 28 Q59 58 64 86"/><path d="M46 36 L72 32 M63 34 L70 44"/><rect x="28" y="48" width="18" height="20" rx="3"/><line x1="26" y1="80" x2="48" y2="80"/></g></svg>'
     },
     {
       char: "國",
-      stage: "楚系简文",
-      detail: "清华简 · 楚系战国舒展异形",
+      stage: "战国楚简",
+      detail: "战国楚系竹简 · 郭店清华简（奇谲收腰异形）",
       isKey: false,
-      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 22 Q12 60 18 100 Q50 104 82 100 Q88 60 84 22 Q50 16 16 22"/><path d="M64 28 Q58 64 68 88 Q72 92 78 88"/><path d="M44 38 Q58 36 74 32 M64 34 L72 44"/><path d="M28 52 Q38 48 46 52 Q44 68 42 74 Q32 76 26 72 Q26 60 28 52"/><path d="M24 86 Q36 82 48 86"/></g></svg>'
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 20 Q12 55 24 64 Q12 75 22 102 Q50 108 78 102 Q88 75 76 64 Q88 55 78 20 Q50 12 22 20 Z"/><path d="M61 24 Q54 56 65 84 Q70 94 77 88"/><path d="M44 34 Q56 32 72 28 M61 31 L69 40"/><path d="M30 48 Q40 45 46 50 Q43 65 40 70 Q32 72 28 66 Z"/><path d="M26 84 Q38 80 48 84"/></g></svg>'
     },
     {
       char: "國",
-      stage: "秦系战国",
-      detail: "秦系战国石刻 · 偏方正平直",
+      stage: "战国石刻",
+      detail: "战国秦系石刻 · 秦公石鼓文（刚劲方严铁骨）",
       isKey: false,
-      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="18" width="72" height="84" rx="4"/><line x1="64" y1="28" x2="64" y2="88"/><path d="M44 38 L74 35 M64 36 L72 48"/><rect x="28" y="52" width="20" height="20" rx="1"/><line x1="26" y1="84" x2="48" y2="84"/></g></svg>'
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><rect x="15" y="16" width="70" height="88" rx="6"/><line x1="63" y1="26" x2="63" y2="88"/><path d="M42 36 L74 33 M63 34 L72 46"/><line x1="60" y1="52" x2="48" y2="64"/><rect x="27" y="50" width="20" height="20" rx="1"/><line x1="25" y1="82" x2="48" y2="82"/></g></svg>'
     },
     {
       char: "國",
-      stage: "小篆前夜",
-      detail: "小篆前夜 · 趋于对称匀称",
+      stage: "秦李斯篆",
+      detail: "秦代标准小篆 · 泰山刻石（玉箸对称严谨）",
       isKey: false,
-      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><rect x="15" y="16" width="70" height="88" rx="8"/><path d="M63 26 C62 50 62 70 63 90"/><path d="M42 36 L73 34 M63 35 L71 46"/><path d="M60 52 L48 64"/><rect x="27" y="52" width="20" height="20" rx="4"/><line x1="25" y1="84" x2="48" y2="84"/></g></svg>'
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 28 C16 16 26 14 50 14 C74 14 84 16 84 28 L84 92 C84 104 74 106 50 106 C26 106 16 104 16 92 Z"/><path d="M62 26 C60 52 60 74 62 92"/><path d="M42 35 C56 33 68 32 74 32 M62 33 C67 39 71 45 72 48"/><path d="M60 51 C54 57 48 63 45 65"/><path d="M28 52 C28 46 34 44 41 44 C48 44 54 46 54 52 L54 64 C54 70 48 72 41 72 C34 72 28 70 28 64 Z"/><path d="M24 83 C34 82 44 82 50 83"/></g></svg>'
     },
     {
       char: "國",
-      stage: "秦小篆",
-      detail: "秦小篆标准形 · 李斯玉箸篆",
+      stage: "秦汉古隶",
+      detail: "秦汉简牍古隶 · 睡虎地里耶简（破圆为方）",
       isKey: false,
-      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 30 C16 18 28 16 50 16 C72 16 84 18 84 30 L84 88 C84 100 72 102 50 102 C28 102 16 100 16 88 Z"/><path d="M62 26 C60 54 60 76 62 92"/><path d="M42 36 C56 34 68 33 74 33 M62 34 C67 40 71 46 72 49"/><path d="M60 52 C54 58 48 64 45 66"/><path d="M28 54 C28 48 34 46 41 46 C48 46 54 48 54 54 L54 66 C54 72 48 74 41 74 C34 74 28 72 28 66 Z"/><path d="M24 84 C34 83 44 83 50 84"/></g></svg>'
-    },
-    {
-      char: "國",
-      stage: "秦隶雏形",
-      detail: "秦隶雏形 · 破圆为方曲线拉直",
-      isKey: false,
-      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 24 L86 24 L86 96 L14 96 Z"/><path d="M60 32 L60 88"/><path d="M40 40 L76 37 M60 39 L70 50"/><line x1="58" y1="58" x2="48" y2="68"/><rect x="26" y="52" width="22" height="18"/><line x1="22" y1="84" x2="50" y2="84"/></g></svg>'
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 22 L86 22 L86 98 L14 98 Z"/><line x1="60" y1="30" x2="60" y2="88" stroke-width="4.6"/><path d="M38 38 L78 35 M60 37 L70 48"/><line x1="58" y1="56" x2="46" y2="67"/><rect x="25" y="50" width="22" height="19"/><line x1="22" y1="83" x2="52" y2="83" stroke-width="4.5"/></g></svg>'
     },
     {
       char: "國",
       stage: "成熟汉隶",
-      detail: "成熟汉隶版 · 蚕头燕尾承接楷书",
+      detail: "东汉成熟汉隶 · 曹全礼器碑（扁方开张蚕头燕尾）",
       isKey: true,
-      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 28 Q48 25 88 26 L86 94 L14 94 Z"/><line x1="58" y1="36" x2="58" y2="84" stroke-width="4.5"/><path d="M36 44 Q56 42 78 40 Q82 40 84 38" stroke-width="4.8"/><path d="M58 42 L68 54"/><line x1="56" y1="62" x2="44" y2="72" stroke-width="3.8"/><rect x="24" y="54" width="22" height="16"/><path d="M20 84 Q38 82 50 83" stroke-width="4.2"/></g></svg>'
+      svg: '<svg viewBox="0 0 100 120" class="slip-svg"><g fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 28 Q50 24 90 26 L88 94 L12 94 Z"/><line x1="58" y1="34" x2="58" y2="86" stroke-width="4.8"/><path d="M32 43 Q54 41 78 39 Q84 39 86 36" stroke-width="5.2"/><path d="M58 41 L68 53"/><line x1="56" y1="61" x2="42" y2="72" stroke-width="4"/><rect x="23" y="53" width="23" height="17"/><path d="M18 84 Q38 82 52 83" stroke-width="4.8"/></g></svg>'
     }
   ];
 
@@ -318,25 +318,25 @@
   const hudGlyphs = $("#hudGlyphs");
   const glyphData = [
     {
-      name: "西周初文",
-      era: "西周",
-      svg: '<svg viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M68 12 Q65 50 72 90"/><path d="M48 24 L78 20 M67 22 L75 34"/><rect x="24" y="44" width="24" height="24" rx="2"/><line x1="20" y1="80" x2="48" y2="80"/></g></svg>'
+      name: "商代甲骨",
+      era: "殷商 (前1300)",
+      svg: '<svg viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M68 10 L68 90"/><path d="M42 24 L82 20 M68 22 L78 34"/><path d="M68 44 L54 54"/><path d="M24 48 L36 36 L48 48 L36 60 Z"/><line x1="18" y1="78" x2="48" y2="78"/></g></svg>'
     },
     {
-      name: "早期金文",
-      era: "春秋",
-      svg: '<svg viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="14" width="72" height="72" rx="10"/><path d="M62 26 Q60 52 64 74"/><path d="M46 34 L70 30"/><rect x="28" y="44" width="18" height="18" rx="2"/><line x1="26" y1="70" x2="46" y2="70"/></g></svg>'
+      name: "西周金文",
+      era: "西周 (前1046)",
+      svg: '<svg viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><path d="M67 12 Q63 50 70 88"/><path d="M44 24 L80 20 M68 22 L76 34"/><path d="M64 42 L52 52"/><rect x="22" y="38" width="22" height="22" rx="3"/><line x1="16" y1="76" x2="50" y2="76" stroke-width="4.8"/></g></svg>'
     },
     {
-      name: "秦小篆",
-      era: "秦代",
-      svg: '<svg viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 28 C18 18 28 16 50 16 C72 16 82 18 82 28 L82 86 C82 96 72 98 50 98 C28 98 18 96 18 86 Z"/><path d="M60 26 C58 52 58 74 60 90"/><path d="M42 34 C54 32 66 31 72 31 M60 32 C65 38 69 44 70 47"/><path d="M58 50 C52 56 46 62 43 64"/><path d="M28 52 C28 46 34 44 41 44 C48 44 54 46 54 52 L54 64 C54 70 48 72 41 72 C34 72 28 70 28 64 Z"/><path d="M24 82 C34 81 44 81 50 82"/></g></svg>'
+      name: "秦李斯篆",
+      era: "秦代 (前221)",
+      svg: '<svg viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 24 C18 14 28 12 50 12 C72 12 82 14 82 24 L82 82 C82 92 72 94 50 94 C28 94 18 92 18 82 Z"/><path d="M60 22 C58 48 58 70 60 86"/><path d="M42 30 C54 28 66 27 72 27 M60 28 C65 34 69 40 70 43"/><path d="M58 46 C52 52 46 58 43 60"/><path d="M28 48 C28 42 34 40 41 40 C48 40 54 42 54 48 L54 60 C54 66 48 68 41 68 C34 68 28 66 28 60 Z"/><path d="M24 78 C34 77 44 77 50 78"/></g></svg>'
     },
     {
       name: "成熟汉隶",
-      era: "汉代",
-      svg: '<svg viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 26 Q48 23 88 24 L86 92 L14 92 Z"/><line x1="58" y1="34" x2="58" y2="82" stroke-width="4.8"/><path d="M36 42 Q56 40 78 38 Q82 38 84 36" stroke-width="5"/><path d="M58 40 L68 52"/><line x1="56" y1="60" x2="44" y2="70" stroke-width="4"/><rect x="24" y="52" width="22" height="16"/><path d="M20 82 Q38 80 50 81" stroke-width="4.5"/></g></svg>'
-    },
+      era: "汉代 (公元150)",
+      svg: '<svg viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 24 Q48 21 88 22 L86 88 L14 88 Z"/><line x1="58" y1="30" x2="58" y2="78" stroke-width="4.8"/><path d="M36 38 Q56 36 78 34 Q82 34 84 32" stroke-width="5"/><path d="M58 36 L68 48"/><line x1="56" y1="56" x2="44" y2="66" stroke-width="4"/><rect x="24" y="48" width="22" height="15"/><path d="M20 78 Q38 76 50 77" stroke-width="4.5"/></g></svg>'
+    }
   ];
   glyphData.forEach((g) => {
     const cell = document.createElement("div");
@@ -510,17 +510,66 @@
   printGrid.classList.add("mode-block");
 
   /* ============================================================
-     7. 第四幕 · 电与通信：时间轴切换
+     7. 第四幕 · 电与通信：时间轴切换 + 电报脉冲音效
   ============================================================ */
   const telecomSteps = $$(".telecom-step");
   const telecomViews = $$(".telecom-view");
+  const telegraphCodeBtn = $("#telegraphCode");
+
+  // 简易 Web Audio 模拟发报机电码音效（无任何第三方依赖）
+  let audioCtx = null;
+  function playMorsePulse() {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!audioCtx) audioCtx = new AC();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+
+      // 莫尔斯电码 · · · — — ·
+      const timings = [
+        { t: 0.00, d: 0.07 },
+        { t: 0.12, d: 0.07 },
+        { t: 0.24, d: 0.07 },
+        { t: 0.38, d: 0.22 },
+        { t: 0.65, d: 0.22 },
+        { t: 0.92, d: 0.07 }
+      ];
+      timings.forEach((item) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(780, audioCtx.currentTime + item.t);
+        gain.gain.setValueAtTime(0.0001, audioCtx.currentTime + item.t);
+        gain.gain.exponentialRampToValueAtTime(0.14, audioCtx.currentTime + item.t + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + item.t + item.d);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + item.t);
+        osc.stop(audioCtx.currentTime + item.t + item.d + 0.02);
+      });
+    } catch (_) {}
+  }
+
   telecomSteps.forEach((btn) => {
     btn.addEventListener("click", () => {
       telecomSteps.forEach((b) => b.classList.remove("is-active"));
       btn.classList.add("is-active");
-      telecomViews.forEach((v) => v.classList.toggle("is-active", v.dataset.view === btn.dataset.stage));
+      const targetStage = btn.dataset.stage;
+      telecomViews.forEach((v) => v.classList.toggle("is-active", v.dataset.view === targetStage));
+      if (targetStage === "telegraph") {
+        playMorsePulse();
+      }
     });
   });
+
+  if (telegraphCodeBtn) {
+    telegraphCodeBtn.addEventListener("click", () => {
+      telegraphCodeBtn.classList.remove("pulse-active");
+      void telegraphCodeBtn.offsetWidth;
+      telegraphCodeBtn.classList.add("pulse-active");
+      playMorsePulse();
+    });
+  }
 
   /* ============================================================
      8. 第五幕 · 计算机：编码链 + 粒子溶解

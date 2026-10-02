@@ -87,7 +87,7 @@
           <span class="bamboo-ind__label">当前字形：</span>
           <span class="bamboo-ind__char" id="bambooIndChar">或</span>
           <span class="bamboo-ind__sep">·</span>
-          <span class="bamboo-ind__stage" id="bambooIndStage">西周金文初文 · 无外框</span>
+          <span class="bamboo-ind__stage" id="bambooIndStage">商代甲骨初文 · 刀刻无框（以戈卫邑）</span>
         </div>
         <div class="bamboo-viewport" id="bambooViewport">
           <div class="bamboo-track" id="bambooTrack"></div>
@@ -106,10 +106,10 @@
           <button class="hud__close" id="glyphHudClose" aria-label="关闭">×</button>
           <div class="hud__scanlines" aria-hidden="true"></div>
           <span class="hud__tag">字符扫描 · GLYPH SCAN</span>
-          <h3 class="hud__title">「国」</h3>
-          <p class="hud__struct">初文为「或」，一戈一囗，以兵守疆；后增「囗」划定疆域。</p>
+          <h3 class="hud__title">「或 / 國」三千年流变</h3>
+          <p class="hud__struct">国之初文为「或」，一戈一邑以兵守土；商周无框，春秋始增「囗」，秦汉定型。</p>
           <div class="hud__glyphs" id="hudGlyphs"></div>
-          <p class="hud__note">九简，见一字从本源，历经战国异形、秦代统一、走向隶变的生长之路。</p>
+          <p class="hud__note">从商代殷墟甲骨的契刻刀锋，历经西周金文、战国楚简秦刻、李斯小篆到汉隶蚕头燕尾。</p>
         </div>
       </div>
     </section>
@@ -192,7 +192,7 @@
       </div>
 
       <div class="telecom-timeline reveal" role="tablist" aria-label="通信方式">
-        <button class="telecom-step is-active" data-stage="telegraph" role="tab"><span>文字</span></button>
+        <button class="telecom-step is-active" data-stage="letter" role="tab"><span>文字</span></button>
         <span class="telecom-arrow" aria-hidden="true">→</span>
         <button class="telecom-step" data-stage="telegraph" role="tab"><span>电报</span></button>
         <span class="telecom-arrow" aria-hidden="true">→</span>
@@ -202,19 +202,103 @@
       </div>
 
       <div class="telecom-stage reveal" id="telecomStage">
-        <div class="telecom-view is-active" data-view="telegraph">
-          <div class="telecom-char">國</div>
-          <div class="telecom-code" id="telegraphCode">0948</div>
-          <div class="telecom-desc">汉字被编成四位中文电码，借电流穿过山河</div>
+        <!-- 阶段一：文字（纸墨驿传） -->
+        <div class="telecom-view is-active" data-view="letter">
+          <div class="telecom-card telecom-card--letter">
+            <span class="telecom-badge telecom-badge--seal">前工业时代 · 纸墨驿马</span>
+            <div class="telecom-char telecom-char--letter">國</div>
+            <div class="telecom-subtag">八百里加急 · 凭符发驿</div>
+            <div class="telecom-metrics">
+              <div class="metric-item">
+                <span class="metric-label">传输载体</span>
+                <span class="metric-val">纸张 · 关山驿卒</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">传播速度</span>
+                <span class="metric-val">约 20 ~ 50 公里/天</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">千里传递</span>
+                <span class="metric-val metric-val--warn">数周至月计</span>
+              </div>
+            </div>
+            <div class="telecom-desc">家书抵万金。汉字写在纸帛上，速度始终受制于马匹脚力与关山阻隔</div>
+          </div>
         </div>
+
+        <!-- 阶段二：电报（光速电流脉冲） -->
+        <div class="telecom-view" data-view="telegraph">
+          <div class="telecom-card telecom-card--telegraph">
+            <span class="telecom-badge telecom-badge--pulse">电磁时代 · 脉冲电流</span>
+            <div class="telecom-char telecom-char--pulse">國</div>
+            <div class="telecom-morse" aria-hidden="true">
+              <span class="morse-signal">· · · — — ·</span>
+              <span class="morse-wire"></span>
+            </div>
+            <div class="telecom-code" id="telegraphCode" title="点击发出电码脉冲">中文电码 · 0948</div>
+            <div class="telecom-metrics">
+              <div class="metric-item">
+                <span class="metric-label">传输载体</span>
+                <span class="metric-val">金属线 · 脉冲电流</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">传播速度</span>
+                <span class="metric-val">接近光速（30万 km/s）</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">千里传递</span>
+                <span class="metric-val metric-val--fast">0.01 秒（瞬息即达）</span>
+              </div>
+            </div>
+            <div class="telecom-desc">1871年电报入华，汉字编码为四位数字，信息第一次超越了人类血肉步伐！</div>
+          </div>
+        </div>
+
+        <!-- 阶段三：电话（声音电波） -->
         <div class="telecom-view" data-view="phone">
-          <div class="telecom-char">國</div>
-          <div class="waveform" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-          <div class="telecom-desc">声音变成电波，一字之音，瞬间千里</div>
+          <div class="telecom-card telecom-card--phone">
+            <span class="telecom-badge telecom-badge--audio">电声时代 · 模拟声波</span>
+            <div class="telecom-char">國</div>
+            <div class="waveform" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="telecom-metrics">
+              <div class="metric-item">
+                <span class="metric-label">传输载体</span>
+                <span class="metric-val">双绞线 · 模拟音频</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">信息形态</span>
+                <span class="metric-val">声波转电频 · 实时双向</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">千里传递</span>
+                <span class="metric-val metric-val--fast">零延迟（耳畔低语）</span>
+              </div>
+            </div>
+            <div class="telecom-desc">声音变成连续电波，一字之音跨越千山万壑，从此天涯若咫尺</div>
+          </div>
         </div>
+
+        <!-- 阶段四：计算机（数字终端） -->
         <div class="telecom-view" data-view="computer">
-          <div class="telecom-screen"><span class="telecom-cursor">國</span><span class="telecom-blink">_</span></div>
-          <div class="telecom-desc">文字登上屏幕，等待被编码成 0 与 1</div>
+          <div class="telecom-card telecom-card--computer">
+            <span class="telecom-badge telecom-badge--digital">信息时代 · 光纤网络</span>
+            <div class="telecom-screen"><span class="telecom-cursor">國</span><span class="telecom-blink">_</span></div>
+            <div class="telecom-metrics">
+              <div class="metric-item">
+                <span class="metric-label">传输载体</span>
+                <span class="metric-val">光纤波导 · 硅基芯片</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">编码格式</span>
+                <span class="metric-val">Unicode U+56FD · 0/1</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">网络吞吐</span>
+                <span class="metric-val metric-val--fast">Tbps（万亿比特/秒）</span>
+              </div>
+            </div>
+            <div class="telecom-desc">文字登上发光荧屏，在光缆网络中被解构为浩瀚的二进制数据洪流</div>
+          </div>
         </div>
       </div>
 
