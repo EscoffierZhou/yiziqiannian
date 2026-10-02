@@ -1031,7 +1031,6 @@
   ============================================================ */
   const labPanelIntel = $("#labPanelIntel");
   const labPanelAscend = $("#labPanelAscend");
-  const labHintText = $("#labHintText");
 
   // Intel CPU 实验控件
   const btnLoadRax = $("#btnLoadRax");
@@ -1071,10 +1070,10 @@
       if (regBytes[7]) { regBytes[7].textContent = "BD"; regBytes[7].classList.add("is-filled", "pulse-active"); }
       if (regStatusTag) regStatusTag.textContent = "已装入「国」字 24位 机器码";
       if (regNote) regNote.textContent = "UTF-8 机器码 [E5 9B BD] 载入 RAX 寄存器低 24 位";
-      if (cpuPhaseTitle) cpuPhaseTitle.textContent = "【步骤 ① 物理与计算意义】物理取字 · 载入核心寄存器";
+      if (cpuPhaseTitle) cpuPhaseTitle.textContent = "【计算意义 · 载入寄存器】";
       if (cpuAsmCode) cpuAsmCode.textContent = "MOVQ RAX, 0x0000000000E59BBD";
       if (cpuMeaningText) {
-        cpuMeaningText.innerHTML = "<strong>为什么要这一步？</strong> 汉字「国」存储在外部主内存（DRAM）中，CPU 计算核心无法直接在内存中做高速字符解码。此步骤通过 64 位内部数据总线，利用电荷翻转，将「国」的 3 字节机器码瞬间读入 CPU 最核心的物理寄存器 RAX，使文字正式进入纳秒级运算通道！";
+        cpuMeaningText.textContent = "将「国」的 3 字节机器码瞬间读入 CPU 最核心的物理寄存器 RAX，便于高速计算。";
       }
     });
   }
@@ -1087,12 +1086,12 @@
       if (regBytes[5]) { regBytes[5].textContent = "00"; regBytes[5].classList.remove("is-filled"); }
       if (regBytes[6]) { regBytes[6].textContent = "E5"; regBytes[6].classList.add("is-filled"); }
       if (regBytes[7]) { regBytes[7].textContent = "9B"; regBytes[7].classList.add("is-filled"); }
-      if (regStatusTag) regStatusTag.textContent = "已向右对齐移位 8 位 (1个字节)";
-      if (regNote) regNote.textContent = "✅ SHRQ RAX, 8 移位完毕：RAX 变为 [0x000000000000E59B]，剥离出中间字节与前缀！";
-      if (cpuPhaseTitle) cpuPhaseTitle.textContent = "【步骤 ② 物理与计算意义】字符解码 · 8位逻辑右移对齐";
+      if (regStatusTag) regStatusTag.textContent = "已向右逻辑移位 8 位 (1个字节)";
+      if (regNote) regNote.textContent = "SHRQ RAX, 8 移位完毕：RAX 变为 [0x000000000000E59B]，剥离出中间字节与前缀标志位。";
+      if (cpuPhaseTitle) cpuPhaseTitle.textContent = "【计算意义 · 逻辑右移对齐】";
       if (cpuAsmCode) cpuAsmCode.textContent = "SHRQ RAX, 0x08";
       if (cpuMeaningText) {
-        cpuMeaningText.innerHTML = "<strong>为什么要这一步？</strong> UTF-8 是变长编码。首字节 E5（二进制 11100101，前 3 位为 1）声明该字占用 3 字节。CPU 移位器以 0.28ns 极速将寄存器向右位移 8 位（1个字节），隔离出中间字节 9B 与末字节，交由 ALU 校验前缀标志位与合法性，确认为合法的中国汉字！";
+        cpuMeaningText.textContent = "寄存器向右移位 8 位分离编码字节，供 ALU 快速校验 UTF-8 标志位与合法性。";
       }
     });
   }
@@ -1103,11 +1102,11 @@
       btnL3Probe.classList.add("is-active");
       regBytes.forEach((b) => b.classList.add("pulse-active"));
       if (regStatusTag) regStatusTag.textContent = "L3 高速缓存命中 100% (TAG_MATCH)";
-      if (regNote) regNote.textContent = "⚡ L3 高速缓存探针命中：Ring Bus 环形总线高速传输，延迟仅 11.2ns（比内存 80ns 快 8 倍）！";
-      if (cpuPhaseTitle) cpuPhaseTitle.textContent = "【步骤 ③ 物理与计算意义】字模命中 · 片上 L3 缓存极速检索";
+      if (regNote) regNote.textContent = "L3 高速缓存探针命中：Ring Bus 环形总线高速传输，延迟仅 11.2ns。";
+      if (cpuPhaseTitle) cpuPhaseTitle.textContent = "【计算意义 · 片上缓存检索】";
       if (cpuAsmCode) cpuAsmCode.textContent = "RING_BUS_PROBE: L3_HIT (11.2 ns)";
       if (cpuMeaningText) {
-        cpuMeaningText.innerHTML = "<strong>为什么要这一步？</strong> 识别出汉字后，屏幕必须呈现出「国」的字形。CPU 通过环形总线（Ring Bus）直接在片上 24MB 高速 L3 缓存中检索点阵字模，以 11.2ns 的极短纳秒时延瞬间调出笔画数据，屏幕实现零延迟清晰显示！";
+        cpuMeaningText.textContent = "通过片上环形总线检索 24MB 高速 L3 缓存，11.2ns 内极速调出字模点阵笔画。";
       }
     });
   }
@@ -1119,11 +1118,11 @@
       btnHbmPull.classList.add("is-active");
       semanticCells.forEach((c) => c.classList.remove("active"));
       if (cubeStatusTag) cubeStatusTag.textContent = "HBM2E 总线 1.2TB/s 传输完毕";
-      if (cubeNote) cubeNote.textContent = "🚀 32GB HBM2E 显存总线激活：拉取「国」字 4096 维浮点张量载入片上高速 SRAM！";
-      if (npuPhaseTitle) npuPhaseTitle.textContent = "【步骤 ① 物理与计算意义】语义升维 · 汉字化为高维空间坐标";
+      if (cubeNote) cubeNote.textContent = "HBM2E 显存拉取完毕：「国」字 4096 维浮点张量载入片上高速 SRAM。";
+      if (npuPhaseTitle) npuPhaseTitle.textContent = "【计算意义 · 语义升维】";
       if (npuAsmCode) npuAsmCode.textContent = "acl::EmbeddingLookup(TokenID=7654, Dim=4096)";
       if (npuMeaningText) {
-        npuMeaningText.innerHTML = "<strong>为什么要这一步？</strong> 在 AI 时代，汉字不能只是死板的 0 和 1，必须升维为连续数学几何空间的坐标点。昇腾通过 32GB HBM2E 堆叠显存（1.2TB/s 极致带宽），瞬间提取「国」对应的 4096 维连续张量向量，赋予文字在文明语义空间中的数学实体！";
+        npuMeaningText.textContent = "从显存拉取「国」字的 4096 维连续浮点张量，将离散字符化为高维语义空间坐标。";
       }
     });
   }
@@ -1133,12 +1132,12 @@
       [btnHbmPull, btnCubeMatmul, btnVectorSoftmax].forEach(b => b && b.classList.remove("is-active"));
       btnCubeMatmul.classList.add("is-active");
       semanticCells.forEach((c) => c.classList.add("active"));
-      if (cubeStatusTag) cubeStatusTag.textContent = "3D Cube 阵列 318.6 TFLOPS 点火中";
-      if (cubeNote) cubeNote.textContent = "🔥 DaVinci 3D Cube 点火：16×16×16 矩阵乘单元全速运转，单周期并行完成 4096 次乘加 (MACs)！";
-      if (npuPhaseTitle) npuPhaseTitle.textContent = "【步骤 ② 物理与计算意义】张量点火 · 并行测算万词语义引力";
+      if (cubeStatusTag) cubeStatusTag.textContent = "3D Cube 阵列 318.6 TFLOPS 计算中";
+      if (cubeNote) cubeNote.textContent = "DaVinci 3D Cube 全速运转：单周期并行完成 4096 次乘加 (MACs)。";
+      if (npuPhaseTitle) npuPhaseTitle.textContent = "【计算意义 · 张量矩阵乘法】";
       if (npuAsmCode) npuAsmCode.textContent = "cube::MatMul(Tensor_Q[1, 64], Tensor_K_T[64, 4096])";
       if (npuMeaningText) {
-        npuMeaningText.innerHTML = "<strong>为什么要这一步？</strong> 文字之间的关联是千丝万缕的。昇腾 3D Cube 阵列包含 4096 个 FP16 乘加运算器（MACs），单周期执行矩阵乘法（Query × Key^T），瞬间测算出「国」与天下万词的关联引力——「国」与「家」（0.98）、「国」与「中」（0.94）具有最强烈的文明羁绊！";
+        npuMeaningText.textContent = "3D Cube 阵列执行 Query × Key^T 矩阵乘，单周期并行计算「国」与上下文词汇的语义关联度。";
       }
     });
   }
@@ -1152,11 +1151,11 @@
         c.classList.toggle("active", word === "家" || word === "中");
       });
       if (cubeStatusTag) cubeStatusTag.textContent = "Softmax 归一化完成 · 锁定「国家」(98.2%)";
-      if (cubeNote) cubeNote.textContent = "✨ Vector 矢量单元执行 Softmax 归一化：将原始分值收敛为置信度，高光锁定「国家」(98.2%)！";
-      if (npuPhaseTitle) npuPhaseTitle.textContent = "【步骤 ③ 物理与计算意义】概率收敛 · Vector 归一化输出文明词汇";
+      if (cubeNote) cubeNote.textContent = "Vector 矢量单元完成 Softmax 归一化：将无界分值收敛为置信度分布。";
+      if (npuPhaseTitle) npuPhaseTitle.textContent = "【计算意义 · 概率归一化】";
       if (npuAsmCode) npuAsmCode.textContent = "vector::Softmax(Score_Matrix, FP16)";
       if (npuMeaningText) {
-        npuMeaningText.innerHTML = "<strong>为什么要这一步？</strong> 矩阵乘算出的原始分值无界且抽象，Vector 矢量计算单元以指数 Softmax 激活函数进行概率归一化，将无界得分转换为置信度分布。最终以 98.2% 超高置信度锁定「国家」，完成从硅基物理电荷到高层语义认知的跨越！";
+        npuMeaningText.textContent = "Vector 单元执行指数 Softmax 归一化，以 98.2% 置信度锁定关联词「家」（国家）。";
       }
     });
   }
@@ -1182,34 +1181,193 @@
   const head1 = $("#head1");
   const head2 = $("#head2");
   const head3 = $("#head3");
-  const ffnConcept1 = $("#ffnConcept1");
-  const ffnConcept2 = $("#ffnConcept2");
-  const ffnConcept3 = $("#ffnConcept3");
-  const ffnConcept4 = $("#ffnConcept4");
-  const branch1 = $("#branch1");
-  const branch2 = $("#branch2");
-  const branch3 = $("#branch3");
-  const branch4 = $("#branch4");
   const decoderStatus = $("#decoderStatus");
   const vocabItems = $$(".vocab-item");
 
+  // FFN Lab 交互控件
+  const ffnTokBtns = $$(".ffn-tok-btn");
+  const btnPulseFFN = $("#btnPulseFFN");
+  const ffnSvg = $("#ffnSvg");
+  const neuronGroups = $$(".neuron-group", ffnSvg);
+  const synL0 = $$(".syn-l0", ffnSvg);
+  const synL1 = $$(".syn-l1", ffnSvg);
+  const synL2 = $$(".syn-l2", ffnSvg);
+  const ffnProbeText = $("#ffnProbeText");
+
+  // Decoder Workbench 交互控件
+  const decActiveChip = $("#decActiveChip");
+  const decCandBtns = $$(".dec-cand-btn");
+
+  // FFN 脉冲级联传播函数
+  let isPulsing = false;
+  function triggerFFNPulse(tokChar = "国") {
+    if (isPulsing) return;
+    isPulsing = true;
+
+    // 清理先前状态
+    neuronGroups.forEach(g => g.classList.remove("is-firing"));
+    [...synL0, ...synL1, ...synL2].forEach(l => l.classList.remove("is-pulsing"));
+
+    // 0ms: Layer 0 输入层激发
+    neuronGroups.forEach(g => {
+      if (g.dataset.layer === "0") g.classList.add("is-firing");
+    });
+    if (ffnProbeText) {
+      ffnProbeText.textContent = `⚡ [L0 输入层] 载入「${tokChar}」语义向量分量，启动前向激活...`;
+    }
+
+    // 180ms: Layer 0 -> Layer 1 突触脉冲传输
+    setTimeout(() => {
+      synL0.forEach(l => l.classList.add("is-pulsing"));
+    }, 180);
+
+    // 380ms: Layer 1 隐藏层神经元点火 (GELU 激活)
+    setTimeout(() => {
+      synL0.forEach(l => l.classList.remove("is-pulsing"));
+      neuronGroups.forEach(g => {
+        if (g.dataset.layer === "1") g.classList.add("is-firing");
+      });
+      if (ffnProbeText) {
+        ffnProbeText.textContent = `⚡ [L1 隐层1] 4 维投影计算完成，执行 GELU 非线性激活转换...`;
+      }
+    }, 380);
+
+    // 580ms: Layer 1 -> Layer 2 突触脉冲传输
+    setTimeout(() => {
+      synL1.forEach(l => l.classList.add("is-pulsing"));
+    }, 580);
+
+    // 780ms: Layer 2 隐藏层神经元深度抽象点火
+    setTimeout(() => {
+      synL1.forEach(l => l.classList.remove("is-pulsing"));
+      neuronGroups.forEach(g => {
+        if (g.dataset.layer === "2") g.classList.add("is-firing");
+      });
+      if (ffnProbeText) {
+        ffnProbeText.textContent = `⚡ [L2 隐层2] 高阶特征交叉收敛，跨突触稠密汇聚...`;
+      }
+    }, 780);
+
+    // 980ms: Layer 2 -> Layer 3 突触传输
+    setTimeout(() => {
+      synL2.forEach(l => l.classList.add("is-pulsing"));
+    }, 980);
+
+    // 1180ms: Layer 3 输出表征生成
+    setTimeout(() => {
+      synL2.forEach(l => l.classList.remove("is-pulsing"));
+      neuronGroups.forEach(g => {
+        if (g.dataset.layer === "3") g.classList.add("is-firing");
+      });
+      if (ffnProbeText) {
+        ffnProbeText.textContent = `✨ [L3 输出层] 前向传播完成：隐状态 y 形成，送入 Decoder 交叉注意力！`;
+      }
+    }, 1180);
+
+    // 1800ms: 结束复位
+    setTimeout(() => {
+      neuronGroups.forEach(g => g.classList.remove("is-firing"));
+      isPulsing = false;
+    }, 1800);
+  }
+
+  // 绑定 FFN 脉冲按键
+  if (btnPulseFFN) {
+    btnPulseFFN.addEventListener("click", () => {
+      const activeTokBtn = $(".ffn-tok-btn.is-active");
+      const tok = activeTokBtn ? activeTokBtn.dataset.tok : "国";
+      triggerFFNPulse(tok);
+    });
+  }
+
+  // 绑定 FFN 激励字切换
+  ffnTokBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      ffnTokBtns.forEach(b => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      const tok = btn.dataset.tok;
+      triggerFFNPulse(tok);
+    });
+  });
+
+  // 神经元悬停探针
+  neuronGroups.forEach(g => {
+    g.addEventListener("mouseenter", () => {
+      const layer = parseInt(g.dataset.layer, 10);
+      const idx = parseInt(g.dataset.idx, 10) + 1;
+      let info = "";
+      if (layer === 0) {
+        const val = (0.75 + idx * 0.08).toFixed(2);
+        info = `🔍 [输入层 x${idx}] 激活度 a = ${val} · 接收离散 Token Embedding 连续分量`;
+      } else if (layer === 1) {
+        const val = (0.55 + idx * 0.11).toFixed(2);
+        info = `🔍 [隐藏层1 h1_${idx}] 偏置 b = 0.12 · 激活值 GELU(W₁x + b) = ${val}`;
+      } else if (layer === 2) {
+        const val = (1.20 + idx * 0.15).toFixed(2);
+        info = `🔍 [隐藏层2 h2_${idx}] 突触权值汇总 ∑w = ${val} · 深度语义空间抽象`;
+      } else if (layer === 3) {
+        const val = (2.10 + idx * 0.32).toFixed(2);
+        info = `🔍 [输出层 y${idx}] 线性投影得分 z = ${val} · 送入 Decoder 跨注意力交叉计算`;
+      }
+      if (ffnProbeText) ffnProbeText.textContent = info;
+    });
+    g.addEventListener("mouseleave", () => {
+      if (ffnProbeText && !isPulsing) {
+        const activeTokBtn = $(".ffn-tok-btn.is-active");
+        const tok = activeTokBtn ? activeTokBtn.dataset.tok : "国";
+        ffnProbeText.textContent = `悬停神经元查看实时激活读数：输入字「${tok}」· 全网 40 条突触已加权就绪`;
+      }
+    });
+  });
+
+  // Decoder 自回归候选点击交互
+  decCandBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      decCandBtns.forEach(b => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      const char = btn.dataset.char;
+      const prob = btn.dataset.prob;
+
+      if (decActiveChip) {
+        decActiveChip.textContent = char;
+        decActiveChip.classList.add("pulse-chip");
+        setTimeout(() => decActiveChip.classList.remove("pulse-chip"), 600);
+      }
+
+      if (decoderStatus) {
+        decoderStatus.textContent = `自回归因果解码：锁定「${char}」，时序流扩展为「中 ➔ 国 ➔ ${char}」，置信度 ${prob} ✓`;
+      }
+
+      // 同步高亮下方对应词表条目
+      vocabItems.forEach(v => {
+        const w = v.dataset.word || "";
+        if (w.includes(char)) {
+          v.classList.add("is-highlight");
+        } else {
+          v.classList.remove("is-highlight");
+        }
+      });
+    });
+  });
+
+  // 叙事推演循环
   let aiCycleTimer = null;
   let aiCycleStart = 0;
   const cycleDuration = 9600; // 自动推演叙事周期 9.6s
 
   const stepsList = [stepGlyph, stepToken, stepEncode, stepData];
   const headsList = [head1, head2, head3];
-  const ffnList = [ffnConcept1, ffnConcept2, ffnConcept3, ffnConcept4];
-  const branchList = [branch1, branch2, branch3, branch4];
 
-  function runAiStep(elapsed) {
+  let lastFFNPulseCycle = -1;
+
+  function runAiStep(elapsed, cycleIndex) {
     // 0.0s - 2.8s: 左侧特征提取 01 -> 02 -> 03 -> 04 顺次流转
     if (stepGlyph) stepGlyph.classList.toggle("is-active", elapsed >= 0 && elapsed < 9200);
     if (stepToken) stepToken.classList.toggle("is-active", elapsed >= 700 && elapsed < 9200);
     if (stepEncode) stepEncode.classList.toggle("is-active", elapsed >= 1400 && elapsed < 9200);
     if (stepData) stepData.classList.toggle("is-active", elapsed >= 2100 && elapsed < 9200);
 
-    // 2.8s - 5.2s: 右侧 Transformer ENCODER 核心机制（多头注意力 + FFN 概念激活）
+    // 2.8s - 5.2s: 右侧 Transformer ENCODER 核心机制（多头注意力 + FFN 神经元脉冲）
     if (blockEncoder) {
       blockEncoder.classList.toggle("lit", elapsed >= 2800 && elapsed < 9200);
     }
@@ -1217,23 +1375,22 @@
     if (head2) head2.classList.toggle("lit", elapsed >= 3600 && elapsed < 9200);
     if (head3) head3.classList.toggle("lit", elapsed >= 4000 && elapsed < 9200);
 
-    ffnList.forEach((item, i) => {
-      if (item) item.classList.toggle("lit", elapsed >= (4300 + i * 200) && elapsed < 9200);
-    });
+    // 周期内 4200ms 自动触发一次 FFN 前向脉冲
+    if (elapsed >= 4200 && elapsed < 6500 && lastFFNPulseCycle !== cycleIndex) {
+      lastFFNPulseCycle = cycleIndex;
+      triggerFFNPulse("国");
+    }
 
-    // 5.2s - 7.0s: DECODER 因果解码生成流与候选预测分支
+    // 5.2s - 7.0s: DECODER 因果解码生成流
     if (blockDecoder) {
       blockDecoder.classList.toggle("lit", elapsed >= 5200 && elapsed < 9200);
     }
-    branchList.forEach((item, i) => {
-      if (item) item.classList.toggle("lit", elapsed >= (5500 + i * 250) && elapsed < 9200);
-    });
 
-    if (decoderStatus) {
+    if (decoderStatus && !isPulsing) {
       if (elapsed >= 5200 && elapsed < 9200) {
-        decoderStatus.textContent = "跨注意力交互完成：生成 4096 维后验隐状态向量 H ✓";
-      } else {
-        decoderStatus.textContent = "计算后验隐状态向量 H...";
+        decoderStatus.textContent = "跨注意力融合完成 · 自回归高光生成「家」，锁定「国家」✓";
+      } else if (elapsed < 5200) {
+        decoderStatus.textContent = "计算自回归后验状态向量 H...";
       }
     }
 
@@ -1251,8 +1408,10 @@
 
     function frame() {
       const current = performance.now();
-      let elapsed = (current - aiCycleStart) % cycleDuration;
-      runAiStep(elapsed);
+      const totalElapsed = current - aiCycleStart;
+      const cycleIndex = Math.floor(totalElapsed / cycleDuration);
+      const elapsed = totalElapsed % cycleDuration;
+      runAiStep(elapsed, cycleIndex);
       aiCycleTimer = requestAnimationFrame(frame);
     }
     cancelAnimationFrame(aiCycleTimer);

@@ -905,87 +905,398 @@ button { cursor: pointer; border: none; background: none; }
 .trans-flow-arrow { font-size: 11px; color: var(--cyan); letter-spacing: 1.5px; text-align: center; margin: 2px 0; font-family: var(--sans); }
 .decoder-status { font-family: var(--mono); font-size: 11px; color: var(--cyan); font-style: italic; margin-top: 6px; }
 
-/* FFN 前馈网络可视化与概念概率 */
-.ffn-section {
-  margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(114,214,208,.2);
+/* FFN 具象化多层前馈神经网络实验台 */
+.ffn-lab-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(114, 214, 208, 0.2);
 }
-.ffn-math {
-  font-family: var(--mono); font-size: 11px; color: var(--cyan); background: rgba(114,214,208,.08);
-  padding: 3px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px;
+.ffn-lab__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
 }
-.ffn-concept-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px;
+.ffn-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ffn-tool-label {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--txt-dim);
+}
+.ffn-tok-btn {
+  font-family: var(--serif);
+  font-size: 12px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--cold-white);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ffn-tok-btn:hover {
+  border-color: var(--cyan);
+  background: rgba(114, 214, 208, 0.12);
+}
+.ffn-tok-btn.is-active {
+  border-color: var(--gold);
+  background: rgba(184, 154, 98, 0.22);
+  color: var(--gold);
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(184, 154, 98, 0.35);
+}
+.ffn-pulse-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  border: 1px solid rgba(114, 214, 208, 0.5);
+  background: linear-gradient(135deg, rgba(114, 214, 208, 0.2), rgba(26, 188, 156, 0.2));
+  color: var(--cyan);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.ffn-pulse-btn:hover {
+  background: linear-gradient(135deg, rgba(114, 214, 208, 0.4), rgba(26, 188, 156, 0.4));
+  box-shadow: 0 0 14px rgba(114, 214, 208, 0.45);
+  transform: translateY(-1px);
+}
+.ffn-pulse-btn:active {
+  transform: translateY(0);
+}
+
+/* FFN 神经网络画布与 SVG 元素 */
+.ffn-network-canvas {
+  width: 100%;
+  background: rgba(4, 9, 16, 0.7);
+  border: 1px solid rgba(114, 214, 208, 0.2);
+  border-radius: 6px;
+  padding: 6px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.ffn-svg {
+  width: 100%;
+  height: auto;
+  max-height: 205px;
+  display: block;
+}
+.syn-line {
+  stroke: rgba(114, 214, 208, 0.2);
+  stroke-width: 1.2;
+  transition: stroke 0.35s, stroke-width 0.35s, filter 0.35s;
+}
+.syn-line.is-pulsing {
+  stroke: #ffd56b;
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 4px #ffd56b);
+}
+.syn-line.is-highlight {
+  stroke: rgba(114, 214, 208, 0.85);
+  stroke-width: 1.8;
+}
+.neuron-group {
+  cursor: pointer;
+}
+.neuron-node {
+  stroke-width: 2;
+  transition: transform 0.25s, filter 0.25s, stroke-width 0.25s;
+  transform-origin: center;
+}
+.node-l0 {
+  fill: url(#gradInput);
+  stroke: #f39c12;
+}
+.node-l1 {
+  fill: url(#gradH1);
+  stroke: #3498db;
+}
+.node-l2 {
+  fill: url(#gradH2);
+  stroke: #2ed573;
+}
+.node-l3 {
+  fill: url(#gradOut);
+  stroke: #1abc9c;
+}
+.neuron-group:hover .neuron-node {
+  filter: drop-shadow(0 0 8px #ffffff);
+  stroke-width: 2.6;
+}
+.neuron-group.is-firing .neuron-node {
+  filter: drop-shadow(0 0 12px #ffd56b);
+  stroke: #ffffff;
+  stroke-width: 3;
+}
+.node-txt {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  fill: #08111d;
+  text-anchor: middle;
+  pointer-events: none;
+  user-select: none;
+}
+.layer-lbl {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--txt-dim);
+  text-anchor: middle;
+  letter-spacing: 0.5px;
+  user-select: none;
+}
+
+/* 神经元实时探针读数条 */
+.ffn-probe-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: rgba(114, 214, 208, 0.08);
+  border: 1px solid rgba(114, 214, 208, 0.2);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--cyan);
+}
+.probe-icon {
+  font-size: 12px;
+}
+.probe-text {
+  flex-grow: 1;
+}
+
+/* ============================================================
+   DECODER 时序自回归因果生成台
+   ============================================================ */
+.decoder-workbench {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 动态序列构建流 */
+.dec-seq-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.dec-seq-prompt {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--txt-dim);
+}
+.dec-seq-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.dec-chip {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: var(--serif);
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--cold-white);
+  transition: all 0.3s;
+}
+.dec-chip--fixed {
+  color: var(--txt-dim);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.dec-chip--active {
+  color: var(--gold);
+  border-color: var(--gold);
+  background: rgba(184, 154, 98, 0.18);
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(184, 154, 98, 0.3);
+}
+.dec-chip--next {
+  color: var(--cyan);
+  border: 1px dashed rgba(114, 214, 208, 0.5);
+  background: rgba(114, 214, 208, 0.08);
+  font-size: 11px;
+  font-family: var(--sans);
+  font-weight: 600;
+}
+.dec-chip-arrow {
+  color: rgba(114, 214, 208, 0.5);
+  font-size: 11px;
+}
+.dec-chip-arrow--dim {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* 因果下三角掩码迷你矩阵 */
+.causal-matrix-panel {
+  background: rgba(4, 8, 14, 0.6);
+  border: 1px solid rgba(114, 214, 208, 0.18);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.matrix-title {
+  display: block;
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--txt-dim);
+  margin-bottom: 6px;
+}
+.causal-matrix-grid {
+  display: grid;
+  grid-template-columns: 50px repeat(4, 1fr);
+  gap: 4px;
+}
+.cm-cell {
+  text-align: center;
+  padding: 4px 2px;
+  font-family: var(--mono);
+  font-size: 10px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.25s;
+}
+.cm-header {
+  color: var(--txt-dim);
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.04);
+}
+.cm-row-h {
+  font-family: var(--serif);
+  font-weight: 600;
+  color: var(--cold-white);
+  background: rgba(255, 255, 255, 0.04);
+}
+.cm-active {
+  color: var(--gold);
+  background: rgba(184, 154, 98, 0.2);
+  border-color: rgba(184, 154, 98, 0.45);
+  font-weight: 700;
+}
+.cm-val {
+  color: var(--cyan);
+  background: rgba(114, 214, 208, 0.08);
+}
+.cm-masked {
+  color: rgba(255, 87, 87, 0.65);
+  background: rgba(255, 50, 50, 0.04);
+  font-weight: 600;
+}
+.cm-calc {
+  color: #f1c40f;
+  background: rgba(241, 196, 15, 0.12);
+  font-weight: 600;
+  border-color: rgba(241, 196, 15, 0.3);
+}
+
+/* 自回归下一字交互生成候选盘 */
+.dec-interactive-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cand-label {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--txt-dim);
+}
+.dec-candidates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.dec-cand-btn {
+  display: grid;
+  grid-template-columns: 74px 92px 1fr 48px;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: all 0.25s;
+  color: inherit;
+  text-align: left;
 }
 @media (max-width: 600px) {
-  .ffn-concept-grid { grid-template-columns: 1fr; }
+  .dec-cand-btn {
+    grid-template-columns: 68px 74px 1fr 42px;
+    gap: 4px;
+  }
 }
-.ffn-concept-item {
-  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
-  border-radius: 6px; padding: 6px 10px; transition: all .3s;
+.dec-cand-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(114, 214, 208, 0.3);
 }
-.ffn-concept-item.lit {
-  border-color: rgba(114,214,208,.5); background: rgba(114,214,208,.1);
-  box-shadow: 0 0 10px rgba(114,214,208,.2);
+.dec-cand-btn.is-active {
+  background: rgba(184, 154, 98, 0.15);
+  border-color: rgba(184, 154, 98, 0.5);
+  box-shadow: 0 0 12px rgba(184, 154, 98, 0.25);
 }
-.ffn-concept-head {
-  display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 3px;
+.cand-char {
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--cold-white);
+  font-weight: 600;
 }
-.ffn-concept-char { font-family: var(--serif); font-weight: 600; color: var(--cold-white); }
-.ffn-concept-val { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--cyan); }
-.ffn-bar-box { height: 5px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; margin-bottom: 3px; }
-.ffn-bar { height: 100%; background: linear-gradient(90deg, #1abc9c, var(--cyan)); border-radius: 3px; transition: width .8s ease-out; }
-.ffn-concept-sub { font-family: var(--sans); font-size: 10px; color: var(--txt-dim); display: block; }
-
-/* Decoder 因果时序流与候选分支 */
-.decoder-causal-flow {
-  margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed rgba(114,214,208,.2);
+.dec-cand-btn.is-active .cand-char {
+  color: var(--gold);
 }
-.causal-tokens {
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 8px 0;
+.cand-phrase {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--txt-dim);
 }
-.c-token {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 4px 8px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
-  border-radius: 6px; font-family: var(--serif); font-size: 15px; color: var(--cold-white);
-  min-width: 44px; transition: all .3s;
+.dec-cand-btn.is-active .cand-phrase {
+  color: #ffffff;
+  font-weight: 600;
 }
-.c-token .c-tag { font-family: var(--sans); font-size: 9px; color: var(--txt-dim); }
-.c-token--done { border-color: rgba(114,214,208,.3); color: var(--txt-dim); }
-.c-token--focus {
-  border-color: var(--gold); background: rgba(184,154,98,.15); color: var(--gold);
-  font-weight: 700; box-shadow: 0 0 12px rgba(184,154,98,.3);
+.cand-bar-box {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
 }
-.c-token--focus .c-tag { color: var(--gold); font-weight: 600; }
-.c-token--predict {
-  border-color: var(--cyan); background: rgba(114,214,208,.15); color: var(--cyan);
-  box-shadow: 0 0 12px rgba(114,214,208,.3); font-size: 12px; font-family: var(--sans); font-weight: 600;
+.cand-bar {
+  height: 100%;
+  background: var(--cyan);
+  border-radius: 3px;
+  transition: width 0.6s ease-out;
 }
-.c-arrow { color: rgba(114,214,208,.5); font-size: 12px; }
-.causal-hint { font-size: 11px; color: var(--txt-dim); line-height: 1.4; }
-
-.decoder-branch-box { margin-top: 8px; margin-bottom: 6px; }
-.decoder-branches { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
-.branch-item {
-  display: grid; grid-template-columns: 86px 96px 1fr 48px; align-items: center; gap: 8px;
-  padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.05);
-  transition: all .25s;
+.dec-cand-btn.is-active .cand-bar {
+  background: linear-gradient(90deg, var(--gold), #f39c12);
+  box-shadow: 0 0 8px rgba(243, 156, 18, 0.6);
 }
-@media (max-width: 600px) {
-  .branch-item { grid-template-columns: 78px 78px 1fr 42px; gap: 4px; }
+.cand-prob {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--txt-dim);
+  text-align: right;
 }
-.branch-item.is-primary {
-  background: rgba(184,154,98,.12); border-color: rgba(184,154,98,.45);
-  box-shadow: 0 0 12px rgba(184,154,98,.2);
+.dec-cand-btn.is-active .cand-prob {
+  color: var(--gold);
+  font-weight: 700;
 }
-.branch-symbol { font-family: var(--serif); font-size: 13px; color: var(--cold-white); font-weight: 600; }
-.branch-item.is-primary .branch-symbol { color: var(--gold); }
-.branch-phrase { font-family: var(--sans); font-size: 11px; color: var(--txt-dim); }
-.branch-item.is-primary .branch-phrase { color: #fff; font-weight: 600; }
-.branch-bar-box { height: 5px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
-.branch-bar { height: 100%; background: var(--cyan); border-radius: 3px; transition: width .8s ease-out; }
-.branch-bar--prime { background: linear-gradient(90deg, var(--gold), #f39c12); box-shadow: 0 0 8px rgba(243,156,18,.6); }
-.branch-prob { font-family: var(--mono); font-size: 11px; color: var(--txt-dim); text-align: right; }
-.branch-item.is-primary .branch-prob { color: var(--gold); font-weight: 700; }
 
 .output-vocab-list {
   background: rgba(5,10,18,.9); border: 1px solid rgba(114,214,208,.25); border-radius: 6px;
@@ -1399,6 +1710,11 @@ button { cursor: pointer; border: none; background: none; }
   border-color: rgba(46, 213, 115, 0.35);
   background: rgba(8, 24, 20, 0.9);
 }
+.lab-meaning-card--top {
+  margin-top: 0;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+}
 .meaning-header {
   display: flex;
   justify-content: space-between;
@@ -1436,6 +1752,13 @@ button { cursor: pointer; border: none; background: none; }
 }
 .meaning-desc strong {
   color: var(--gold);
+}
+.meaning-desc-single {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #e2e8f0;
+  margin: 0;
+  font-weight: 500;
 }
 
 /* 昇腾 3D Cube 语义矩阵网格 */
