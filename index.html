@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>一字千年 · 从竹简到芯片的中国信息之路</title>
-  <link rel="stylesheet" href="css/style.css?v=20261002_04" />
+  <link rel="stylesheet" href="css/style.css?v=20261002_05" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
@@ -464,8 +464,8 @@
           <!-- 左栏：Intel CPU 寄存器形式 -->
           <div class="lab-panel lab-panel--intel" id="labPanelIntel">
             <div class="lab-panel__top">
-              <span class="panel-label">Intel® Core™ Ultra (x86-64 标量架构) · 寄存器存储形式</span>
-              <span class="panel-clock" id="intelClockDisplay">时钟: 5.1 GHz · 纳秒级流水线</span>
+              <span class="panel-label">Intel® Core™ Ultra · CPU 寄存器架构</span>
+              <span class="panel-clock" id="intelClockDisplay">时钟: 5.1 GHz · 标量流水线</span>
             </div>
 
             <!-- 步骤计算意义（置前，一句话客观表述） -->
@@ -519,8 +519,8 @@
           <!-- 右栏：华为昇腾 NPU 张量形式 -->
           <div class="lab-panel lab-panel--ascend" id="labPanelAscend">
             <div class="lab-panel__top">
-              <span class="panel-label">华为昇腾 Ascend 910B (达芬奇 3D AI 张量架构) · NPU 张量存储形式</span>
-              <span class="panel-clock">3D Cube 峰值算力: 320 TFLOPS (FP16)</span>
+              <span class="panel-label">华为昇腾 Ascend 910B · NPU 张量架构</span>
+              <span class="panel-clock">3D Cube: 320 TFLOPS (FP16)</span>
             </div>
 
             <!-- 步骤计算意义（置前，一句话客观表述） -->
@@ -627,21 +627,20 @@
       </header>
 
       <!-- 左右三栏 Transformer 流水线 (输入特征 ➔ Encoder ➔ Decoder与预测词 稳定并排) -->
-      <div class="ai-pipeline-grid reveal" id="transformerPipeline" style="display: grid; grid-template-columns: minmax(160px, 185px) minmax(300px, 1.3fr) minmax(280px, 1.15fr); gap: 12px; align-items: stretch;">
+      <div class="ai-pipeline-grid reveal" id="transformerPipeline" style="display: grid; grid-template-columns: minmax(200px, 230px) minmax(320px, 1.25fr) minmax(280px, 1.1fr); gap: 14px; align-items: stretch;">
         <!-- 左栏：输入特征提取流 (字形 ➔ 字符 ➔ 编码 ➔ 数据) -->
         <div class="pipeline-col col--input-stream">
-          <div class="col-title">输入特征提取流 · FEATURE EXTRACTION</div>
+          <div class="col-title">输入特征提取流 · INPUT STREAM</div>
           <div class="stream-steps-list">
             <!-- 阶段1: 字形 -->
             <div class="pipeline-step step--glyph is-active" id="stepGlyph">
-              <span class="step-num">01</span>
               <div class="step-content">
                 <div class="step-header">
-                  <span class="step-name">字形</span>
-                  <span class="step-sub">Visual Glyph</span>
+                  <span class="step-name">01 字形</span>
+                  <span class="step-sub">Glyph</span>
                 </div>
                 <div class="step-visual--char">国</div>
-                <div class="step-desc">笔画骨架与字体栅格点阵</div>
+                <div class="step-desc">笔画骨架与栅格点阵</div>
               </div>
             </div>
 
@@ -649,14 +648,13 @@
 
             <!-- 阶段2: 字符 -->
             <div class="pipeline-step step--token" id="stepToken">
-              <span class="step-num">02</span>
               <div class="step-content">
                 <div class="step-header">
-                  <span class="step-name">字符 (Token)</span>
-                  <span class="step-sub">Token ID</span>
+                  <span class="step-name">02 字符</span>
+                  <span class="step-sub">Token</span>
                 </div>
-                <div class="token-badge">Token: "国" · ID #7654</div>
-                <div class="step-desc">分词器离散符号映射</div>
+                <div class="token-badge">Token "国" · ID #7654</div>
+                <div class="step-desc">离散符号唯一映射</div>
               </div>
             </div>
 
@@ -664,14 +662,13 @@
 
             <!-- 阶段3: 编码 -->
             <div class="pipeline-step step--encode" id="stepEncode">
-              <span class="step-num">03</span>
               <div class="step-content">
                 <div class="step-header">
-                  <span class="step-name">字符编码</span>
-                  <span class="step-sub">Encoding</span>
+                  <span class="step-name">03 编码</span>
+                  <span class="step-sub">UTF-8</span>
                 </div>
-                <div class="code-badge">U+56FD · E5 9B BD</div>
-                <div class="step-desc">计算机底层统一数字码</div>
+                <div class="code-badge">E5 9B BD · U+56FD</div>
+                <div class="step-desc">底层统一机器字节码</div>
               </div>
             </div>
 
@@ -679,16 +676,15 @@
 
             <!-- 阶段4: 数据 -->
             <div class="pipeline-step step--data" id="stepData">
-              <span class="step-num">04</span>
               <div class="step-content">
                 <div class="step-header">
-                  <span class="step-name">数据 (Embedding)</span>
-                  <span class="step-sub">连续语义向量</span>
+                  <span class="step-name">04 向量</span>
+                  <span class="step-sub">Embedding</span>
                 </div>
                 <div class="vector-preview" id="vectorPreview">
-                  <span>[+0.382,</span><span>-0.714,</span><span>+0.891, ... -0.450]</span>
+                  <span>[+0.38,</span><span>-0.71,</span><span>+0.89, ...]</span>
                 </div>
-                <div class="step-desc">4096维连续语义空间几何坐标</div>
+                <div class="step-desc">4096维连续语义坐标</div>
               </div>
             </div>
           </div>
@@ -1047,6 +1043,6 @@
 
   </main>
 
-  <script src="js/main.js?v=20261002_04"></script>
+  <script src="js/main.js?v=20261002_05"></script>
 </body>
 </html>
