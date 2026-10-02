@@ -345,8 +345,8 @@
     slip.dataset.index = idx;
     slip.dataset.char = item.char;
     slip.dataset.stage = item.detail;
-    slip.addEventListener("click", () => {
-      if (dragMoved) return;
+    slip.addEventListener("click", (e) => {
+      e.stopPropagation();
       selectBambooSlip(idx);
     });
     bambooTrack.appendChild(slip);
@@ -377,15 +377,12 @@
     if (bambooIndChar) bambooIndChar.textContent = item.char;
     if (bambooIndStage) bambooIndStage.textContent = item.detail;
 
-    // 平滑平移居中该竹简（绝对几何中心差值法，彻底杜绝 offsetParent 与 transform 累加误差）
+    // 平滑平移居中该竹简（绝对数学几何中心，offsetLeft 纯净无累加误差）
     cancelAnimationFrame(momentumId);
     const targetSlip = slipElements[idx];
-    const viewRect = bambooViewport.getBoundingClientRect();
-    const viewCenter = viewRect.left + viewRect.width / 2;
-    const slipRect = targetSlip.getBoundingClientRect();
-    const currentSlipCenter = slipRect.left + slipRect.width / 2;
-    const delta = viewCenter - currentSlipCenter;
-    const targetTX = Math.max(minX, Math.min(maxX, tx + delta));
+    const viewW = bambooViewport.clientWidth;
+    const slipCenter = targetSlip.offsetLeft + targetSlip.offsetWidth / 2;
+    const targetTX = Math.max(minX, Math.min(maxX, viewW / 2 - slipCenter));
     const startXVal = tx;
     const diff = targetTX - startXVal;
     const startTime = performance.now();
@@ -499,32 +496,52 @@
     }
   });
 
+  let downSlip = null;
+  let downX = 0, downY = 0;
+
   bambooViewport.addEventListener("pointerdown", (e) => {
     cancelAnimationFrame(momentumId);
-    dragging = true; dragMoved = false;
-    startX = e.clientX; startTX = tx;
-    lastX = e.clientX; lastT = performance.now(); vel = 0;
+    dragging = true;
+    dragMoved = false;
+    startX = e.clientX;
+    startTX = tx;
+    lastX = e.clientX;
+    lastT = performance.now();
+    vel = 0;
+    downX = e.clientX;
+    downY = e.clientY;
+    downSlip = e.target.closest(".slip");
     bambooViewport.classList.add("dragging");
-    bambooViewport.setPointerCapture(e.pointerId);
   });
+
   bambooViewport.addEventListener("pointermove", (e) => {
     if (!dragging) return;
     const now = performance.now();
     const dt = Math.max(1, now - lastT);
     vel = (e.clientX - lastX) / dt;
-    lastX = e.clientX; lastT = now;
-    if (Math.abs(e.clientX - startX) > 6) dragMoved = true;
+    lastX = e.clientX;
+    lastT = now;
+    if (Math.hypot(e.clientX - downX, e.clientY - downY) > 6) {
+      dragMoved = true;
+    }
     tx = Math.max(minX, Math.min(maxX, startTX + (e.clientX - startX)));
     applyBamboo();
   });
+
   function endBambooDrag(e) {
     if (!dragging) return;
     dragging = false;
     bambooViewport.classList.remove("dragging");
-    if (e && e.pointerId && bambooViewport.hasPointerCapture && bambooViewport.hasPointerCapture(e.pointerId)) {
-      try { bambooViewport.releasePointerCapture(e.pointerId); } catch(err) {}
+
+    // 若原地点按未发生显著位移，直接视为点击该竹简
+    if (!dragMoved && downSlip) {
+      const idx = parseInt(downSlip.dataset.index, 10);
+      if (!isNaN(idx)) {
+        selectBambooSlip(idx);
+        return;
+      }
     }
-    // 若产生过有效拖拽，执行惯性滑行；若只是原地点按，由各 slip 的 click 事件天然平滑触发
+
     if (dragMoved) {
       let v = vel * 180;
       const step = () => {
@@ -537,8 +554,9 @@
       momentumId = requestAnimationFrame(step);
     }
   }
-  bambooViewport.addEventListener("pointerup", endBambooDrag);
-  bambooViewport.addEventListener("pointercancel", endBambooDrag);
+
+  window.addEventListener("pointerup", endBambooDrag);
+  window.addEventListener("pointercancel", endBambooDrag);
 
   // 滚轮缩放
   bambooViewport.addEventListener("wheel", (e) => {
@@ -1188,15 +1206,68 @@
   const ffnTokBtns = $$(".ffn-tok-btn");
   const btnPulseFFN = $("#btnPulseFFN");
   const ffnSvg = $("#ffnSvg");
-  const neuronGroups = $$(".neuron-group", ffnSvg);
-  const synL0 = $$(".syn-l0", ffnSvg);
-  const synL1 = $$(".syn-l1", ffnSvg);
-  const synL2 = $$(".syn-l2", ffnSvg);
+  const neuronNodes = $$(".neuron-node", ffnSvg);
+  const synLines = $$(".syn-line", ffnSvg);
   const ffnProbeText = $("#ffnProbeText");
 
   // Decoder Workbench 交互控件
   const decActiveChip = $("#decActiveChip");
   const decCandBtns = $$(".dec-cand-btn");
+
+  // 针对不同汉字的基础特征激活拓扑模型 (每字拥有不同的语义神经通路，叠加随机波动)
+  const charNeuronProfiles = {
+    "国": {
+      name: "国家 / 疆域 / 社稷",
+      layers: {
+        0: [0, 2],       // x1 (疆域主权), x3 (政治体系)
+        1: [0, 1, 3],    // h1, h2, h4
+        2: [0, 1, 2],    // g1 (华夏文明), g2 (天下疆域), g3 (政权社稷)
+        3: [0, 1]        // y1 (中国), y2 (国家)
+      },
+      tag: "激活政治与疆域拓扑通路"
+    },
+    "家": {
+      name: "家室 / 血缘 / 归属",
+      layers: {
+        0: [1, 2],       // x2 (血缘伦理), x3 (居住聚落)
+        1: [1, 2],       // h2, h3
+        2: [1, 3],       // g2 (天下万姓), g4 (家国黎民)
+        3: [1, 2]        // y2 (国家), y3 (国土/家园)
+      },
+      tag: "激活血缘与黎民拓扑通路"
+    },
+    "中": {
+      name: "中心 / 轴心 / 正统",
+      layers: {
+        0: [0, 1],       // x1 (中心定位), x2 (华夏正朔)
+        1: [0, 2, 3],    // h1, h3, h4
+        2: [0, 2],       // g1 (华夏文明), g3 (政权社稷)
+        3: [0, 2]        // y1 (中国), y3 (天下)
+      },
+      tag: "激活华夏与正统拓扑通路"
+    }
+  };
+
+  // 生成特定字的前向激活拓扑 (叠加随机 Dropout / 神经元自发扰动)
+  function getActiveTopology(char) {
+    const profile = charNeuronProfiles[char] || charNeuronProfiles["国"];
+    const activeSet = { 0: new Set(), 1: new Set(), 2: new Set(), 3: new Set() };
+
+    for (let l = 0; l <= 3; l++) {
+      profile.layers[l].forEach(idx => activeSet[l].add(idx));
+      // 随机扰动：有 40% 几率随机激活或抑制某额外神经元，形成生物神经网络般的自适应波动
+      const maxNodes = (l === 0 || l === 3) ? 3 : 4;
+      if (Math.random() < 0.45) {
+        const randIdx = Math.floor(Math.random() * maxNodes);
+        if (activeSet[l].has(randIdx) && activeSet[l].size > 1) {
+          activeSet[l].delete(randIdx);
+        } else {
+          activeSet[l].add(randIdx);
+        }
+      }
+    }
+    return { profile, activeSet };
+  }
 
   // FFN 脉冲级联传播函数
   let isPulsing = false;
@@ -1204,71 +1275,152 @@
     if (isPulsing) return;
     isPulsing = true;
 
-    // 清理先前状态
-    neuronGroups.forEach(g => g.classList.remove("is-firing"));
-    [...synL0, ...synL1, ...synL2].forEach(l => l.classList.remove("is-pulsing"));
+    const { profile, activeSet } = getActiveTopology(tokChar);
+
+    // 全部复位
+    neuronNodes.forEach(n => n.classList.remove("is-firing", "is-dimmed"));
+    synLines.forEach(l => l.classList.remove("is-pulsing", "is-dimmed"));
 
     // 0ms: Layer 0 输入层激发
-    neuronGroups.forEach(g => {
-      if (g.dataset.layer === "0") g.classList.add("is-firing");
+    neuronNodes.forEach(n => {
+      const l = parseInt(n.dataset.layer, 10);
+      const idx = parseInt(n.dataset.idx, 10);
+      if (l === 0) {
+        if (activeSet[0].has(idx)) {
+          n.classList.add("is-firing");
+        } else {
+          n.classList.add("is-dimmed");
+        }
+      }
     });
     if (ffnProbeText) {
-      ffnProbeText.textContent = `⚡ [L0 输入层] 载入「${tokChar}」语义向量分量，启动前向激活...`;
+      const l0Active = [...activeSet[0]].map(i => `x${i+1}`).join(",");
+      ffnProbeText.textContent = `⚡ [L0 输入] 载入「${tokChar}」：点亮 [${l0Active}]，启动专属特征通路传播...`;
     }
 
-    // 180ms: Layer 0 -> Layer 1 突触脉冲传输
+    // 180ms: Layer 0 -> Layer 1 突触传输
     setTimeout(() => {
-      synL0.forEach(l => l.classList.add("is-pulsing"));
+      synLines.forEach(line => {
+        let isPulsingLine = false;
+        activeSet[0].forEach(fromIdx => {
+          activeSet[1].forEach(toIdx => {
+            if (line.classList.contains(`l0-${fromIdx}`) && line.classList.contains(`l1-${toIdx}`)) {
+              isPulsingLine = true;
+            }
+          });
+        });
+        if (isPulsingLine) {
+          line.classList.add("is-pulsing");
+        } else if (line.classList.contains("l0-0") || line.classList.contains("l0-1") || line.classList.contains("l0-2")) {
+          line.classList.add("is-dimmed");
+        }
+      });
     }, 180);
 
-    // 380ms: Layer 1 隐藏层神经元点火 (GELU 激活)
+    // 380ms: Layer 1 隐藏层神经元点火
     setTimeout(() => {
-      synL0.forEach(l => l.classList.remove("is-pulsing"));
-      neuronGroups.forEach(g => {
-        if (g.dataset.layer === "1") g.classList.add("is-firing");
+      synLines.forEach(l => l.classList.remove("is-pulsing", "is-dimmed"));
+      neuronNodes.forEach(n => {
+        const l = parseInt(n.dataset.layer, 10);
+        const idx = parseInt(n.dataset.idx, 10);
+        if (l === 1) {
+          if (activeSet[1].has(idx)) {
+            n.classList.add("is-firing");
+          } else {
+            n.classList.add("is-dimmed");
+          }
+        }
       });
       if (ffnProbeText) {
-        ffnProbeText.textContent = `⚡ [L1 隐层1] 4 维投影计算完成，执行 GELU 非线性激活转换...`;
+        const l1Active = [...activeSet[1]].map(i => `h${i+1}`).join(",");
+        ffnProbeText.textContent = `⚡ [L1 隐层1] GELU 激活：点亮 [${l1Active}]，非线性矩阵映射...`;
       }
     }, 380);
 
-    // 580ms: Layer 1 -> Layer 2 突触脉冲传输
+    // 580ms: Layer 1 -> Layer 2 突触传输
     setTimeout(() => {
-      synL1.forEach(l => l.classList.add("is-pulsing"));
+      synLines.forEach(line => {
+        let isPulsingLine = false;
+        activeSet[1].forEach(fromIdx => {
+          activeSet[2].forEach(toIdx => {
+            if (line.classList.contains(`l1-${fromIdx}`) && line.classList.contains(`l2-${toIdx}`)) {
+              isPulsingLine = true;
+            }
+          });
+        });
+        if (isPulsingLine) {
+          line.classList.add("is-pulsing");
+        } else if (line.classList.contains("l1-0") || line.classList.contains("l1-1") || line.classList.contains("l1-2") || line.classList.contains("l1-3")) {
+          line.classList.add("is-dimmed");
+        }
+      });
     }, 580);
 
     // 780ms: Layer 2 隐藏层神经元深度抽象点火
     setTimeout(() => {
-      synL1.forEach(l => l.classList.remove("is-pulsing"));
-      neuronGroups.forEach(g => {
-        if (g.dataset.layer === "2") g.classList.add("is-firing");
+      synLines.forEach(l => l.classList.remove("is-pulsing", "is-dimmed"));
+      neuronNodes.forEach(n => {
+        const l = parseInt(n.dataset.layer, 10);
+        const idx = parseInt(n.dataset.idx, 10);
+        if (l === 2) {
+          if (activeSet[2].has(idx)) {
+            n.classList.add("is-firing");
+          } else {
+            n.classList.add("is-dimmed");
+          }
+        }
       });
       if (ffnProbeText) {
-        ffnProbeText.textContent = `⚡ [L2 隐层2] 高阶特征交叉收敛，跨突触稠密汇聚...`;
+        const l2Active = [...activeSet[2]].map(i => `g${i+1}`).join(",");
+        ffnProbeText.textContent = `⚡ [L2 隐层2] 高阶抽象：点亮 [${l2Active}]，文明深层认知收敛...`;
       }
     }, 780);
 
     // 980ms: Layer 2 -> Layer 3 突触传输
     setTimeout(() => {
-      synL2.forEach(l => l.classList.add("is-pulsing"));
+      synLines.forEach(line => {
+        let isPulsingLine = false;
+        activeSet[2].forEach(fromIdx => {
+          activeSet[3].forEach(toIdx => {
+            if (line.classList.contains(`l2-${fromIdx}`) && line.classList.contains(`l3-${toIdx}`)) {
+              isPulsingLine = true;
+            }
+          });
+        });
+        if (isPulsingLine) {
+          line.classList.add("is-pulsing");
+        } else if (line.classList.contains("l2-0") || line.classList.contains("l2-1") || line.classList.contains("l2-2") || line.classList.contains("l2-3")) {
+          line.classList.add("is-dimmed");
+        }
+      });
     }, 980);
 
     // 1180ms: Layer 3 输出表征生成
     setTimeout(() => {
-      synL2.forEach(l => l.classList.remove("is-pulsing"));
-      neuronGroups.forEach(g => {
-        if (g.dataset.layer === "3") g.classList.add("is-firing");
+      synLines.forEach(l => l.classList.remove("is-pulsing", "is-dimmed"));
+      neuronNodes.forEach(n => {
+        const l = parseInt(n.dataset.layer, 10);
+        const idx = parseInt(n.dataset.idx, 10);
+        if (l === 3) {
+          if (activeSet[3].has(idx)) {
+            n.classList.add("is-firing");
+          } else {
+            n.classList.add("is-dimmed");
+          }
+        }
       });
       if (ffnProbeText) {
-        ffnProbeText.textContent = `✨ [L3 输出层] 前向传播完成：隐状态 y 形成，送入 Decoder 交叉注意力！`;
+        const l3Active = [...activeSet[3]].map(i => `y${i+1}`).join(",");
+        ffnProbeText.textContent = `✨ [L3 输出] 「${tokChar}」前向计算收敛：[${l3Active}] 高光响应 · ${profile.tag}！`;
       }
     }, 1180);
 
-    // 1800ms: 结束复位
+    // 2200ms: 结束复位
     setTimeout(() => {
-      neuronGroups.forEach(g => g.classList.remove("is-firing"));
+      neuronNodes.forEach(n => n.classList.remove("is-firing", "is-dimmed"));
+      synLines.forEach(l => l.classList.remove("is-pulsing", "is-dimmed"));
       isPulsing = false;
-    }, 1800);
+    }, 2200);
   }
 
   // 绑定 FFN 脉冲按键
@@ -1291,31 +1443,25 @@
   });
 
   // 神经元悬停探针
-  neuronGroups.forEach(g => {
-    g.addEventListener("mouseenter", () => {
-      const layer = parseInt(g.dataset.layer, 10);
-      const idx = parseInt(g.dataset.idx, 10) + 1;
-      let info = "";
-      if (layer === 0) {
-        const val = (0.75 + idx * 0.08).toFixed(2);
-        info = `🔍 [输入层 x${idx}] 激活度 a = ${val} · 接收离散 Token Embedding 连续分量`;
-      } else if (layer === 1) {
-        const val = (0.55 + idx * 0.11).toFixed(2);
-        info = `🔍 [隐藏层1 h1_${idx}] 偏置 b = 0.12 · 激活值 GELU(W₁x + b) = ${val}`;
-      } else if (layer === 2) {
-        const val = (1.20 + idx * 0.15).toFixed(2);
-        info = `🔍 [隐藏层2 h2_${idx}] 突触权值汇总 ∑w = ${val} · 深度语义空间抽象`;
-      } else if (layer === 3) {
-        const val = (2.10 + idx * 0.32).toFixed(2);
-        info = `🔍 [输出层 y${idx}] 线性投影得分 z = ${val} · 送入 Decoder 跨注意力交叉计算`;
+  neuronNodes.forEach(node => {
+    node.addEventListener("mouseenter", () => {
+      const l = parseInt(node.dataset.layer, 10);
+      const idx = parseInt(node.dataset.idx, 10);
+      const name = node.dataset.name || `节点 L${l}_${idx}`;
+      const val = node.dataset.val || "0.90";
+      if (ffnProbeText) {
+        ffnProbeText.textContent = `🔍 探针响应：${name} · 权重响应度 ${val} · GELU 激活就绪`;
       }
-      if (ffnProbeText) ffnProbeText.textContent = info;
+      node.classList.add("is-firing");
     });
-    g.addEventListener("mouseleave", () => {
-      if (ffnProbeText && !isPulsing) {
+    node.addEventListener("mouseleave", () => {
+      if (!isPulsing) {
+        node.classList.remove("is-firing");
         const activeTokBtn = $(".ffn-tok-btn.is-active");
         const tok = activeTokBtn ? activeTokBtn.dataset.tok : "国";
-        ffnProbeText.textContent = `悬停神经元查看实时激活读数：输入字「${tok}」· 全网 40 条突触已加权就绪`;
+        if (ffnProbeText) {
+          ffnProbeText.textContent = `悬停或点击任意神经元节点，可探查「${tok}」前向激活度与权重响应`;
+        }
       }
     });
   });

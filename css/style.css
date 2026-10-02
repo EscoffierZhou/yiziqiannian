@@ -849,40 +849,88 @@ button { cursor: pointer; border: none; background: none; }
 .scene--ai { background: radial-gradient(ellipse at center, #0a1322 0%, #05070e 80%); }
 
 .ai-pipeline-grid {
-  display: grid; grid-template-columns: 320px 1fr; gap: 24px; margin-top: 32px;
-  max-width: 1040px; width: 100%; margin-left: auto; margin-right: auto; align-items: stretch;
+  display: grid;
+  grid-template-columns: 210px 1.25fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+  max-width: 1260px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  align-items: stretch;
 }
-@media (max-width: 900px) {
-  .ai-pipeline-grid { grid-template-columns: 1fr; gap: 20px; }
+@media (max-width: 1060px) {
+  .ai-pipeline-grid {
+    grid-template-columns: 190px 1.2fr 1fr;
+    gap: 12px;
+  }
+}
+@media (max-width: 860px) {
+  .ai-pipeline-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 .pipeline-col {
-  background: rgba(10,18,30,.7); border: 1px solid rgba(114,214,208,.25);
-  border-radius: 8px; padding: 18px; display: flex; flex-direction: column; min-width: 0;
+  background: rgba(10, 18, 30, 0.7);
+  border: 1px solid rgba(114, 214, 208, 0.25);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 12px;
 }
 .col-title {
-  font-family: var(--sans); font-size: 11px; letter-spacing: 2px; color: var(--cyan);
-  margin-bottom: 16px; text-transform: uppercase; border-bottom: 1px solid rgba(114,214,208,.15);
-  padding-bottom: 8px; text-align: left; font-weight: 600;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--cyan);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(114, 214, 208, 0.15);
+  padding-bottom: 6px;
+  text-align: left;
+  font-weight: 600;
 }
 
 .col--input-stream {
-  display: flex; flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 .stream-steps-list {
-  display: flex; flex-direction: column; gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 .input-stream-footer {
-  margin-top: 16px; text-align: center;
+  margin-top: 10px;
+  text-align: center;
 }
 .stream-inject-tag {
-  font-family: var(--sans); font-size: 11px; letter-spacing: 1.5px; color: var(--cyan);
-  background: rgba(114,214,208,.08); padding: 6px 14px; border-radius: 100px;
-  border: 1px solid rgba(114,214,208,.25); display: inline-block;
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--cyan);
+  background: rgba(114, 214, 208, 0.08);
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid rgba(114, 214, 208, 0.25);
+  display: inline-block;
 }
 
-.col--model-output {
-  display: flex; flex-direction: column; gap: 12px; min-width: 0;
+.col--encoder {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.col--decoder-output {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
 }
 
 /* Transformer 架构与模型块 */
@@ -995,49 +1043,52 @@ button { cursor: pointer; border: none; background: none; }
 .syn-line {
   stroke: rgba(114, 214, 208, 0.2);
   stroke-width: 1.2;
-  transition: stroke 0.35s, stroke-width 0.35s, filter 0.35s;
+  transition: stroke 0.35s, stroke-width 0.35s, filter 0.35s, opacity 0.35s;
 }
 .syn-line.is-pulsing {
-  stroke: #ffd56b;
-  stroke-width: 2.2;
-  filter: drop-shadow(0 0 4px #ffd56b);
+  stroke: #ffd56b !important;
+  stroke-width: 2.4px !important;
+  filter: drop-shadow(0 0 6px #ffd56b) !important;
+  opacity: 1 !important;
+}
+.syn-line.is-dimmed {
+  opacity: 0.08 !important;
 }
 .syn-line.is-highlight {
   stroke: rgba(114, 214, 208, 0.85);
   stroke-width: 1.8;
 }
-.neuron-group {
-  cursor: pointer;
-}
 .neuron-node {
   stroke-width: 2;
-  transition: transform 0.25s, filter 0.25s, stroke-width 0.25s;
+  transition: transform 0.25s, filter 0.25s, stroke-width 0.25s, opacity 0.35s;
   transform-origin: center;
+  cursor: pointer;
 }
-.node-l0 {
-  fill: url(#gradInput);
+.n-input {
   stroke: #f39c12;
 }
-.node-l1 {
-  fill: url(#gradH1);
+.n-h1 {
   stroke: #3498db;
 }
-.node-l2 {
-  fill: url(#gradH2);
+.n-h2 {
   stroke: #2ed573;
 }
-.node-l3 {
-  fill: url(#gradOut);
+.n-out {
   stroke: #1abc9c;
 }
-.neuron-group:hover .neuron-node {
+.neuron-node:hover {
   filter: drop-shadow(0 0 8px #ffffff);
-  stroke-width: 2.6;
+  stroke-width: 2.8;
 }
-.neuron-group.is-firing .neuron-node {
-  filter: drop-shadow(0 0 12px #ffd56b);
-  stroke: #ffffff;
-  stroke-width: 3;
+.neuron-node.is-firing {
+  filter: drop-shadow(0 0 10px #ffffff) drop-shadow(0 0 16px rgba(255, 213, 107, 0.95)) !important;
+  stroke: #ffffff !important;
+  stroke-width: 3.5px !important;
+  opacity: 1 !important;
+}
+.neuron-node.is-dimmed {
+  opacity: 0.25 !important;
+  filter: none !important;
 }
 .node-txt {
   font-family: var(--mono);
@@ -1459,13 +1510,12 @@ button { cursor: pointer; border: none; background: none; }
 .chip-split-stage {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 16px;
   align-items: stretch;
 }
 @media (max-width: 900px) {
   .chip-split-stage {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 12px;
   }
 }
 .lab-panel {
