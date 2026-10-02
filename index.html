@@ -451,167 +451,163 @@
         <p class="scene-sub">在几平方厘米的硅片上，数十亿晶体管如何运载汉字？</p>
       </header>
 
-      <!-- 芯片型号专业切换 -->
-      <div class="chip-selector reveal" role="tablist" aria-label="芯片架构类型">
-        <button class="chip-tab is-active" data-chip="intel" role="tab">
-          <span class="chip-tab__brand">Intel®</span>
-          <span class="chip-tab__name">Core™ Ultra (x86-64 通用标量架构)</span>
-        </button>
-        <button class="chip-tab" data-chip="ascend" role="tab">
-          <span class="chip-tab__brand">HUAWEI</span>
-          <span class="chip-tab__name">昇腾 Ascend 910B (达芬奇 AI 张量架构)</span>
-        </button>
-      </div>
-
-      <div class="chip-stage reveal" id="chipStage">
-        <!-- Intel 架构展示 -->
-        <div class="chip-arch-view is-active" data-view="intel">
-          <div class="die-layout die-layout--intel">
-            <div class="die-header">
-              <span class="die-title">Intel 4 工艺 · 3D Foveros 封装微架构 Die 布局</span>
-              <span class="die-specs">晶体管数: ~180亿 | 主频: 5.1 GHz | 指令集: x86-64 / AVX-512</span>
-            </div>
-            <div class="die-blocks">
-              <div class="die-core die-core--p" data-unit="pcore">
-                <span class="unit-name">P-Core (Redwood Cove)</span>
-                <span class="unit-sub">高性能核 · 6路超标量乱序执行</span>
-              </div>
-              <div class="die-core die-core--e" data-unit="ecore">
-                <span class="unit-name">E-Core (Crestmont)</span>
-                <span class="unit-sub">能效核集群 · 高吞吐微架构</span>
-              </div>
-              <div class="die-cache" data-unit="l3">
-                <span class="unit-name">Shared L3 Smart Cache (24MB)</span>
-                <span class="unit-sub">环形总线 Ring Bus 高速互联</span>
-              </div>
-              <div class="die-mem" data-unit="imc">
-                <span class="unit-name">Integrated Memory Controller</span>
-                <span class="unit-sub">DDR5-5600 双通道内存控制器</span>
-              </div>
-            </div>
-          </div>
-          <!-- Intel 专业微代码与流水线监视器 -->
-          <div class="chip-monitor">
-            <div class="monitor-header">
-              <span class="monitor-dot"></span>
-              <span class="monitor-title">x86-64 寄存器与指令流水线跟踪 (「国」Unicode U+56FD)</span>
-            </div>
-            <div class="monitor-body">
-              <div class="code-line"><span class="c-kw">MOVQ</span>  <span class="c-reg">RAX</span>, 0x0000000000E59BBD <span class="c-comment">; 将「国」UTF-8 机器码装入 64位 RAX 寄存器</span></div>
-              <div class="code-line"><span class="c-kw">SHRQ</span>  <span class="c-reg">RAX</span>, 0x08               <span class="c-comment">; 8位字节对齐移位，准备字符解码</span></div>
-              <div class="code-line"><span class="c-kw">VMOVDQU</span> <span class="c-reg">YMM0</span>, [<span class="c-reg">RSP</span>+32]        <span class="c-comment">; AVX-256 向量寄存器批量载入文本流</span></div>
-              <div class="code-line"><span class="c-kw">ALU_LATENCY:</span> <span class="c-val">0.28 ns</span> | <span class="c-kw">L1_HIT:</span> <span class="c-val">100%</span> | <span class="c-kw">IPC:</span> <span class="c-val">3.92</span></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 华为昇腾 架构展示 -->
-        <div class="chip-arch-view" data-view="ascend" style="display: none;">
-          <div class="die-layout die-layout--ascend">
-            <div class="die-header">
-              <span class="die-title">华为昇腾 Ascend 910B · 达芬奇 3D 架构 AI 张量 Die 布局</span>
-              <span class="die-specs">AI 算力: 320 TFLOPS (FP16) | 显存: 32GB HBM2E (1.2TB/s) | 互联: HCCS 392GB/s</span>
-            </div>
-            <div class="die-blocks die-blocks--ascend">
-              <div class="die-core die-core--cube" data-unit="cube">
-                <span class="unit-name">DaVinci 3D Cube 阵列</span>
-                <span class="unit-sub">16×16×16 矩阵乘加张量单元 (FP16/BF16)</span>
-              </div>
-              <div class="die-core die-core--vector" data-unit="vector">
-                <span class="unit-name">Vector 计算单元</span>
-                <span class="unit-sub">Softmax / LayerNorm 矢量激活流水线</span>
-              </div>
-              <div class="die-core die-core--scalar" data-unit="scalar">
-                <span class="unit-name">Scalar 标量单元</span>
-                <span class="unit-sub">程序流程控制与地址计算</span>
-              </div>
-              <div class="die-hbm" data-unit="hbm">
-                <span class="unit-name">HBM2E 堆叠显存 (1.2TB/s)</span>
-                <span class="unit-sub">大模型权重高带宽总线</span>
-              </div>
-            </div>
-          </div>
-          <!-- 华为昇腾 专业张量流监视器 -->
-          <div class="chip-monitor chip-monitor--ascend">
-            <div class="monitor-header">
-              <span class="monitor-dot monitor-dot--green"></span>
-              <span class="monitor-title">昇腾 ACL (Ascend C) 张量运算流水线 (「国」Token ID: 7654)</span>
-            </div>
-            <div class="monitor-body">
-              <div class="code-line"><span class="c-kw">acl::EmbeddingLookup</span>(TokenID=<span class="c-val">7654</span>, Dim=<span class="c-val">4096</span>) <span class="c-comment">// 显存读取 4096 维词向量</span></div>
-              <div class="code-line"><span class="c-kw">cube::MatMul</span>(Tensor_Q[1, 64, 64], Tensor_K_T[1, 64, 64]) <span class="c-comment">// Cube 16×16 矩阵乘加速</span></div>
-              <div class="code-line"><span class="c-kw">vector::Softmax</span>(Score_Matrix, FP16)               <span class="c-comment">// Vector 单元执行自注意力归一化</span></div>
-              <div class="code-line"><span class="c-kw">TENSOR_TFLOPS:</span> <span class="c-val">312.4 TFLOPS</span> | <span class="c-kw">HBM_BW:</span> <span class="c-val">1184 GB/s</span> | <span class="c-kw">LATENCY:</span> <span class="c-val">0.18 ms</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 芯片动手实验台 (Interactive Chip Lab) -->
+      <!-- 芯片动手实验台 (一分为二：左侧 CPU 寄存器形式 vs 右侧 NPU 张量形式) -->
       <div class="chip-lab reveal" id="chipLab">
         <div class="chip-lab__header">
           <div class="chip-lab__title-box">
-            <span class="chip-lab__badge">上手体验 · HARDWARE LAB</span>
-            <h3 class="chip-lab__title">芯片微架构与汉字运载动手实验台</h3>
+            <span class="chip-lab__badge">硅基存储对照 · HARDWARE STORAGE & COMPUTE</span>
+            <h3 class="chip-lab__title">汉字「国」的硅基存储形式：CPU 寄存器 vs NPU 张量</h3>
           </div>
           <div class="chip-lab__plain-hint" id="labPlainHint">
-            💡 <strong>通俗白话速懂</strong>：<span id="labHintText">CPU 像精细钟表匠，时钟以 5.1GHz 极速震荡，逐条指令把「国」字拆为 3 个机器字节（E5 9B BD）进行移位搬运；而昇腾 NPU 则是立体印刷流水线，把汉字映射为 4096 维张量，在 3D Cube 阵列中以每秒数十万亿次并行压印计算！</span>
+            💡 <strong>通俗白话速懂</strong>：<span id="labHintText">左侧通用 CPU 把「国」拆为 3 个物理机器字节（0xE5 0x9B 0xBD）存入 64位 RAX 寄存器执行纳秒移位与检索；右侧华为昇腾 NPU 则是 AI 神经网络芯片，把「国」映射为 4096 维连续语义张量（Token ID #7654），在 3D Cube 矩阵中进行万词引力并行压印计算！</span>
           </div>
         </div>
 
-        <div class="chip-lab__body">
-          <!-- Intel 实验控制区 -->
+        <div class="chip-split-stage" id="chipSplitStage">
+          <!-- 左栏：Intel CPU 寄存器形式 -->
           <div class="lab-panel lab-panel--intel" id="labPanelIntel">
             <div class="lab-panel__top">
-              <span class="panel-label">Intel® Core™ x86-64 标量运算视窗</span>
-              <span class="panel-clock" id="intelClockDisplay">时钟: 5.1 GHz · 运行中</span>
+              <span class="panel-label">Intel® Core™ Ultra (x86-64 标量架构) · 寄存器存储形式</span>
+              <span class="panel-clock" id="intelClockDisplay">时钟: 5.1 GHz · 纳秒级流水线</span>
+            </div>
+
+            <!-- 目标汉字机器码档案 -->
+            <div class="lab-target-bar">
+              <div class="target-chip-char">
+                <span class="target-char-badge">目标汉字</span>
+                <span class="target-char-glyph">国</span>
+              </div>
+              <div class="target-encoding-info">
+                <span class="enc-pill">Unicode: <strong>U+56FD</strong> (十进制 22269)</span>
+                <span class="enc-pill enc-pill--cyan">UTF-8 物理机器码: <strong>0xE5 0x9B 0xBD</strong> (3个字节)</span>
+              </div>
             </div>
             
+            <!-- 64位 RAX 寄存器视图 -->
             <div class="register-visual">
-              <span class="reg-label">RAX 64-bit 物理寄存器状态：</span>
+              <div class="reg-visual-head">
+                <span class="reg-label">CPU 物理核心 RAX 64-bit 寄存器（8 字节槽）：</span>
+                <span class="reg-status-tag" id="regStatusTag">已装入「国」字 24位 机器码</span>
+              </div>
               <div class="reg-slots" id="regSlots">
-                <span class="reg-byte" data-b="0">00</span>
-                <span class="reg-byte" data-b="1">00</span>
-                <span class="reg-byte" data-b="2">00</span>
-                <span class="reg-byte" data-b="3">00</span>
-                <span class="reg-byte" data-b="4">00</span>
-                <span class="reg-byte is-filled" data-b="5">E5</span>
-                <span class="reg-byte is-filled" data-b="6">9B</span>
-                <span class="reg-byte is-filled" data-b="7">BD</span>
+                <div class="reg-slot-item"><span class="reg-slot-idx">B7</span><span class="reg-byte" data-b="0">00</span></div>
+                <div class="reg-slot-item"><span class="reg-slot-idx">B6</span><span class="reg-byte" data-b="1">00</span></div>
+                <div class="reg-slot-item"><span class="reg-slot-idx">B5</span><span class="reg-byte" data-b="2">00</span></div>
+                <div class="reg-slot-item"><span class="reg-slot-idx">B4</span><span class="reg-byte" data-b="3">00</span></div>
+                <div class="reg-slot-item"><span class="reg-slot-idx">B3</span><span class="reg-byte" data-b="4">00</span></div>
+                <div class="reg-slot-item"><span class="reg-slot-idx">B2(高)</span><span class="reg-byte is-filled" data-b="5">E5</span></div>
+                <div class="reg-slot-item"><span class="reg-slot-idx">B1(中)</span><span class="reg-byte is-filled" data-b="6">9B</span></div>
+                <div class="reg-slot-item"><span class="reg-slot-idx">B0(低)</span><span class="reg-byte is-filled" data-b="7">BD</span></div>
               </div>
               <span class="reg-note" id="regNote">UTF-8 机器码 [E5 9B BD] 载入 RAX 寄存器低 24 位</span>
             </div>
 
+            <!-- 操作按钮 -->
             <div class="lab-actions">
-              <button class="lab-btn" id="btnLoadRax">① 写入 RAX 寄存器 (MOVQ)</button>
-              <button class="lab-btn" id="btnShrqRax">② 8位字节逻辑右移 (SHRQ)</button>
-              <button class="lab-btn" id="btnL3Probe">③ 探测 L3 缓存 (Ring Bus)</button>
+              <button class="lab-btn is-active" id="btnLoadRax">① 物理取字 · 载入寄存器 (MOVQ)</button>
+              <button class="lab-btn" id="btnShrqRax">② 字符解码 · 8位逻辑右移 (SHRQ)</button>
+              <button class="lab-btn" id="btnL3Probe">③ 字模检索 · L3 缓存极速命中</button>
+            </div>
+
+            <!-- 这一步的物理与计算意义解说板 -->
+            <div class="lab-meaning-card" id="cpuMeaningCard">
+              <div class="meaning-header">
+                <span class="meaning-phase" id="cpuPhaseTitle">【步骤 ① 物理与计算意义】物理取字 · 载入核心寄存器</span>
+                <span class="meaning-asm" id="cpuAsmCode">MOVQ RAX, 0x0000000000E59BBD</span>
+              </div>
+              <p class="meaning-desc" id="cpuMeaningText">
+                <strong>为什么要这一步？</strong> 汉字「国」存储在外部主内存（DRAM）中，CPU 计算核心无法直接在内存中做高速字符解码。此步骤通过 64 位内部数据总线，利用电荷翻转，将「国」的 3 字节机器码瞬间读入 CPU 最核心的物理寄存器 RAX，使文字正式进入纳秒级运算通道！
+              </p>
             </div>
           </div>
 
-          <!-- 昇腾 实验控制区 -->
-          <div class="lab-panel lab-panel--ascend" id="labPanelAscend" style="display: none;">
+          <!-- 右栏：华为昇腾 NPU 张量形式 -->
+          <div class="lab-panel lab-panel--ascend" id="labPanelAscend">
             <div class="lab-panel__top">
-              <span class="panel-label">华为昇腾 Ascend 910B 3D Cube 张量运算视窗</span>
-              <span class="panel-clock">3D Cube: 320 TFLOPS (FP16)</span>
+              <span class="panel-label">华为昇腾 Ascend 910B (达芬奇 3D AI 张量架构) · NPU 张量存储形式</span>
+              <span class="panel-clock">3D Cube 峰值算力: 320 TFLOPS (FP16)</span>
             </div>
 
+            <!-- 目标汉字大模型档案 -->
+            <div class="lab-target-bar lab-target-bar--ascend">
+              <div class="target-chip-char">
+                <span class="target-char-badge target-char-badge--green">目标汉字</span>
+                <span class="target-char-glyph">国</span>
+              </div>
+              <div class="target-encoding-info">
+                <span class="enc-pill enc-pill--green">分词映射: <strong>Token ID #7654</strong></span>
+                <span class="enc-pill enc-pill--gold">语义空间: <strong>4096 维稠密连续浮点张量 (Embedding)</strong></span>
+              </div>
+            </div>
+
+            <!-- 3D Cube 语义矩阵视窗 -->
             <div class="cube-visual">
-              <span class="reg-label">DaVinci 3D Cube 16×16×16 矩阵乘阵列网格状态：</span>
-              <div class="cube-grid-box" id="cubeGridBox">
-                <!-- 16个矩阵计算单元格 -->
-                <i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i>
-                <i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i>
-                <i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i>
-                <i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i>
+              <div class="cube-visual-head">
+                <span class="reg-label">DaVinci 3D Cube 阵列 · 汉字「国」与上下文词汇的语义注意力矩阵：</span>
+                <span class="cube-status-tag" id="cubeStatusTag">语义关联得分矩阵就绪</span>
+              </div>
+              <div class="cube-semantic-grid" id="cubeSemanticGrid">
+                <!-- 8个带语义关联的计算单元格 -->
+                <div class="semantic-cell is-high" data-word="家">
+                  <span class="cell-pair">国 × 家</span>
+                  <span class="cell-score">0.98</span>
+                  <span class="cell-meaning">家国同构</span>
+                </div>
+                <div class="semantic-cell is-high" data-word="中">
+                  <span class="cell-pair">国 × 中</span>
+                  <span class="cell-score">0.94</span>
+                  <span class="cell-meaning">华夏文明</span>
+                </div>
+                <div class="semantic-cell is-mid" data-word="土">
+                  <span class="cell-pair">国 × 土</span>
+                  <span class="cell-score">0.86</span>
+                  <span class="cell-meaning">疆域主权</span>
+                </div>
+                <div class="semantic-cell is-mid" data-word="华">
+                  <span class="cell-pair">国 × 华</span>
+                  <span class="cell-score">0.81</span>
+                  <span class="cell-meaning">盛世中华</span>
+                </div>
+                <div class="semantic-cell is-mid" data-word="运">
+                  <span class="cell-pair">国 × 运</span>
+                  <span class="cell-score">0.79</span>
+                  <span class="cell-meaning">国泰民安</span>
+                </div>
+                <div class="semantic-cell" data-word="民">
+                  <span class="cell-pair">国 × 民</span>
+                  <span class="cell-score">0.72</span>
+                  <span class="cell-meaning">万姓安康</span>
+                </div>
+                <div class="semantic-cell" data-word="泰">
+                  <span class="cell-pair">国 × 泰</span>
+                  <span class="cell-score">0.65</span>
+                  <span class="cell-meaning">天下太平</span>
+                </div>
+                <div class="semantic-cell" data-word="邦">
+                  <span class="cell-pair">国 × 邦</span>
+                  <span class="cell-score">0.58</span>
+                  <span class="cell-meaning">睦邻友好</span>
+                </div>
               </div>
               <span class="reg-note" id="cubeNote">Query × Key_T 矩阵乘法单元就绪，单周期执行 4096 次乘加 (MACs)</span>
             </div>
 
+            <!-- 操作按钮 -->
             <div class="lab-actions">
-              <button class="lab-btn lab-btn--ascend" id="btnHbmPull">① HBM2E 显存拉取词向量</button>
-              <button class="lab-btn lab-btn--ascend" id="btnCubeMatmul">② 3D Cube 矩阵乘点火 (MatMul)</button>
-              <button class="lab-btn lab-btn--ascend" id="btnVectorSoftmax">③ Vector Softmax 概率归一</button>
+              <button class="lab-btn lab-btn--ascend is-active" id="btnHbmPull">① 语义升维 · HBM2E 拉取 4096维向量</button>
+              <button class="lab-btn lab-btn--ascend" id="btnCubeMatmul">② 张量点火 · 3D Cube 测算万词语义引力</button>
+              <button class="lab-btn lab-btn--ascend" id="btnVectorSoftmax">③ 概率收敛 · Vector 归一化输出文明词汇</button>
+            </div>
+
+            <!-- 这一步的物理与计算意义解说板 -->
+            <div class="lab-meaning-card lab-meaning-card--ascend" id="npuMeaningCard">
+              <div class="meaning-header">
+                <span class="meaning-phase" id="npuPhaseTitle">【步骤 ① 物理与计算意义】语义升维 · 汉字化为高维空间坐标</span>
+                <span class="meaning-asm" id="npuAsmCode">acl::EmbeddingLookup(TokenID=7654, Dim=4096)</span>
+              </div>
+              <p class="meaning-desc" id="npuMeaningText">
+                <strong>为什么要这一步？</strong> 在 AI 时代，文字不能只是孤立的机器码，必须化为具有上下文含义的高维几何坐标。昇腾以 1.2 TB/s 超高带宽显存总线，为「国」字瞬间提取对应的 4096 维浮点张量，赋予死板字符以文明语义实体！
+              </p>
             </div>
           </div>
         </div>
@@ -637,25 +633,12 @@
         <p class="scene-sub">文字如何化为连续语义向量，在 Transformer 神经网络中涌现出文明认知？</p>
       </header>
 
-      <!-- 播放控制器 -->
-      <div class="ai-controls reveal">
-        <button class="ai-play-btn is-playing" id="aiPlayBtn">
-          <span class="play-icon" id="playIcon">⏸</span>
-          <span class="play-text" id="playText">0.8× 自动推演中</span>
-        </button>
-        <span class="ai-speed-tag">0.8x 慢速叙事流</span>
-        <span class="ai-hint">点击可暂停或手动悬停各层探查</span>
-      </div>
-
-      <!-- 左右全景 Transformer 流水线 -->
-      <div class="transformer-pipeline reveal" id="transformerPipeline">
-        <!-- 顶部：横向输入特征提取流水线 (字形 ➔ 字符 ➔ 编码 ➔ 数据) -->
-        <div class="pipeline-feature-row" id="pipelineFeatureRow">
-          <div class="feature-row-head">
-            <span class="row-tag">01~04 输入特征提取 · FEATURE EXTRACTION (横向流式布局)</span>
-            <span class="row-sub">汉字视觉符号 ➔ 4096维连续语义空间张量</span>
-          </div>
-          <div class="feature-steps-bar">
+      <!-- 左右双栏 Transformer 流水线 (左右清爽稳定布局) -->
+      <div class="ai-pipeline-grid reveal" id="transformerPipeline">
+        <!-- 左栏：输入特征提取流 (字形 ➔ 字符 ➔ 编码 ➔ 数据) -->
+        <div class="pipeline-col col--input-stream">
+          <div class="col-title">输入特征提取流 · FEATURE EXTRACTION</div>
+          <div class="stream-steps-list">
             <!-- 阶段1: 字形 -->
             <div class="pipeline-step step--glyph is-active" id="stepGlyph">
               <span class="step-num">01</span>
@@ -664,12 +647,12 @@
                   <span class="step-name">字形</span>
                   <span class="step-sub">Visual Glyph</span>
                 </div>
-                <div class="step-visual step-visual--char">国</div>
+                <div class="step-visual--char">国</div>
                 <div class="step-desc">笔画骨架与字体栅格点阵</div>
               </div>
             </div>
 
-            <div class="pipeline-arrow-right">➔</div>
+            <div class="pipeline-arrow-down">⬇</div>
 
             <!-- 阶段2: 字符 -->
             <div class="pipeline-step step--token" id="stepToken">
@@ -684,7 +667,7 @@
               </div>
             </div>
 
-            <div class="pipeline-arrow-right">➔</div>
+            <div class="pipeline-arrow-down">⬇</div>
 
             <!-- 阶段3: 编码 -->
             <div class="pipeline-step step--encode" id="stepEncode">
@@ -699,7 +682,7 @@
               </div>
             </div>
 
-            <div class="pipeline-arrow-right">➔</div>
+            <div class="pipeline-arrow-down">⬇</div>
 
             <!-- 阶段4: 数据 -->
             <div class="pipeline-step step--data" id="stepData">
@@ -707,113 +690,171 @@
               <div class="step-content">
                 <div class="step-header">
                   <span class="step-name">数据 (Embedding)</span>
-                  <span class="step-sub">高维稠密连续向量</span>
+                  <span class="step-sub">连续语义向量</span>
                 </div>
                 <div class="vector-preview" id="vectorPreview">
                   <span>[+0.382,</span><span>-0.714,</span><span>+0.891, ... -0.450]</span>
                 </div>
-                <div class="step-desc">4096维连续语义空间坐标</div>
+                <div class="step-desc">4096维连续语义空间几何坐标</div>
               </div>
             </div>
           </div>
+          
+          <div class="input-stream-footer">
+            <span class="stream-inject-tag">⬇ 4096维向量注入深度神经网络 ➔</span>
+          </div>
         </div>
 
-        <!-- 向量注入过渡条 -->
-        <div class="feature-to-neural-flow">
-          <div class="flow-pulse-line"></div>
-          <span class="flow-pulse-label">⬇ 4096维高维连续语义向量注入 Transformer 深度认知与概率分布网络 ⬇</span>
-        </div>
-
-        <!-- 核心三列并行全景：①Transformer核心 ➔ ②线性投影与Softmax(独立列) ➔ ③预测词表 -->
-        <div class="pipeline-3col-grid" id="pipeline3ColGrid">
-          <!-- 第1列：Transformer 核心架构 (Encoder / Decoder) -->
-          <div class="pipeline-col col--backbone">
-            <div class="col-title">① TRANSFORMER 核心架构 (ENCODER / DECODER)</div>
-            <div class="model-block model-block--encoder" id="blockEncoder">
-              <div class="model-badge">海量语料预训练 · ENCODER</div>
+        <!-- 右栏：Transformer 深度神经网络与词表预测输出 -->
+        <div class="pipeline-col col--model-output">
+          <div class="col-title">TRANSFORMER 深度认知与输出 · PREDICTION</div>
+          
+          <!-- Transformer 核心模型块：ENCODER -->
+          <div class="model-block model-block--encoder" id="blockEncoder">
+            <div class="model-badge">海量语料预训练 · ENCODER (编码器语义建构)</div>
+            
+            <!-- 多头自注意力机制 -->
+            <div class="layer-section">
               <div class="layer-title">多头自注意力机制 (Multi-Head Attention)</div>
               <div class="attention-matrix">
                 <span class="att-head" id="head1">Head 1: 华夏/文明 (0.94)</span>
                 <span class="att-head" id="head2">Head 2: 政治/政权 (0.89)</span>
                 <span class="att-head" id="head3">Head 3: 疆域/万姓 (0.86)</span>
               </div>
-              <div class="layer-sub">前馈网络 (FFN) + LayerNorm 残差连接</div>
             </div>
 
-            <div class="trans-flow-arrow">⬇ 跨注意力 (Cross-Attention) 深度交互</div>
+            <!-- 具象化前馈神经网络 (FFN) 与字/概率高层概念激活图谱 -->
+            <div class="ffn-section">
+              <div class="layer-title">前馈神经网络 (FFN) · 语义神经元激活图谱</div>
+              <div class="ffn-math">$\mathrm{FFN}(x) = \mathrm{GELU}(x \mathbf{W}_1 + \mathbf{b}_1)\mathbf{W}_2 + \mathbf{b}_2$</div>
+              
+              <div class="ffn-concept-grid">
+                <div class="ffn-concept-item" id="ffnConcept1">
+                  <div class="ffn-concept-head">
+                    <span class="ffn-concept-char">华夏 / 邦国</span>
+                    <span class="ffn-concept-val">96.5%</span>
+                  </div>
+                  <div class="ffn-bar-box"><div class="ffn-bar" style="width: 96.5%;"></div></div>
+                  <span class="ffn-concept-sub">激活神经元 #4092 (文明渊源)</span>
+                </div>
 
-            <div class="model-block model-block--decoder" id="blockDecoder">
-              <div class="model-badge">自回归解码生成 · DECODER</div>
-              <div class="layer-title">因果掩码自注意力 (Causal Attention)</div>
-              <div class="decoder-status" id="decoderStatus">计算后验隐状态向量 H...</div>
+                <div class="ffn-concept-item" id="ffnConcept2">
+                  <div class="ffn-concept-head">
+                    <span class="ffn-concept-char">天下 / 疆域</span>
+                    <span class="ffn-concept-val">93.2%</span>
+                  </div>
+                  <div class="ffn-bar-box"><div class="ffn-bar" style="width: 93.2%;"></div></div>
+                  <span class="ffn-concept-sub">激活神经元 #1823 (土地主权)</span>
+                </div>
+
+                <div class="ffn-concept-item" id="ffnConcept3">
+                  <div class="ffn-concept-head">
+                    <span class="ffn-concept-char">政权 / 社稷</span>
+                    <span class="ffn-concept-val">89.8%</span>
+                  </div>
+                  <div class="ffn-bar-box"><div class="ffn-bar" style="width: 89.8%;"></div></div>
+                  <span class="ffn-concept-sub">激活神经元 #0764 (治理秩序)</span>
+                </div>
+
+                <div class="ffn-concept-item" id="ffnConcept4">
+                  <div class="ffn-concept-head">
+                    <span class="ffn-concept-char">家国 / 黎民</span>
+                    <span class="ffn-concept-val">84.1%</span>
+                  </div>
+                  <div class="ffn-bar-box"><div class="ffn-bar" style="width: 84.1%;"></div></div>
+                  <span class="ffn-concept-sub">激活神经元 #3115 (血脉同构)</span>
+                </div>
+              </div>
             </div>
+
+            <div class="layer-sub">4096维隐状态经 16384 维神经元非线性放大，提炼出深层中华文明认知</div>
           </div>
 
-          <!-- 第2列：[线性投影 + Softmax 概率分布] 独立专列 -->
-          <div class="pipeline-col col--projection" id="colProjection">
-            <div class="col-title">② 线性投影 & SOFTMAX 概率分布 (独立计算列)</div>
+          <div class="trans-flow-arrow">⬇ 跨注意力 (Cross-Attention) 隐状态传递 · 语料记忆与当前序列融合</div>
+
+          <!-- Transformer 核心模型块：DECODER -->
+          <div class="model-block model-block--decoder" id="blockDecoder">
+            <div class="model-badge">自回归因果解码 · DECODER (时序文本生成)</div>
             
-            <div class="proj-block proj-block--linear" id="blockLinear">
-              <div class="proj-badge">DIMENSION PROJECTION</div>
-              <div class="layer-title">高维线性投影矩阵 (Linear Layer)</div>
-              <div class="math-eq">未归一化分值 $\mathbf{Z} = \mathbf{H} \cdot \mathbf{W}_v + \mathbf{b}$</div>
-              <div class="proj-dims">
-                <span class="dim-tag">隐状态: 4096维</span>
-                <span class="dim-arrow">➔</span>
-                <span class="dim-tag dim-tag--vocab">词表空间: 150,000维</span>
+            <!-- 因果掩码时序流 -->
+            <div class="decoder-causal-flow">
+              <div class="layer-title">因果掩码自注意力序列 (Causal Mask Stream)</div>
+              <div class="causal-tokens">
+                <div class="c-token c-token--done"><span class="c-tag">起始</span>&lt;s&gt;</div>
+                <span class="c-arrow">➔</span>
+                <div class="c-token c-token--done"><span class="c-tag">已确认</span>中</div>
+                <span class="c-arrow">➔</span>
+                <div class="c-token c-token--focus"><span class="c-tag">当前输入</span>国</div>
+                <span class="c-arrow">➔</span>
+                <div class="c-token c-token--predict"><span class="c-tag">自回归预测</span>❓ 下一词</div>
               </div>
-              <div class="layer-sub">将高维抽象语义投射至庞大汉字词汇表</div>
+              <div class="causal-hint">因果下三角掩码：单向单字滑动，绝对遮蔽未来信息，只由前文向后推演</div>
             </div>
 
-            <div class="trans-flow-arrow">⬇ 指数归一化激活 (Normalized Probability)</div>
-
-            <div class="proj-block proj-block--softmax" id="blockSoftmax">
-              <div class="proj-badge">EXPONENTIAL NORMALIZATION</div>
-              <div class="layer-title">Softmax 概率归一化函数</div>
-              <div class="math-formula">
-                $P(w_i) = rac{\exp(z_i / 	au)}{\sum_j \exp(z_j / 	au)}$
+            <!-- 下一词生成候选分支 -->
+            <div class="decoder-branch-box">
+              <div class="layer-title">自回归下一字候选分支预测 (Next-Token Branches)</div>
+              <div class="decoder-branches">
+                <div class="branch-item is-primary" id="branch1">
+                  <span class="branch-symbol">▶ 接续「家」</span>
+                  <span class="branch-phrase">组合为「国家」</span>
+                  <div class="branch-bar-box"><div class="branch-bar branch-bar--prime" style="width: 98.2%;"></div></div>
+                  <span class="branch-prob">98.2%</span>
+                </div>
+                <div class="branch-item" id="branch2">
+                  <span class="branch-symbol">▶ 接续「土」</span>
+                  <span class="branch-phrase">组合为「国土」</span>
+                  <div class="branch-bar-box"><div class="branch-bar" style="width: 68.5%;"></div></div>
+                  <span class="branch-prob">68.5%</span>
+                </div>
+                <div class="branch-item" id="branch3">
+                  <span class="branch-symbol">▶ 接续「民」</span>
+                  <span class="branch-phrase">组合为「国民」</span>
+                  <div class="branch-bar-box"><div class="branch-bar" style="width: 53.1%;"></div></div>
+                  <span class="branch-prob">53.1%</span>
+                </div>
+                <div class="branch-item" id="branch4">
+                  <span class="branch-symbol">▶ 接续「运」</span>
+                  <span class="branch-phrase">组合为「国运」</span>
+                  <div class="branch-bar-box"><div class="branch-bar" style="width: 42.0%;"></div></div>
+                  <span class="branch-prob">42.0%</span>
+                </div>
               </div>
-              <div class="softmax-specs">
-                <span class="spec-item">温度调节系数 $	au = 0.7$</span>
-                <span class="spec-item spec-item--active" id="softmaxStatus">概率分布已收敛锁定 ✓</span>
-              </div>
-              <div class="layer-sub">将全实数分值转换为严格归一化概率分布</div>
             </div>
+
+            <div class="decoder-status" id="decoderStatus">计算后验隐状态向量 H...</div>
           </div>
 
-          <!-- 第3列：输出预测词表 -->
-          <div class="pipeline-col col--vocab" id="colVocab">
-            <div class="col-title">③ 预测词表概率分布 · CANDIDATES</div>
-            <div class="output-vocab-list" id="outputVocabList">
-              <div class="vocab-header">
-                <span>预测关联词语</span>
-                <span>置信度</span>
-              </div>
-              <div class="vocab-item" data-word="中国">
-                <span class="vocab-word">中国</span>
-                <div class="vocab-bar-box"><div class="vocab-bar" style="width: 86%;"></div></div>
-                <span class="vocab-prob">86.4%</span>
-              </div>
-              <div class="vocab-item is-highlight" data-word="国家">
-                <span class="vocab-word">国家 <span class="vocab-tag">核心语义</span></span>
-                <div class="vocab-bar-box"><div class="vocab-bar vocab-bar--prime" style="width: 98%;"></div></div>
-                <span class="vocab-prob vocab-prob--prime">98.2%</span>
-              </div>
-              <div class="vocab-item" data-word="国土">
-                <span class="vocab-word">国土</span>
-                <div class="vocab-bar-box"><div class="vocab-bar" style="width: 68%;"></div></div>
-                <span class="vocab-prob">68.5%</span>
-              </div>
-              <div class="vocab-item" data-word="国民">
-                <span class="vocab-word">国民</span>
-                <div class="vocab-bar-box"><div class="vocab-bar" style="width: 53%;"></div></div>
-                <span class="vocab-prob">53.1%</span>
-              </div>
-              <div class="vocab-item" data-word="国运">
-                <span class="vocab-word">国运</span>
-                <div class="vocab-bar-box"><div class="vocab-bar" style="width: 42%;"></div></div>
-                <span class="vocab-prob">42.0%</span>
-              </div>
+          <!-- 预测候选词表 (自上而下排好，国家高亮) -->
+          <div class="output-vocab-list" id="outputVocabList">
+            <div class="vocab-header">
+              <span>预测关联词语</span>
+              <span>置信度</span>
+            </div>
+            <div class="vocab-item" data-word="中国">
+              <span class="vocab-word">中国</span>
+              <div class="vocab-bar-box"><div class="vocab-bar" style="width: 86%;"></div></div>
+              <span class="vocab-prob">86.4%</span>
+            </div>
+            <div class="vocab-item is-highlight" data-word="国家">
+              <span class="vocab-word">国家 <span class="vocab-tag">核心语义</span></span>
+              <div class="vocab-bar-box"><div class="vocab-bar vocab-bar--prime" style="width: 98%;"></div></div>
+              <span class="vocab-prob vocab-prob--prime">98.2%</span>
+            </div>
+            <div class="vocab-item" data-word="国土">
+              <span class="vocab-word">国土</span>
+              <div class="vocab-bar-box"><div class="vocab-bar" style="width: 68%;"></div></div>
+              <span class="vocab-prob">68.5%</span>
+            </div>
+            <div class="vocab-item" data-word="国民">
+              <span class="vocab-word">国民</span>
+              <div class="vocab-bar-box"><div class="vocab-bar" style="width: 53%;"></div></div>
+              <span class="vocab-prob">53.1%</span>
+            </div>
+            <div class="vocab-item" data-word="国运">
+              <span class="vocab-word">国运</span>
+              <div class="vocab-bar-box"><div class="vocab-bar" style="width: 42%;"></div></div>
+              <span class="vocab-prob">42.0%</span>
             </div>
           </div>
         </div>

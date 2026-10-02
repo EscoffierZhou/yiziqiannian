@@ -335,10 +335,10 @@
   const bambooSlipsData = [...dummySlipsBefore, ...rawHistoricalSlips, ...dummySlipsAfter];
 
   const slipElements = [];
-  let currentSlipIdx = 4; // 默认聚焦第1个真实历史字形（商代甲骨）
+  let currentSlipIdx = 8; // 默认聚焦春秋金文（索引为8）
   bambooSlipsData.forEach((item, idx) => {
     const slip = document.createElement("div");
-    slip.className = "slip" + (item.isKey ? " slip--key" : "") + (item.isDummy ? " slip--pad" : "") + (idx === 4 ? " is-active" : "");
+    slip.className = "slip" + (item.isKey ? " slip--key" : "") + (item.isDummy ? " slip--pad" : "") + (idx === 8 ? " is-active" : "");
     slip.innerHTML =
       '<div class="slip-glyph-box" aria-label="' + item.char + '">' + item.svg + '</div>' +
       '<span class="slip-tag">' + item.stage + '</span>';
@@ -346,9 +346,8 @@
     slip.dataset.char = item.char;
     slip.dataset.stage = item.detail;
     slip.addEventListener("click", () => {
-      if (!dragMoved) {
-        selectBambooSlip(idx);
-      }
+      if (dragMoved) return;
+      selectBambooSlip(idx);
     });
     bambooTrack.appendChild(slip);
     slipElements.push(slip);
@@ -360,6 +359,7 @@
   let startX = 0, startTX = 0;
   let vel = 0, lastX = 0, lastT = 0, momentumId = 0;
   let centered = false;
+  let isCentering = false;
 
   function selectBambooSlip(idx) {
     if (idx < 0 || idx >= slipElements.length) return;
@@ -377,16 +377,20 @@
     if (bambooIndChar) bambooIndChar.textContent = item.char;
     if (bambooIndStage) bambooIndStage.textContent = item.detail;
 
-    // 平滑平移居中该竹简
+    // 平滑平移居中该竹简（绝对几何中心差值法，彻底杜绝 offsetParent 与 transform 累加误差）
     cancelAnimationFrame(momentumId);
     const targetSlip = slipElements[idx];
-    const viewW = bambooViewport.clientWidth;
-    const slipCenter = (targetSlip.offsetLeft + targetSlip.offsetWidth / 2) * scale;
-    const targetTX = Math.max(minX, Math.min(maxX, viewW / 2 - slipCenter));
+    const viewRect = bambooViewport.getBoundingClientRect();
+    const viewCenter = viewRect.left + viewRect.width / 2;
+    const slipRect = targetSlip.getBoundingClientRect();
+    const currentSlipCenter = slipRect.left + slipRect.width / 2;
+    const delta = viewCenter - currentSlipCenter;
+    const targetTX = Math.max(minX, Math.min(maxX, tx + delta));
     const startXVal = tx;
     const diff = targetTX - startXVal;
     const startTime = performance.now();
     const duration = 380;
+    isCentering = true;
 
     function animCenter(now) {
       const elapsed = now - startTime;
@@ -397,7 +401,10 @@
       if (progress < 1) {
         momentumId = requestAnimationFrame(animCenter);
       } else {
-        applyBamboo();
+        tx = targetTX;
+        bambooTrack.style.transform = "translateX(" + tx + "px) scale(" + scale + ")";
+        isCentering = false;
+        updateBambooIndicator();
       }
     }
     momentumId = requestAnimationFrame(animCenter);
@@ -405,6 +412,7 @@
 
   function updateBambooIndicator() {
     if (!bambooIndChar || !bambooIndStage || !bambooViewport || slipElements.length === 0) return;
+    if (isCentering) return; // 正在精准居中动画过程中不被过渡位置干扰
     const viewRect = bambooViewport.getBoundingClientRect();
     const viewCenter = viewRect.left + viewRect.width / 2;
     let closestItem = bambooSlipsData[0];
@@ -422,6 +430,7 @@
       }
     });
 
+    currentSlipIdx = closestIdx;
     bambooIndChar.textContent = closestItem.char;
     bambooIndStage.textContent = closestItem.detail;
     slipElements.forEach((s, i) => s.classList.toggle("is-active", i === closestIdx));
@@ -445,16 +454,18 @@
     const firstSlip = slipElements[0];
     const lastSlip = slipElements[slipElements.length - 1];
 
-    // 以两端竹简居中位置作为最极端的滑动边界，确保第1位到第9位真实竹简完全居中不受任何阻碍
-    minX = viewW / 2 - (lastSlip.offsetLeft + lastSlip.offsetWidth / 2) * scale;
-    maxX = viewW / 2 - (firstSlip.offsetLeft + firstSlip.offsetWidth / 2) * scale;
+    // 以两端竹简居中位置作为最极端的滑动边界
+    const firstCenter = firstSlip.offsetLeft + firstSlip.offsetWidth / 2;
+    const lastCenter = lastSlip.offsetLeft + lastSlip.offsetWidth / 2;
+    minX = viewW / 2 - lastCenter;
+    maxX = viewW / 2 - firstCenter;
     if (minX > maxX) { const tmp = minX; minX = maxX; maxX = tmp; }
 
     if (!centered) {
-      // 首次加载精准居中第1个历史字形（商代甲骨·初文，索引为4）
-      const realFirst = slipElements[4];
-      if (realFirst) {
-        const kc = (realFirst.offsetLeft + realFirst.offsetWidth / 2) * scale;
+      // 首次加载精准居中 春秋金文（索引为8）
+      const initialSlip = slipElements[8];
+      if (initialSlip) {
+        const kc = initialSlip.offsetLeft + initialSlip.offsetWidth / 2;
         tx = viewW / 2 - kc;
         centered = true;
       }
@@ -464,6 +475,21 @@
   }
   measureBamboo();
   window.addEventListener("resize", measureBamboo);
+
+  // 初始化信息卡片为 春秋金文 (索引为8)
+  const initSlip = bambooSlipsData[8];
+  if (initSlip) {
+    const bEra = $("#bambooCardEra");
+    const bSource = $("#bambooCardSource");
+    const bTitle = $("#bambooCardTitle");
+    const bReason = $("#bambooCardReason");
+    if (bEra) bEra.textContent = initSlip.era;
+    if (bSource) bSource.textContent = initSlip.source;
+    if (bTitle) bTitle.textContent = initSlip.title;
+    if (bReason) bReason.textContent = initSlip.reason;
+    if (bambooIndChar) bambooIndChar.textContent = initSlip.char;
+    if (bambooIndStage) bambooIndStage.textContent = initSlip.detail;
+  }
 
   // 扫描光跟随鼠标
   bambooViewport.addEventListener("pointermove", (e) => {
@@ -491,20 +517,25 @@
     tx = Math.max(minX, Math.min(maxX, startTX + (e.clientX - startX)));
     applyBamboo();
   });
-  function endBambooDrag() {
+  function endBambooDrag(e) {
     if (!dragging) return;
     dragging = false;
     bambooViewport.classList.remove("dragging");
-    // 惯性滑行
-    let v = vel * 180;
-    const step = () => {
-      v *= 0.92;
-      tx += v;
-      if (tx < minX || tx > maxX) { v *= -0.35; tx = Math.max(minX, Math.min(maxX, tx)); }
-      applyBamboo();
-      if (Math.abs(v) > 0.05) momentumId = requestAnimationFrame(step);
-    };
-    momentumId = requestAnimationFrame(step);
+    if (e && e.pointerId && bambooViewport.hasPointerCapture && bambooViewport.hasPointerCapture(e.pointerId)) {
+      try { bambooViewport.releasePointerCapture(e.pointerId); } catch(err) {}
+    }
+    // 若产生过有效拖拽，执行惯性滑行；若只是原地点按，由各 slip 的 click 事件天然平滑触发
+    if (dragMoved) {
+      let v = vel * 180;
+      const step = () => {
+        v *= 0.92;
+        tx += v;
+        if (tx < minX || tx > maxX) { v *= -0.35; tx = Math.max(minX, Math.min(maxX, tx)); }
+        applyBamboo();
+        if (Math.abs(v) > 0.05) momentumId = requestAnimationFrame(step);
+      };
+      momentumId = requestAnimationFrame(step);
+    }
   }
   bambooViewport.addEventListener("pointerup", endBambooDrag);
   bambooViewport.addEventListener("pointercancel", endBambooDrag);
@@ -996,210 +1027,152 @@
   initEncodeCanvas();
 
   /* ============================================================
-     9. 第六幕 · 芯片：Intel Core Ultra vs 华为昇腾 910B 专业微架构 + 动手实验台
+     9. 第六幕 · 芯片：Intel Core Ultra vs 华为昇腾 910B 汉字物理运算动手实验台
   ============================================================ */
-  const chipTabs = $$(".chip-tab");
-  const chipViews = $$(".chip-arch-view");
   const labPanelIntel = $("#labPanelIntel");
   const labPanelAscend = $("#labPanelAscend");
   const labHintText = $("#labHintText");
 
-  // Intel Lab 控件
+  // Intel CPU 实验控件
   const btnLoadRax = $("#btnLoadRax");
   const btnShrqRax = $("#btnShrqRax");
   const btnL3Probe = $("#btnL3Probe");
   const regSlots = $("#regSlots");
   const regNote = $("#regNote");
   const regBytes = $$(".reg-byte", regSlots);
+  const regStatusTag = $("#regStatusTag");
+  const cpuPhaseTitle = $("#cpuPhaseTitle");
+  const cpuAsmCode = $("#cpuAsmCode");
+  const cpuMeaningText = $("#cpuMeaningText");
 
-  // 昇腾 Lab 控件
+  // 华为昇腾 NPU 实验控件
   const btnHbmPull = $("#btnHbmPull");
   const btnCubeMatmul = $("#btnCubeMatmul");
   const btnVectorSoftmax = $("#btnVectorSoftmax");
-  const cubeGridBox = $("#cubeGridBox");
-  const cubeCells = $$(".cube-cell", cubeGridBox);
+  const cubeSemanticGrid = $("#cubeSemanticGrid");
+  const semanticCells = $$(".semantic-cell", cubeSemanticGrid);
   const cubeNote = $("#cubeNote");
+  const cubeStatusTag = $("#cubeStatusTag");
+  const npuPhaseTitle = $("#npuPhaseTitle");
+  const npuAsmCode = $("#npuAsmCode");
+  const npuMeaningText = $("#npuMeaningText");
 
-  const chipUnitDescriptions = {
-    pcore: {
-      title: "P-Core Redwood Cove 流水线执行中",
-      lines: [
-        '<span class="c-kw">FETCH_DECODE:</span> 6-wide 乱序执行超标量指令窗',
-        '<span class="c-kw">MOVQ</span>  <span class="c-reg">RAX</span>, 0x0000000000E59BBD <span class="c-comment">; 将「国」UTF-8 装入 64位 RAX 寄存器</span>',
-        '<span class="c-kw">EXEC_LATENCY:</span> <span class="c-val">0.24 ns</span> | <span class="c-kw">BRANCH_PRED:</span> <span class="c-val">99.7%</span> | <span class="c-kw">IPC:</span> <span class="c-val">4.12</span>'
-      ]
-    },
-    ecore: {
-      title: "E-Core Crestmont 能效核心并发集群",
-      lines: [
-        '<span class="c-kw">THREAD_POOL:</span> 8 线程高能效集群并行解析字符流',
-        '<span class="c-kw">SHRQ</span>  <span class="c-reg">RAX</span>, 0x08 <span class="c-comment">; 8位字节对齐移位，并行执行 UTF-8 解码</span>',
-        '<span class="c-kw">POWER_DRAW:</span> <span class="c-val">1.2W</span> | <span class="c-kw">CLUSTER_THROUGHPUT:</span> <span class="c-val">1.8 Gops/W</span>'
-      ]
-    },
-    l3: {
-      title: "Shared L3 Smart Cache (24MB 环形总线高速互联)",
-      lines: [
-        '<span class="c-kw">RING_BUS:</span> 双向时钟 4.8GHz 高速互联环路',
-        '<span class="c-kw">L3_PROBE:</span> TAG_MATCH hit for Unicode [U+56FD]',
-        '<span class="c-kw">L3_HIT_RATE:</span> <span class="c-val">98.6%</span> | <span class="c-kw">CACHE_LATENCY:</span> <span class="c-val">11.2 ns</span>'
-      ]
-    },
-    imc: {
-      title: "Integrated Memory Controller (DDR5-5600 双通道)",
-      lines: [
-        '<span class="c-kw">DRAM_ACCESS:</span> DDR5 64-bit 突发传输通道',
-        '<span class="c-kw">BURST_READ:</span> 批量载入中文汉字字符字库点阵表',
-        '<span class="c-kw">BANDWIDTH:</span> <span class="c-val">89.6 GB/s</span> | <span class="c-kw">BUS_UTIL:</span> <span class="c-val">28.4%</span>'
-      ]
-    },
-    cube: {
-      title: "DaVinci 3D Cube 阵列 (16×16×16 矩阵乘加张量核心)",
-      lines: [
-        '<span class="c-kw">cube::MatMul</span>(Tensor_Q[1, 64, 64], Tensor_K_T[1, 64, 64]) <span class="c-comment">// Cube 16×16 矩阵乘加速</span>',
-        '<span class="c-kw">FP16_MACC:</span> 单周期并行执行 4096 次乘加运算 (MACs)',
-        '<span class="c-kw">TENSOR_TFLOPS:</span> <span class="c-val">318.6 TFLOPS</span> | <span class="c-kw">CUBE_UTIL:</span> <span class="c-val">94.8%</span>'
-      ]
-    },
-    vector: {
-      title: "Vector 计算单元 (Softmax & LayerNorm 矢量激活流水线)",
-      lines: [
-        '<span class="c-kw">vector::Softmax</span>(Score_Matrix, FP16) <span class="c-comment">// Vector 执行自注意力归一化</span>',
-        '<span class="c-kw">vector::LayerNorm</span>(Hidden_States, Epsilon=1e-5)',
-        '<span class="c-kw">VECTOR_LATENCY:</span> <span class="c-val">0.05 ms</span> | <span class="c-kw">ALU_WIDTH:</span> <span class="c-val">256-bit SIMD</span>'
-      ]
-    },
-    scalar: {
-      title: "Scalar 标量计算单元 (程序控制流与地址计算)",
-      lines: [
-        '<span class="c-kw">scalar::Branch</span>(Condition=Loop_Done) <span class="c-comment">// Transformer 层迭代控制</span>',
-        '<span class="c-kw">scalar::AddrGen</span>(Base_Addr=0x7F00, Offset=Token_ID*4096)',
-        '<span class="c-kw">CYCLE_COUNT:</span> <span class="c-val">124 cycles</span> | <span class="c-kw">STATUS:</span> <span class="c-val">NORMAL</span>'
-      ]
-    },
-    hbm: {
-      title: "32GB HBM2E 堆叠显存 (1.2TB/s 极致带宽)",
-      lines: [
-        '<span class="c-kw">acl::EmbeddingLookup</span>(TokenID=<span class="c-val">7654</span>, Dim=<span class="c-val">4096</span>) <span class="c-comment">// 显存读取 4096 维词向量</span>',
-        '<span class="c-kw">SILICON_INTERPOSER:</span> 4层 3D 硅通孔 (TSV) 超宽位宽总线',
-        '<span class="c-kw">HBM_THROUGHPUT:</span> <span class="c-val">1192 GB/s</span> | <span class="c-kw">READ_EFFICIENCY:</span> <span class="c-val">99.1%</span>'
-      ]
-    }
-  };
-
-  chipTabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      chipTabs.forEach((t) => t.classList.remove("is-active"));
-      tab.classList.add("is-active");
-      const targetChip = tab.dataset.chip;
-      chipViews.forEach((v) => {
-        const isMatch = v.dataset.view === targetChip;
-        v.style.display = isMatch ? "block" : "none";
-        v.classList.toggle("is-active", isMatch);
-      });
-      // 联动实验台面板
-      if (labPanelIntel) labPanelIntel.style.display = targetChip === "intel" ? "flex" : "none";
-      if (labPanelAscend) labPanelAscend.style.display = targetChip === "ascend" ? "flex" : "none";
-      if (labHintText) {
-        if (targetChip === "intel") {
-          labHintText.textContent = "CPU 像精细钟表匠，时钟以 5.1GHz 极速震荡，逐条指令把「国」字拆为 3 个机器字节（E5 9B BD）进行移位搬运；";
-        } else {
-          labHintText.textContent = "华为昇腾 NPU 则是立体印刷流水线，把「国」字映射为 4096 维连续张量，在 3D Cube 阵列中以每秒 320 万亿次乘加极速轰鸣！";
-        }
-      }
-    });
-  });
-
-  // Intel Lab 实验交互
+  // Intel CPU 实验交互逻辑
   if (btnLoadRax) {
     btnLoadRax.addEventListener("click", () => {
+      [btnLoadRax, btnShrqRax, btnL3Probe].forEach(b => b && b.classList.remove("is-active"));
+      btnLoadRax.classList.add("is-active");
       regBytes.forEach((b, i) => {
         b.classList.remove("pulse-active");
         if (i < 5) { b.textContent = "00"; b.classList.remove("is-filled"); }
       });
-      regBytes[5].textContent = "E5"; regBytes[5].classList.add("is-filled", "pulse-active");
-      regBytes[6].textContent = "9B"; regBytes[6].classList.add("is-filled", "pulse-active");
-      regBytes[7].textContent = "BD"; regBytes[7].classList.add("is-filled", "pulse-active");
-      if (regNote) regNote.textContent = "✅ MOVQ 执行完毕：64位 RAX 寄存器装入「国」字 UTF-8 机器码 [0x0000000000E59BBD]";
+      if (regBytes[5]) { regBytes[5].textContent = "E5"; regBytes[5].classList.add("is-filled", "pulse-active"); }
+      if (regBytes[6]) { regBytes[6].textContent = "9B"; regBytes[6].classList.add("is-filled", "pulse-active"); }
+      if (regBytes[7]) { regBytes[7].textContent = "BD"; regBytes[7].classList.add("is-filled", "pulse-active"); }
+      if (regStatusTag) regStatusTag.textContent = "已装入「国」字 24位 机器码";
+      if (regNote) regNote.textContent = "UTF-8 机器码 [E5 9B BD] 载入 RAX 寄存器低 24 位";
+      if (cpuPhaseTitle) cpuPhaseTitle.textContent = "【步骤 ① 物理与计算意义】物理取字 · 载入核心寄存器";
+      if (cpuAsmCode) cpuAsmCode.textContent = "MOVQ RAX, 0x0000000000E59BBD";
+      if (cpuMeaningText) {
+        cpuMeaningText.innerHTML = "<strong>为什么要这一步？</strong> 汉字「国」存储在外部主内存（DRAM）中，CPU 计算核心无法直接在内存中做高速字符解码。此步骤通过 64 位内部数据总线，利用电荷翻转，将「国」的 3 字节机器码瞬间读入 CPU 最核心的物理寄存器 RAX，使文字正式进入纳秒级运算通道！";
+      }
     });
   }
+
   if (btnShrqRax) {
     btnShrqRax.addEventListener("click", () => {
+      [btnLoadRax, btnShrqRax, btnL3Probe].forEach(b => b && b.classList.remove("is-active"));
+      btnShrqRax.classList.add("is-active");
       regBytes.forEach((b) => b.classList.add("pulse-active"));
-      regBytes[5].textContent = "00"; regBytes[5].classList.remove("is-filled");
-      regBytes[6].textContent = "E5"; regBytes[6].classList.add("is-filled");
-      regBytes[7].textContent = "9B"; regBytes[7].classList.add("is-filled");
-      if (regNote) regNote.textContent = "✅ SHRQ RAX, 8 移位完毕：RAX 变为 [0x000000000000E59B]，成功对齐高位字节！";
+      if (regBytes[5]) { regBytes[5].textContent = "00"; regBytes[5].classList.remove("is-filled"); }
+      if (regBytes[6]) { regBytes[6].textContent = "E5"; regBytes[6].classList.add("is-filled"); }
+      if (regBytes[7]) { regBytes[7].textContent = "9B"; regBytes[7].classList.add("is-filled"); }
+      if (regStatusTag) regStatusTag.textContent = "已向右对齐移位 8 位 (1个字节)";
+      if (regNote) regNote.textContent = "✅ SHRQ RAX, 8 移位完毕：RAX 变为 [0x000000000000E59B]，剥离出中间字节与前缀！";
+      if (cpuPhaseTitle) cpuPhaseTitle.textContent = "【步骤 ② 物理与计算意义】字符解码 · 8位逻辑右移对齐";
+      if (cpuAsmCode) cpuAsmCode.textContent = "SHRQ RAX, 0x08";
+      if (cpuMeaningText) {
+        cpuMeaningText.innerHTML = "<strong>为什么要这一步？</strong> UTF-8 是变长编码。首字节 E5（二进制 11100101，前 3 位为 1）声明该字占用 3 字节。CPU 移位器以 0.28ns 极速将寄存器向右位移 8 位（1个字节），隔离出中间字节 9B 与末字节，交由 ALU 校验前缀标志位与合法性，确认为合法的中国汉字！";
+      }
     });
   }
+
   if (btnL3Probe) {
     btnL3Probe.addEventListener("click", () => {
+      [btnLoadRax, btnShrqRax, btnL3Probe].forEach(b => b && b.classList.remove("is-active"));
+      btnL3Probe.classList.add("is-active");
       regBytes.forEach((b) => b.classList.add("pulse-active"));
-      if (regNote) regNote.textContent = "⚡ L3 高速缓存探针命中 (TAG_MATCH)：Ring Bus 环形总线高速传输，延迟从内存 80ns 骤降为 11.2ns！";
+      if (regStatusTag) regStatusTag.textContent = "L3 高速缓存命中 100% (TAG_MATCH)";
+      if (regNote) regNote.textContent = "⚡ L3 高速缓存探针命中：Ring Bus 环形总线高速传输，延迟仅 11.2ns（比内存 80ns 快 8 倍）！";
+      if (cpuPhaseTitle) cpuPhaseTitle.textContent = "【步骤 ③ 物理与计算意义】字模命中 · 片上 L3 缓存极速检索";
+      if (cpuAsmCode) cpuAsmCode.textContent = "RING_BUS_PROBE: L3_HIT (11.2 ns)";
+      if (cpuMeaningText) {
+        cpuMeaningText.innerHTML = "<strong>为什么要这一步？</strong> 识别出汉字后，屏幕必须呈现出「国」的字形。CPU 通过环形总线（Ring Bus）直接在片上 24MB 高速 L3 缓存中检索点阵字模，以 11.2ns 的极短纳秒时延瞬间调出笔画数据，屏幕实现零延迟清晰显示！";
+      }
     });
   }
 
-  // 昇腾 Lab 实验交互
+  // 华为昇腾 NPU 实验交互逻辑
   if (btnHbmPull) {
     btnHbmPull.addEventListener("click", () => {
-      cubeCells.forEach((c, i) => {
-        setTimeout(() => c.classList.toggle("active", i % 2 === 0), i * 30);
-      });
-      if (cubeNote) cubeNote.textContent = "🚀 HBM2E 显存总线激活：以 1.2 TB/s 超高带宽将「国」字 4096 维 Token 向量载入片上高速 SRAM！";
+      [btnHbmPull, btnCubeMatmul, btnVectorSoftmax].forEach(b => b && b.classList.remove("is-active"));
+      btnHbmPull.classList.add("is-active");
+      semanticCells.forEach((c) => c.classList.remove("active"));
+      if (cubeStatusTag) cubeStatusTag.textContent = "HBM2E 总线 1.2TB/s 传输完毕";
+      if (cubeNote) cubeNote.textContent = "🚀 32GB HBM2E 显存总线激活：拉取「国」字 4096 维浮点张量载入片上高速 SRAM！";
+      if (npuPhaseTitle) npuPhaseTitle.textContent = "【步骤 ① 物理与计算意义】语义升维 · 汉字化为高维空间坐标";
+      if (npuAsmCode) npuAsmCode.textContent = "acl::EmbeddingLookup(TokenID=7654, Dim=4096)";
+      if (npuMeaningText) {
+        npuMeaningText.innerHTML = "<strong>为什么要这一步？</strong> 在 AI 时代，汉字不能只是死板的 0 和 1，必须升维为连续数学几何空间的坐标点。昇腾通过 32GB HBM2E 堆叠显存（1.2TB/s 极致带宽），瞬间提取「国」对应的 4096 维连续张量向量，赋予文字在文明语义空间中的数学实体！";
+      }
     });
   }
+
   if (btnCubeMatmul) {
     btnCubeMatmul.addEventListener("click", () => {
-      cubeCells.forEach((c) => c.classList.add("active"));
-      if (cubeNote) cubeNote.textContent = "🔥 DaVinci 3D Cube 点火：16×16×16 矩阵乘单元全速运转，单周期并行完成 4096 次乘加 (MACs)，算力释放 318.6 TFLOPS！";
+      [btnHbmPull, btnCubeMatmul, btnVectorSoftmax].forEach(b => b && b.classList.remove("is-active"));
+      btnCubeMatmul.classList.add("is-active");
+      semanticCells.forEach((c) => c.classList.add("active"));
+      if (cubeStatusTag) cubeStatusTag.textContent = "3D Cube 阵列 318.6 TFLOPS 点火中";
+      if (cubeNote) cubeNote.textContent = "🔥 DaVinci 3D Cube 点火：16×16×16 矩阵乘单元全速运转，单周期并行完成 4096 次乘加 (MACs)！";
+      if (npuPhaseTitle) npuPhaseTitle.textContent = "【步骤 ② 物理与计算意义】张量点火 · 并行测算万词语义引力";
+      if (npuAsmCode) npuAsmCode.textContent = "cube::MatMul(Tensor_Q[1, 64], Tensor_K_T[64, 4096])";
+      if (npuMeaningText) {
+        npuMeaningText.innerHTML = "<strong>为什么要这一步？</strong> 文字之间的关联是千丝万缕的。昇腾 3D Cube 阵列包含 4096 个 FP16 乘加运算器（MACs），单周期执行矩阵乘法（Query × Key^T），瞬间测算出「国」与天下万词的关联引力——「国」与「家」（0.98）、「国」与「中」（0.94）具有最强烈的文明羁绊！";
+      }
     });
   }
+
   if (btnVectorSoftmax) {
     btnVectorSoftmax.addEventListener("click", () => {
-      cubeCells.forEach((c, i) => {
-        c.classList.toggle("active", i < 8);
+      [btnHbmPull, btnCubeMatmul, btnVectorSoftmax].forEach(b => b && b.classList.remove("is-active"));
+      btnVectorSoftmax.classList.add("is-active");
+      semanticCells.forEach((c) => {
+        const word = c.dataset.word;
+        c.classList.toggle("active", word === "家" || word === "中");
       });
-      if (cubeNote) cubeNote.textContent = "✨ Vector 矢量单元执行 Softmax 激活：自注意力得分矩阵迅速完成归一化，输出后验概率！";
+      if (cubeStatusTag) cubeStatusTag.textContent = "Softmax 归一化完成 · 锁定「国家」(98.2%)";
+      if (cubeNote) cubeNote.textContent = "✨ Vector 矢量单元执行 Softmax 归一化：将原始分值收敛为置信度，高光锁定「国家」(98.2%)！";
+      if (npuPhaseTitle) npuPhaseTitle.textContent = "【步骤 ③ 物理与计算意义】概率收敛 · Vector 归一化输出文明词汇";
+      if (npuAsmCode) npuAsmCode.textContent = "vector::Softmax(Score_Matrix, FP16)";
+      if (npuMeaningText) {
+        npuMeaningText.innerHTML = "<strong>为什么要这一步？</strong> 矩阵乘算出的原始分值无界且抽象，Vector 矢量计算单元以指数 Softmax 激活函数进行概率归一化，将无界得分转换为置信度分布。最终以 98.2% 超高置信度锁定「国家」，完成从硅基物理电荷到高层语义认知的跨越！";
+      }
     });
   }
-
-  // 单元点击/悬停实时更新微架构监视器
-  const allDieUnits = $$("[data-unit]");
-  allDieUnits.forEach((unit) => {
-    const unitKey = unit.dataset.unit;
-    const desc = chipUnitDescriptions[unitKey];
-    if (!desc) return;
-
-    function applyUnitMonitor() {
-      allDieUnits.forEach((u) => u.classList.remove("unit-focused"));
-      unit.classList.add("unit-focused");
-      const parentView = unit.closest(".chip-arch-view");
-      if (!parentView) return;
-      const titleEl = $(".monitor-title", parentView);
-      const bodyEl = $(".monitor-body", parentView);
-      if (titleEl) titleEl.textContent = desc.title;
-      if (bodyEl) {
-        bodyEl.innerHTML = desc.lines.map((l) => '<div class="code-line">' + l + "</div>").join("");
-      }
-    }
-
-    unit.addEventListener("mouseenter", applyUnitMonitor);
-    unit.addEventListener("click", applyUnitMonitor);
-  });
 
   // 芯片三段文案随进入视口依次浮现
   const chipLines = $(".chip-lines");
-  const chipLinesObs = new IntersectionObserver((entries) => {
-    entries.forEach((en) => { if (en.isIntersecting) { chipLines.classList.add("in"); chipLinesObs.disconnect(); } });
-  }, { threshold: 0.4 });
-  chipLinesObs.observe(chipLines);
+  if (chipLines) {
+    const chipLinesObs = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) { chipLines.classList.add("in"); chipLinesObs.disconnect(); } });
+    }, { threshold: 0.4 });
+    chipLinesObs.observe(chipLines);
+  }
 
   /* ============================================================
-     10. 第七幕 · 人工智能：横向输入特征提取 + 3列 Transformer (含线性投影与 Softmax 专列)
+     10. 第七幕 · 人工智能：左侧特征提取 ➔ 右侧 Transformer FFN 与 因果生成
   ============================================================ */
-  const aiPlayBtn = $("#aiPlayBtn");
-  const playIcon = $("#playIcon");
-  const playText = $("#playText");
   const stepGlyph = $("#stepGlyph");
   const stepToken = $("#stepToken");
   const stepEncode = $("#stepEncode");
@@ -1209,78 +1182,74 @@
   const head1 = $("#head1");
   const head2 = $("#head2");
   const head3 = $("#head3");
+  const ffnConcept1 = $("#ffnConcept1");
+  const ffnConcept2 = $("#ffnConcept2");
+  const ffnConcept3 = $("#ffnConcept3");
+  const ffnConcept4 = $("#ffnConcept4");
+  const branch1 = $("#branch1");
+  const branch2 = $("#branch2");
+  const branch3 = $("#branch3");
+  const branch4 = $("#branch4");
   const decoderStatus = $("#decoderStatus");
-  const blockLinear = $("#blockLinear");
-  const blockSoftmax = $("#blockSoftmax");
-  const softmaxStatus = $("#softmaxStatus");
   const vocabItems = $$(".vocab-item");
 
-  let aiIsPlaying = true;
   let aiCycleTimer = null;
   let aiCycleStart = 0;
-  const cycleDuration = 9600; // 0.8倍速慢速叙事流循环周期 9.6s
+  const cycleDuration = 9600; // 自动推演叙事周期 9.6s
 
   const stepsList = [stepGlyph, stepToken, stepEncode, stepData];
   const headsList = [head1, head2, head3];
+  const ffnList = [ffnConcept1, ffnConcept2, ffnConcept3, ffnConcept4];
+  const branchList = [branch1, branch2, branch3, branch4];
 
   function runAiStep(elapsed) {
-    // 0.0s - 2.8s: 顶部横向特征提取 01 -> 02 -> 03 -> 04 顺次流转
-    stepGlyph.classList.toggle("is-active", elapsed >= 0 && elapsed < 9200);
-    stepToken.classList.toggle("is-active", elapsed >= 800 && elapsed < 9200);
-    stepEncode.classList.toggle("is-active", elapsed >= 1600 && elapsed < 9200);
-    stepData.classList.toggle("is-active", elapsed >= 2400 && elapsed < 9200);
+    // 0.0s - 2.8s: 左侧特征提取 01 -> 02 -> 03 -> 04 顺次流转
+    if (stepGlyph) stepGlyph.classList.toggle("is-active", elapsed >= 0 && elapsed < 9200);
+    if (stepToken) stepToken.classList.toggle("is-active", elapsed >= 700 && elapsed < 9200);
+    if (stepEncode) stepEncode.classList.toggle("is-active", elapsed >= 1400 && elapsed < 9200);
+    if (stepData) stepData.classList.toggle("is-active", elapsed >= 2100 && elapsed < 9200);
 
-    // 3.4s: 第1列 Transformer 核心架构 (Encoder / Decoder)
+    // 2.8s - 5.2s: 右侧 Transformer ENCODER 核心机制（多头注意力 + FFN 概念激活）
     if (blockEncoder) {
-      blockEncoder.classList.toggle("lit", elapsed >= 3400 && elapsed < 9200);
+      blockEncoder.classList.toggle("lit", elapsed >= 2800 && elapsed < 9200);
     }
-    if (head1) head1.classList.toggle("lit", elapsed >= 3800 && elapsed < 9200);
-    if (head2) head2.classList.toggle("lit", elapsed >= 4400 && elapsed < 9200);
-    if (head3) head3.classList.toggle("lit", elapsed >= 5000 && elapsed < 9200);
+    if (head1) head1.classList.toggle("lit", elapsed >= 3200 && elapsed < 9200);
+    if (head2) head2.classList.toggle("lit", elapsed >= 3600 && elapsed < 9200);
+    if (head3) head3.classList.toggle("lit", elapsed >= 4000 && elapsed < 9200);
 
+    ffnList.forEach((item, i) => {
+      if (item) item.classList.toggle("lit", elapsed >= (4300 + i * 200) && elapsed < 9200);
+    });
+
+    // 5.2s - 7.0s: DECODER 因果解码生成流与候选预测分支
     if (blockDecoder) {
-      blockDecoder.classList.toggle("lit", elapsed >= 5600 && elapsed < 9200);
+      blockDecoder.classList.toggle("lit", elapsed >= 5200 && elapsed < 9200);
     }
+    branchList.forEach((item, i) => {
+      if (item) item.classList.toggle("lit", elapsed >= (5500 + i * 250) && elapsed < 9200);
+    });
+
     if (decoderStatus) {
-      if (elapsed >= 5600 && elapsed < 9200) {
+      if (elapsed >= 5200 && elapsed < 9200) {
         decoderStatus.textContent = "跨注意力交互完成：生成 4096 维后验隐状态向量 H ✓";
       } else {
         decoderStatus.textContent = "计算后验隐状态向量 H...";
       }
     }
 
-    // 6.2s: 第2列 [线性投影 + Softmax 概率分布] 独立专列计算激活
-    if (blockLinear) {
-      blockLinear.classList.toggle("lit", elapsed >= 6200 && elapsed < 9200);
-    }
-    if (blockSoftmax) {
-      blockSoftmax.classList.toggle("lit", elapsed >= 6800 && elapsed < 9200);
-    }
-    if (softmaxStatus) {
-      if (elapsed >= 6800 && elapsed < 9200) {
-        softmaxStatus.textContent = "全词表 Softmax 指数归一化已收敛锁定 ✓";
-        softmaxStatus.style.color = "var(--cyan)";
-      } else {
-        softmaxStatus.textContent = "概率分布计算中...";
-        softmaxStatus.style.color = "var(--txt-dim)";
-      }
-    }
-
-    // 7.4s ~ 9.0s: 第3列 候选词表自上而下展开，国家金色耀眼光辉锁定
-    const vocabDelay = [7400, 7800, 8300, 8600, 8900];
+    // 6.6s ~ 9.2s: 候选词表自上而下展开，国家金色耀眼光辉锁定
+    const vocabDelay = [6600, 7100, 7600, 8100, 8600];
     vocabItems.forEach((item, i) => {
-      const t = vocabDelay[i] || 7400;
+      const t = vocabDelay[i] || 6600;
       item.classList.toggle("lit", elapsed >= t && elapsed < 9200);
     });
   }
 
   function startAiCycle() {
-    if (!aiIsPlaying) return;
     const now = performance.now();
     aiCycleStart = now;
 
     function frame() {
-      if (!aiIsPlaying) return;
       const current = performance.now();
       let elapsed = (current - aiCycleStart) % cycleDuration;
       runAiStep(elapsed);
@@ -1290,36 +1259,11 @@
     aiCycleTimer = requestAnimationFrame(frame);
   }
 
-  function toggleAiPlay() {
-    aiIsPlaying = !aiIsPlaying;
-    if (aiIsPlaying) {
-      if (aiPlayBtn) aiPlayBtn.classList.remove("is-paused");
-      if (playIcon) playIcon.textContent = "⏸";
-      if (playText) playText.textContent = "0.8× 自动推演中";
-      startAiCycle();
-    } else {
-      if (aiPlayBtn) aiPlayBtn.classList.add("is-paused");
-      if (playIcon) playIcon.textContent = "▶";
-      if (playText) playText.textContent = "已暂停 · 点击推演";
-      cancelAnimationFrame(aiCycleTimer);
-    }
-  }
-
-  if (aiPlayBtn) {
-    aiPlayBtn.addEventListener("click", toggleAiPlay);
-  }
-
-  // 鼠标悬停探查
+  // 鼠标悬停探查交互
   stepsList.forEach((st) => {
     if (!st) return;
-    st.addEventListener("mouseenter", () => {
-      if (aiIsPlaying) cancelAnimationFrame(aiCycleTimer);
-      st.classList.add("is-hovered");
-    });
-    st.addEventListener("mouseleave", () => {
-      st.classList.remove("is-hovered");
-      if (aiIsPlaying) startAiCycle();
-    });
+    st.addEventListener("mouseenter", () => { st.classList.add("is-hovered"); });
+    st.addEventListener("mouseleave", () => { st.classList.remove("is-hovered"); });
   });
 
   headsList.forEach((hd) => {
@@ -1333,7 +1277,7 @@
     });
   });
 
-  // 默认启动 0.8x 推演流
+  // 默认启动持续推演流
   startAiCycle();
 
   /* ============================================================
