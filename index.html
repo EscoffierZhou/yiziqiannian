@@ -4,8 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>一字千年 · 从竹简到芯片的中国信息之路</title>
-  <meta name="description" content="《一字千年》——让一个汉字「国」穿越竹简、纸、印刷、电、计算机、芯片与人工智能。从竹简到芯片的中国信息之路。" />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
 </head>
 <body>
 
@@ -237,7 +239,7 @@
           </div>
           <div class="metric-card">
             <span class="metric-card__title">可产出总字数与品种</span>
-            <span class="metric-card__val metric-card__val--accent" id="metricOutput">单版单本（受限）</span>
+            <span class="metric-card__val metric-card__val--accent" id="metricOutput">单版单本</span>
             <span class="metric-card__desc">活字令天下典籍呈指数级爆发</span>
           </div>
         </div>
@@ -545,6 +547,76 @@
         </div>
       </div>
 
+      <!-- 芯片动手实验台 (Interactive Chip Lab) -->
+      <div class="chip-lab reveal" id="chipLab">
+        <div class="chip-lab__header">
+          <div class="chip-lab__title-box">
+            <span class="chip-lab__badge">上手体验 · HARDWARE LAB</span>
+            <h3 class="chip-lab__title">芯片微架构与汉字运载动手实验台</h3>
+          </div>
+          <div class="chip-lab__plain-hint" id="labPlainHint">
+            💡 <strong>通俗白话速懂</strong>：<span id="labHintText">CPU 像精细钟表匠，时钟以 5.1GHz 极速震荡，逐条指令把「国」字拆为 3 个机器字节（E5 9B BD）进行移位搬运；而昇腾 NPU 则是立体印刷流水线，把汉字映射为 4096 维张量，在 3D Cube 阵列中以每秒数十万亿次并行压印计算！</span>
+          </div>
+        </div>
+
+        <div class="chip-lab__body">
+          <!-- Intel 实验控制区 -->
+          <div class="lab-panel lab-panel--intel" id="labPanelIntel">
+            <div class="lab-panel__top">
+              <span class="panel-label">Intel® Core™ x86-64 标量运算视窗</span>
+              <span class="panel-clock" id="intelClockDisplay">时钟: 5.1 GHz · 运行中</span>
+            </div>
+            
+            <div class="register-visual">
+              <span class="reg-label">RAX 64-bit 物理寄存器状态：</span>
+              <div class="reg-slots" id="regSlots">
+                <span class="reg-byte" data-b="0">00</span>
+                <span class="reg-byte" data-b="1">00</span>
+                <span class="reg-byte" data-b="2">00</span>
+                <span class="reg-byte" data-b="3">00</span>
+                <span class="reg-byte" data-b="4">00</span>
+                <span class="reg-byte is-filled" data-b="5">E5</span>
+                <span class="reg-byte is-filled" data-b="6">9B</span>
+                <span class="reg-byte is-filled" data-b="7">BD</span>
+              </div>
+              <span class="reg-note" id="regNote">UTF-8 机器码 [E5 9B BD] 载入 RAX 寄存器低 24 位</span>
+            </div>
+
+            <div class="lab-actions">
+              <button class="lab-btn" id="btnLoadRax">① 写入 RAX 寄存器 (MOVQ)</button>
+              <button class="lab-btn" id="btnShrqRax">② 8位字节逻辑右移 (SHRQ)</button>
+              <button class="lab-btn" id="btnL3Probe">③ 探测 L3 缓存 (Ring Bus)</button>
+            </div>
+          </div>
+
+          <!-- 昇腾 实验控制区 -->
+          <div class="lab-panel lab-panel--ascend" id="labPanelAscend" style="display: none;">
+            <div class="lab-panel__top">
+              <span class="panel-label">华为昇腾 Ascend 910B 3D Cube 张量运算视窗</span>
+              <span class="panel-clock">3D Cube: 320 TFLOPS (FP16)</span>
+            </div>
+
+            <div class="cube-visual">
+              <span class="reg-label">DaVinci 3D Cube 16×16×16 矩阵乘阵列网格状态：</span>
+              <div class="cube-grid-box" id="cubeGridBox">
+                <!-- 16个矩阵计算单元格 -->
+                <i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i>
+                <i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i>
+                <i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i>
+                <i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i><i class="cube-cell"></i>
+              </div>
+              <span class="reg-note" id="cubeNote">Query × Key_T 矩阵乘法单元就绪，单周期执行 4096 次乘加 (MACs)</span>
+            </div>
+
+            <div class="lab-actions">
+              <button class="lab-btn lab-btn--ascend" id="btnHbmPull">① HBM2E 显存拉取词向量</button>
+              <button class="lab-btn lab-btn--ascend" id="btnCubeMatmul">② 3D Cube 矩阵乘点火 (MatMul)</button>
+              <button class="lab-btn lab-btn--ascend" id="btnVectorSoftmax">③ Vector Softmax 概率归一</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="chip-lines reveal">
         <p class="chip-line">文字改变了载体。</p>
         <p class="chip-line">信息改变了速度。</p>
@@ -577,95 +649,86 @@
 
       <!-- 左右全景 Transformer 流水线 -->
       <div class="transformer-pipeline reveal" id="transformerPipeline">
-        <!-- 左侧：输入与特征化流水线 (字形 -> 字符 -> 编码 -> 数据) -->
-        <div class="pipeline-col pipeline-col--left">
-          <div class="col-title">输入特征提取 · FEATURE EXTRACTION</div>
-          
-          <!-- 阶段1: 字形 -->
-          <div class="pipeline-step step--glyph is-active" id="stepGlyph">
-            <span class="step-num">01</span>
-            <div class="step-content">
-              <div class="step-header">
-                <span class="step-name">字形</span>
-                <span class="step-sub">Visual Glyph</span>
-              </div>
-              <div class="step-visual step-visual--char">国</div>
-              <div class="step-desc">笔画骨架与字体栅格点阵</div>
-            </div>
+        <!-- 顶部：横向输入特征提取流水线 (字形 ➔ 字符 ➔ 编码 ➔ 数据) -->
+        <div class="pipeline-feature-row" id="pipelineFeatureRow">
+          <div class="feature-row-head">
+            <span class="row-tag">01~04 输入特征提取 · FEATURE EXTRACTION (横向流式布局)</span>
+            <span class="row-sub">汉字视觉符号 ➔ 4096维连续语义空间张量</span>
           </div>
-
-          <div class="pipeline-arrow-down">↓</div>
-
-          <!-- 阶段2: 字符 -->
-          <div class="pipeline-step step--token" id="stepToken">
-            <span class="step-num">02</span>
-            <div class="step-content">
-              <div class="step-header">
-                <span class="step-name">字符 (Token)</span>
-                <span class="step-sub">Token ID</span>
+          <div class="feature-steps-bar">
+            <!-- 阶段1: 字形 -->
+            <div class="pipeline-step step--glyph is-active" id="stepGlyph">
+              <span class="step-num">01</span>
+              <div class="step-content">
+                <div class="step-header">
+                  <span class="step-name">字形</span>
+                  <span class="step-sub">Visual Glyph</span>
+                </div>
+                <div class="step-visual step-visual--char">国</div>
+                <div class="step-desc">笔画骨架与字体栅格点阵</div>
               </div>
-              <div class="token-badge">Token: "国" · ID #7654</div>
-              <div class="step-desc">分词器 (Tokenizer) 离散符号映射</div>
             </div>
-          </div>
 
-          <div class="pipeline-arrow-down">↓</div>
+            <div class="pipeline-arrow-right">➔</div>
 
-          <!-- 阶段3: 编码 -->
-          <div class="pipeline-step step--encode" id="stepEncode">
-            <span class="step-num">03</span>
-            <div class="step-content">
-              <div class="step-header">
-                <span class="step-name">字符编码</span>
-                <span class="step-sub">Encoding</span>
+            <!-- 阶段2: 字符 -->
+            <div class="pipeline-step step--token" id="stepToken">
+              <span class="step-num">02</span>
+              <div class="step-content">
+                <div class="step-header">
+                  <span class="step-name">字符 (Token)</span>
+                  <span class="step-sub">Token ID</span>
+                </div>
+                <div class="token-badge">Token: "国" · ID #7654</div>
+                <div class="step-desc">分词器离散符号映射</div>
               </div>
-              <div class="code-badge">U+56FD · E5 9B BD</div>
-              <div class="step-desc">计算机底层统一数字机器编码</div>
             </div>
-          </div>
 
-          <div class="pipeline-arrow-down">↓</div>
+            <div class="pipeline-arrow-right">➔</div>
 
-          <!-- 阶段4: 数据 -->
-          <div class="pipeline-step step--data" id="stepData">
-            <span class="step-num">04</span>
-            <div class="step-content">
-              <div class="step-header">
-                <span class="step-name">数据 (Embedding)</span>
-                <span class="step-sub">4096维连续语义向量</span>
+            <!-- 阶段3: 编码 -->
+            <div class="pipeline-step step--encode" id="stepEncode">
+              <span class="step-num">03</span>
+              <div class="step-content">
+                <div class="step-header">
+                  <span class="step-name">字符编码</span>
+                  <span class="step-sub">Encoding</span>
+                </div>
+                <div class="code-badge">U+56FD · E5 9B BD</div>
+                <div class="step-desc">计算机底层统一数字码</div>
               </div>
-              <div class="vector-preview" id="vectorPreview">
-                <span>[+0.382,</span><span>-0.714,</span><span>+0.891,</span><span>+0.125,</span><span>... -0.450]</span>
+            </div>
+
+            <div class="pipeline-arrow-right">➔</div>
+
+            <!-- 阶段4: 数据 -->
+            <div class="pipeline-step step--data" id="stepData">
+              <span class="step-num">04</span>
+              <div class="step-content">
+                <div class="step-header">
+                  <span class="step-name">数据 (Embedding)</span>
+                  <span class="step-sub">高维稠密连续向量</span>
+                </div>
+                <div class="vector-preview" id="vectorPreview">
+                  <span>[+0.382,</span><span>-0.714,</span><span>+0.891, ... -0.450]</span>
+                </div>
+                <div class="step-desc">4096维连续语义空间坐标</div>
               </div>
-              <div class="step-desc">高维语义连续稠密空间坐标</div>
             </div>
           </div>
         </div>
 
-        <!-- 中间：神经网络光流桥梁 (连接线与流光粒子) -->
-        <div class="pipeline-bridge">
-          <div class="bridge-stream" id="bridgeStream">
-            <svg class="bridge-svg" id="bridgeSvg" viewBox="0 0 160 380" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="beamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#e0a876" stop-opacity="0.8" />
-                  <stop offset="100%" stop-color="#72d6d0" stop-opacity="1" />
-                </linearGradient>
-              </defs>
-              <path class="bridge-line bridge-line--1" d="M 0 320 C 60 320, 100 80, 160 80" />
-              <path class="bridge-line bridge-line--2" d="M 0 320 C 80 320, 80 180, 160 180" />
-              <path class="bridge-line bridge-line--3" d="M 0 320 C 60 320, 100 240, 160 240" />
-            </svg>
-          </div>
-          <span class="bridge-label">向量流注入 ➔</span>
+        <!-- 向量注入过渡条 -->
+        <div class="feature-to-neural-flow">
+          <div class="flow-pulse-line"></div>
+          <span class="flow-pulse-label">⬇ 4096维高维连续语义向量注入 Transformer 深度认知与概率分布网络 ⬇</span>
         </div>
 
-        <!-- 右侧：Transformer 深度神经网络 (大量语料预训练 Encoder -> Decoder -> 概率词语输出) -->
-        <div class="pipeline-col pipeline-col--right">
-          <div class="col-title">TRANSFORMER 深度认知架构</div>
-          
-          <div class="transformer-box">
-            <!-- Encoder 模块 -->
+        <!-- 核心三列并行全景：①Transformer核心 ➔ ②线性投影与Softmax(独立列) ➔ ③预测词表 -->
+        <div class="pipeline-3col-grid" id="pipeline3ColGrid">
+          <!-- 第1列：Transformer 核心架构 (Encoder / Decoder) -->
+          <div class="pipeline-col col--backbone">
+            <div class="col-title">① TRANSFORMER 核心架构 (ENCODER / DECODER)</div>
             <div class="model-block model-block--encoder" id="blockEncoder">
               <div class="model-badge">海量语料预训练 · ENCODER</div>
               <div class="layer-title">多头自注意力机制 (Multi-Head Attention)</div>
@@ -679,20 +742,52 @@
 
             <div class="trans-flow-arrow">⬇ 跨注意力 (Cross-Attention) 深度交互</div>
 
-            <!-- Decoder 模块 -->
             <div class="model-block model-block--decoder" id="blockDecoder">
               <div class="model-badge">自回归解码生成 · DECODER</div>
               <div class="layer-title">因果掩码自注意力 (Causal Attention)</div>
-              <div class="decoder-status" id="decoderStatus">计算后验词表概率分布...</div>
+              <div class="decoder-status" id="decoderStatus">计算后验隐状态向量 H...</div>
+            </div>
+          </div>
+
+          <!-- 第2列：[线性投影 + Softmax 概率分布] 独立专列 -->
+          <div class="pipeline-col col--projection" id="colProjection">
+            <div class="col-title">② 线性投影 & SOFTMAX 概率分布 (独立计算列)</div>
+            
+            <div class="proj-block proj-block--linear" id="blockLinear">
+              <div class="proj-badge">DIMENSION PROJECTION</div>
+              <div class="layer-title">高维线性投影矩阵 (Linear Layer)</div>
+              <div class="math-eq">未归一化分值 $\mathbf{Z} = \mathbf{H} \cdot \mathbf{W}_v + \mathbf{b}$</div>
+              <div class="proj-dims">
+                <span class="dim-tag">隐状态: 4096维</span>
+                <span class="dim-arrow">➔</span>
+                <span class="dim-tag dim-tag--vocab">词表空间: 150,000维</span>
+              </div>
+              <div class="layer-sub">将高维抽象语义投射至庞大汉字词汇表</div>
             </div>
 
-            <div class="trans-flow-arrow">⬇ 线性投影 + Softmax 概率分布</div>
+            <div class="trans-flow-arrow">⬇ 指数归一化激活 (Normalized Probability)</div>
 
-            <!-- 输出词语概率列表（从上到下排好，高亮「国家」） -->
+            <div class="proj-block proj-block--softmax" id="blockSoftmax">
+              <div class="proj-badge">EXPONENTIAL NORMALIZATION</div>
+              <div class="layer-title">Softmax 概率归一化函数</div>
+              <div class="math-formula">
+                $P(w_i) = rac{\exp(z_i / 	au)}{\sum_j \exp(z_j / 	au)}$
+              </div>
+              <div class="softmax-specs">
+                <span class="spec-item">温度调节系数 $	au = 0.7$</span>
+                <span class="spec-item spec-item--active" id="softmaxStatus">概率分布已收敛锁定 ✓</span>
+              </div>
+              <div class="layer-sub">将全实数分值转换为严格归一化概率分布</div>
+            </div>
+          </div>
+
+          <!-- 第3列：输出预测词表 -->
+          <div class="pipeline-col col--vocab" id="colVocab">
+            <div class="col-title">③ 预测词表概率分布 · CANDIDATES</div>
             <div class="output-vocab-list" id="outputVocabList">
               <div class="vocab-header">
                 <span>预测关联词语</span>
-                <span>概率置信度</span>
+                <span>置信度</span>
               </div>
               <div class="vocab-item" data-word="中国">
                 <span class="vocab-word">中国</span>
@@ -723,7 +818,6 @@
           </div>
         </div>
       </div>
-
       <p class="scene-copy reveal">字形 → 字符 → 编码 → 数据 → Transformer 注意力与解码涌现。<br>千年一字，在百亿参数的神经网络中凝聚为对文明最深沉的理解。</p>
     </section>
 
