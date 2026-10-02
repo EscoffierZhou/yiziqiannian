@@ -114,7 +114,82 @@
     }
   }, { passive: true });
 
+  /* ============================================================
+     移动端平台检测与智能横屏锁定 (Screen Orientation & Fullscreen)
+  ============================================================ */
+  const mobileOrientGuide = $("#mobileOrientGuide");
+  const btnAutoLandscape = $("#btnAutoLandscape");
+  const btnCloseOrientGuide = $("#btnCloseOrientGuide");
+  const mobileOrientFab = $("#mobileOrientFab");
+
+  async function lockToLandscape() {
+    try {
+      const docEl = document.documentElement;
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (docEl.requestFullscreen) {
+          await docEl.requestFullscreen();
+        } else if (docEl.webkitRequestFullscreen) {
+          await docEl.webkitRequestFullscreen();
+        }
+      }
+    } catch (e) {
+      console.warn("Fullscreen request error or blocked:", e);
+    }
+
+    try {
+      if (screen.orientation && screen.orientation.lock) {
+        await screen.orientation.lock("landscape");
+      } else if (screen.lockOrientation) {
+        screen.lockOrientation("landscape");
+      } else if (screen.webkitLockOrientation) {
+        screen.webkitLockOrientation("landscape");
+      } else if (screen.mozLockOrientation) {
+        screen.mozLockOrientation("landscape");
+      }
+    } catch (e) {
+      console.warn("Screen orientation lock error:", e);
+    }
+  }
+
+  function checkMobileOrientation() {
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent) || window.innerWidth < 820;
+    if (mobileOrientGuide) {
+      if (isMobileDevice && isPortrait) {
+        mobileOrientGuide.classList.add("is-visible");
+      } else {
+        mobileOrientGuide.classList.remove("is-visible");
+      }
+    }
+  }
+
+  if (btnAutoLandscape) {
+    btnAutoLandscape.addEventListener("click", () => {
+      lockToLandscape();
+      if (mobileOrientGuide) mobileOrientGuide.classList.remove("is-visible");
+    });
+  }
+
+  if (btnCloseOrientGuide) {
+    btnCloseOrientGuide.addEventListener("click", () => {
+      if (mobileOrientGuide) mobileOrientGuide.classList.remove("is-visible");
+    });
+  }
+
+  if (mobileOrientFab) {
+    mobileOrientFab.addEventListener("click", lockToLandscape);
+  }
+
+  window.addEventListener("resize", checkMobileOrientation);
+  window.addEventListener("orientationchange", checkMobileOrientation);
+  setTimeout(checkMobileOrientation, 600);
+
+  // 首触与开启按钮联动：在移动端用户点击开启体验时，顺势唤起全屏与横屏锁定
   $("#startBtn").addEventListener("click", () => {
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 820;
+    if (isMobileDevice && window.innerHeight > window.innerWidth) {
+      lockToLandscape();
+    }
     $("#scene-bamboo").scrollIntoView({ behavior: "smooth" });
   });
 

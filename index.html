@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>一字千年 · 从竹简到芯片的中国信息之路</title>
-  <link rel="stylesheet" href="css/style.css?v=20261002_06" />
+  <link rel="stylesheet" href="css/style.css?v=20261002_07" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
@@ -13,6 +13,34 @@
 
   <!-- 顶部极细滚动进度条 -->
   <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+  <!-- 移动端横屏沉浸体验提示条 -->
+  <aside class="mobile-orient-guide" id="mobileOrientGuide" aria-label="横屏体验引导">
+    <div class="orient-guide-content">
+      <div class="orient-icon-box">
+        <svg class="phone-rotate-svg" viewBox="0 0 48 48">
+          <rect x="12" y="6" width="24" height="36" rx="4" fill="none" stroke="currentColor" stroke-width="2.5"/>
+          <circle cx="24" cy="36" r="1.5" fill="currentColor"/>
+          <path d="M6 24 C6 14 14 6 24 6" fill="none" stroke="#72d6d0" stroke-width="2.5" stroke-dasharray="4 2"/>
+          <polygon points="24,2 28,6 24,10" fill="#72d6d0"/>
+        </svg>
+      </div>
+      <div class="orient-text">
+        <strong>建议横屏浏览</strong>
+        <span>展馆包含多幕大尺度模型，横屏或全屏可获最佳视效</span>
+      </div>
+      <div class="orient-actions">
+        <button class="orient-btn orient-btn--lock" id="btnAutoLandscape">一键横屏</button>
+        <button class="orient-btn orient-btn--close" id="btnCloseOrientGuide" aria-label="关闭">×</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 移动端浮动横屏切换按钮 -->
+  <button class="mobile-orient-fab" id="mobileOrientFab" aria-label="切换全屏横屏" title="切换全屏横屏">
+    <span class="fab-icon">🔄</span>
+    <span class="fab-text">横屏模式</span>
+  </button>
 
   <!-- 边缘 · 文明进度环（隐藏，鼠标靠近右缘时浮现） -->
   <nav class="ring-nav" id="ringNav" aria-label="文明进度环">
@@ -1042,6 +1070,6 @@
 
   </main>
 
-  <script src="js/main.js?v=20261002_06"></script>
+  <script src="js/main.js?v=20261002_07"></script>
 </body>
 </html>
