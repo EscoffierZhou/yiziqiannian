@@ -882,14 +882,6 @@ button { cursor: pointer; border: none; background: none; }
     gap: 10px !important;
   }
 }
-@media (max-width: 820px) {
-  .ai-pipeline-grid {
-    grid-template-columns: 200px 340px 300px !important;
-    gap: 10px !important;
-    overflow-x: auto !important;
-    padding-bottom: 12px;
-  }
-}
 
 .pipeline-col {
   background: rgba(10, 18, 30, 0.7);
@@ -2117,21 +2109,254 @@ button { cursor: pointer; border: none; background: none; }
     display: inline-flex;
   }
 }
-@media (orientation: landscape) and (max-height: 520px) {
-  .mobile-orient-fab {
-    display: none !important;
-  }
+/* ============================================================
+   移动端竖屏模式专项重构 · 彻底拆解并排布局 (Portrait Mode)
+   Chap 3 印刷 / Chap 5 计算机 / Chap 6 芯片 / Chap 7 人工智能
+   ============================================================ */
+@media screen and (max-width: 900px) and (orientation: portrait),
+       screen and (max-device-width: 900px) and (orientation: portrait) {
+
+  /* 全局竖屏收窄与排版呼吸感 */
   .scene {
-    padding: 45px 4vw 40px !important;
-    min-height: auto;
-  }
-  .scene-head {
-    margin-bottom: 16px;
-  }
-  .scene-title {
-    font-size: 32px;
+    padding: 70px 16px 50px !important;
   }
   .ring-nav {
     display: none !important;
   }
+  .scene-title {
+    font-size: 34px !important;
+  }
+  .scene-sub {
+    font-size: 13px !important;
+  }
+
+  /* ------------------------------------------------------------
+     【Chap 3 · 印刷】：拆开字模库与排印框，拆开仪表板
+     ------------------------------------------------------------ */
+  .movable-type-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    width: 100% !important;
+  }
+  .type-tray, .type-press {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .type-tray-grid, .press-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px !important;
+  }
+  .print-metrics-dashboard {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  .metric-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+  }
+  .print-mode-selector {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+  .print-mode-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* ------------------------------------------------------------
+     【Chap 5 · 计算机】：拆开繁简流转，拆开数据编码管道
+     ------------------------------------------------------------ */
+  .glyph-morph {
+    padding: 16px 14px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .morph-display {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 14px !important;
+  }
+  .morph-flow {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 6px !important;
+  }
+  .morph-scan {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 4px !important;
+  }
+  .morph-arrow {
+    transform: rotate(90deg) !important;
+    display: inline-block !important;
+    font-size: 22px !important;
+  }
+  .encode-chain {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 330px !important;
+    margin: 20px auto 0 !important;
+  }
+  .encode-layer {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .encode-canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+  }
+
+  /* ------------------------------------------------------------
+     【Chap 6 · 芯片】：彻底拆开左右并排，改为上下独立实验台
+     ------------------------------------------------------------ */
+  .chip-lab {
+    padding: 16px 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .chip-split-stage {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 22px !important;
+    width: 100% !important;
+  }
+  .lab-panel {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 16px 12px !important;
+  }
+  .reg-slots {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px !important;
+  }
+  .cube-semantic-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+  .lab-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  .lab-actions .lab-btn {
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 12px !important;
+    padding: 10px 8px !important;
+  }
+
+  /* ------------------------------------------------------------
+     【Chap 7 · 人工智能】：彻底拆开三列并排，改为三大纵向功能区
+     ------------------------------------------------------------ */
+  .ai-pipeline-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+    width: 100% !important;
+    overflow-x: visible !important;
+  }
+  .pipeline-col {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 14px 12px !important;
+  }
+  .col--input-stream,
+  .col--encoder,
+  .col--decoder-output {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .ffn-svg {
+    max-height: 190px !important;
+  }
+  .causal-matrix-grid {
+    grid-template-columns: 46px repeat(4, 1fr) !important;
+    gap: 3px !important;
+  }
+  .dec-cand-btn {
+    padding: 6px 8px !important;
+    grid-template-columns: auto auto minmax(20px, 1fr) auto !important;
+  }
 }
+
+/* ============================================================
+   移动端横屏模式专项优化 (Landscape Mode · 80% 等比紧凑化缩放)
+   消除横屏下芯片 CPU/NPU 与 Transformer Decoder 溢出
+   ============================================================ */
+@media screen and (orientation: landscape) and (max-height: 600px),
+       screen and (orientation: landscape) and (max-width: 1050px) {
+  .mobile-orient-fab {
+    display: none !important;
+  }
+  .scene {
+    padding: 24px 3vw 20px !important;
+    min-height: auto !important;
+  }
+  .scene-head {
+    margin-bottom: 8px !important;
+  }
+  .scene-kicker {
+    margin-bottom: 2px !important;
+  }
+  .scene-title {
+    font-size: 26px !important;
+    margin: 2px 0 !important;
+  }
+  .scene-sub {
+    font-size: 12px !important;
+    margin-bottom: 6px !important;
+  }
+  .ring-nav {
+    display: none !important;
+  }
+
+  /* 核心交互区按要求进行 80% 紧凑等比缩放，彻底消除横屏下芯片与 Decoder 溢出 */
+  .chip-lab,
+  .ai-pipeline-grid,
+  .print-stage,
+  .glyph-morph,
+  .encode-lab {
+    zoom: 0.8 !important;
+  }
+  @supports not (zoom: 0.8) {
+    .chip-lab,
+    .ai-pipeline-grid,
+    .print-stage,
+    .glyph-morph,
+    .encode-lab {
+      transform: scale(0.8) !important;
+      transform-origin: top center !important;
+    }
+  }
+
+  /* 芯片对照台在横屏下保持左右并排 100% 满屏 */
+  .chip-split-stage {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 14px !important;
+  }
+
+  /* AI 流水线在横屏缩放后保持 3 列满屏并排 */
+  .ai-pipeline-grid {
+    display: grid !important;
+    grid-template-columns: minmax(180px, 200px) minmax(300px, 1.25fr) minmax(270px, 1.1fr) !important;
+    gap: 12px !important;
+    overflow-x: visible !important;
+  }
+}
+
