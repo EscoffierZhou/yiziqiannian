@@ -24,14 +24,14 @@ html,body{
 #stage{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;overflow:hidden;background:#000;}
 canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height:100%;display:block;transform:translateZ(0);}
 
-/* ---------- atmosphere ---------- */
+/* ---------- atmosphere (GPU Compositor 纯硬件加速，消除逐帧重绘 Paint) ---------- */
 .vignette{position:absolute;top:-2px;right:-2px;bottom:-2px;left:-2px;inset:-2px;pointer-events:none;
   background:radial-gradient(ellipse at center, rgba(0,0,0,0) 44%, rgba(0,0,0,.40) 78%, rgba(0,0,0,.85) 100%);
   transform:translateZ(0);}
-.scan{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;pointer-events:none;opacity:.22;
+.scan{position:absolute;top:-60px;right:0;bottom:0;left:0;pointer-events:none;opacity:.18;
   background:repeating-linear-gradient(to bottom, rgba(255,255,255,.05) 0 1px, rgba(0,0,0,0) 1px 3px);
-  animation:scanmove 7s linear infinite;transform:translateZ(0);will-change:background-position;}
-@keyframes scanmove{from{background-position-y:0}to{background-position-y:60px}}
+  animation:scanmove 7s linear infinite;transform:translate3d(0,0,0);will-change:transform;}
+@keyframes scanmove{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(0,60px,0)}}
 .grain{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;pointer-events:none;opacity:.04;
   background-image:radial-gradient(rgba(255,255,255,.9) .5px, transparent .6px);
   background-size:3px 3px;transform:translateZ(0);}
@@ -61,7 +61,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
 .tlbar .node s{display:block;width:6px;height:6px;border:1px solid currentColor;transform:rotate(45deg);text-decoration:none}
 .tlbar .node.on{color:var(--gold-b);text-shadow:0 0 16px rgba(240,200,105,.65)}
 
-/* ---------- intro central glyph ---------- */
+/* ---------- intro central glyph (剔除耗电卡顿的动态 filter:blur) ---------- */
 .core{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
   z-index:5;pointer-events:none;transition:opacity .8s ease}
 .core::before{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
@@ -69,9 +69,9 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   background:radial-gradient(circle, rgba(240,200,105,.20) 0%, rgba(214,140,50,.08) 42%, rgba(0,0,0,0) 68%)}
 .core.gone{opacity:0}
 .core .glyph{position:relative;font-size:clamp(130px,28vw,360px);line-height:1;color:#ffdf8e;
-  text-shadow:0 0 30px rgba(255,233,168,.75),0 0 90px rgba(240,200,105,.55),0 0 170px rgba(200,120,40,.38);
-  animation:breathe 3.4s ease-in-out infinite}
-@keyframes breathe{0%,100%{transform:scale(1);opacity:.86;filter:blur(0)}50%{transform:scale(1.045);opacity:1;filter:blur(.4px)}}
+  text-shadow:0 0 30px rgba(255,233,168,.75),0 0 80px rgba(240,200,105,.5);
+  animation:breathe 3.4s ease-in-out infinite;transform:translateZ(0);}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.86}50%{transform:scale(1.045);opacity:1}}
 .core .q{margin-top:6px;font-size:clamp(13px,2.4vw,19px);letter-spacing:.5em;color:rgba(255,233,168,.72);
   opacity:0;animation:fadeup 1.6s 1s both}
 @keyframes fadeup{from{opacity:0;transform:translateY(14px)}to{opacity:.9;transform:none}}
@@ -80,7 +80,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
 .cap{position:absolute;left:50%;top:50%;z-index:7;pointer-events:none;text-align:center;
   transform-origin:50% 50%;will-change:transform,opacity;white-space:nowrap}
 .cap .lbl{font-size:clamp(40px,9vw,120px);letter-spacing:.16em;color:var(--ivory);
-  font-weight:600;line-height:1;text-shadow:0 0 32px rgba(240,200,105,.4),0 0 90px rgba(200,120,40,.28)}
+  font-weight:600;line-height:1;text-shadow:0 0 28px rgba(240,200,105,.5)}
 .cap .era{margin-top:12px;font-family:ui-monospace,Menlo,monospace;font-size:clamp(11px,1.7vw,15px);
   letter-spacing:.42em;color:var(--gold)}
 
@@ -96,14 +96,13 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
 .final h1{margin:0;font-size:clamp(58px,15vw,200px);letter-spacing:.1em;font-weight:700;
   background:linear-gradient(180deg,#fff8e2 0%,var(--gold) 44%,var(--gold-d) 100%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 0 46px rgba(240,200,105,.4));
+  filter:drop-shadow(0 0 36px rgba(240,200,105,.4));
   transform-origin:50% 50%;animation:punch 1.3s cubic-bezier(.16,1,.3,1) both}
-@keyframes punch{0%{transform:scale(1.9);opacity:0;filter:blur(16px) drop-shadow(0 0 0 rgba(0,0,0,0))}
-  60%{opacity:1}100%{transform:scale(1);opacity:1;filter:blur(0) drop-shadow(0 0 46px rgba(240,200,105,.4))}}
+@keyframes punch{0%{transform:scale(1.9);opacity:0}60%{opacity:1}100%{transform:scale(1);opacity:1}}
 .seal{position:absolute;top:-.1em;right:-.38em;width:.6em;height:.6em;background:var(--red);
   border:2px solid rgba(255,255,255,.55);border-radius:6px;display:flex;align-items:center;justify-content:center;
   font-size:clamp(52px,13vw,175px);color:#ffe9a8;transform:rotate(-8deg);opacity:0;
-  box-shadow:0 0 40px rgba(208,33,58,.6);animation:stamp .7s .75s cubic-bezier(.2,1.5,.4,1) both}
+  box-shadow:0 0 32px rgba(208,33,58,.6);animation:stamp .7s .75s cubic-bezier(.2,1.5,.4,1) both}
 @keyframes stamp{0%{opacity:0;transform:rotate(-30deg) scale(2.4)}70%{opacity:1}100%{opacity:.94;transform:rotate(-8deg) scale(1)}}
 .final .sub{margin:26px 0 0;font-size:clamp(13px,2.3vw,20px);letter-spacing:.24em;color:rgba(255,233,168,.85);
   opacity:0;animation:fadeup 1.1s 1.05s both}
@@ -143,13 +142,15 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   .spd .num{font-size:20px}
   .hud .tl{left:16px;top:18px}
   .skip{left:16px;bottom:20px}
+  .core .glyph{text-shadow:0 0 22px rgba(255,233,168,.65),0 0 45px rgba(240,200,105,.4);}
+  .cap .lbl{text-shadow:0 0 20px rgba(240,200,105,.45);}
 }
 </style>
 </head>
 <body>
 <div id="stage">
-  <canvas id="bgfx"></canvas>
-  <canvas id="tunnel"></canvas>
+  <!-- 单一高性能 Canvas 架构：彻底消除双 Canvas 叠加的手机 GPU 显存带宽与混合瓶颈 -->
+  <canvas id="stageCvs"></canvas>
   <div class="scan"></div>
   <div class="grain"></div>
   <div class="vignette"></div>
@@ -198,19 +199,18 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
 (function(){
   "use strict";
 
-  // 规范化 URL：自动去除地址栏末尾的 index.html，保持纯净根域名
+  // 规范化 URL：自动去除地址栏末尾的 index.html，严格保持纯净根域名
   if (window.location.pathname.endsWith('/index.html') || window.location.pathname.endsWith('index.html')) {
     const cleanPath = window.location.pathname.replace(/\/index\.html$/, '/').replace(/index\.html$/, '');
     window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
   }
 
-  const cvs = document.getElementById('tunnel');
-  const ctx = cvs.getContext('2d', {alpha:true});
-  const bgc = document.getElementById('bgfx');
-  const bx  = bgc.getContext('2d', {alpha:true});
+  const cvs = document.getElementById('stageCvs');
+  const ctx = cvs.getContext('2d', {alpha:false}); // 关闭 alpha 提升底层合成性能
 
   let W=0, H=0, CX=0, CY=0, DPR=1, FOCAL=1000;
   let aspect = 1.0;
+  let isMobile = false;
 
   /* ---------- chapters pulled from the page ---------- */
   const CHAPTERS = [
@@ -223,11 +223,10 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     {idx:'07', label:'人工智能',era:'此刻 · 理解与涌现',            glyphs:'智涌现理解', theme:[205,140,255], pr:1.80}
   ];
 
-  // 严格修复 Unicode：将康熙部首替换为全平台通用标准汉字，彻底杜绝乱码豆腐块
   const CORE_GLYPHS = '國国一千年文字家中华';
   const BIN = '01';
 
-  // 全金调色板：亮金 → 正金 → 琥珀 → 暗金
+  // 全金调色板
   const GOLD = [
     [255,233,168],
     [240,200,105],
@@ -236,7 +235,6 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   ];
 
   /* ---------- 离屏烘焙贴图系统 (Glyph Texture Cache) ---------- */
-  // 消除运行时 ctx.shadowBlur 高斯模糊与 fillText 解析，性能提升数十倍
   const glyphCache = new Map();
 
   function getGlyphSprite(ch, colorIdx, dpr){
@@ -244,8 +242,8 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     let sprite = glyphCache.get(key);
     if(sprite) return sprite;
 
-    const baseSize = 88;
-    const pad = 24;
+    const baseSize = 80;
+    const pad = 20;
     const fullSize = baseSize + pad * 2;
     const off = document.createElement('canvas');
     off.width = Math.round(fullSize * dpr);
@@ -258,16 +256,16 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     const g = GOLD[colorIdx] || GOLD[1];
     const colorStr = 'rgb(' + g[0] + ',' + g[1] + ',' + g[2] + ')';
 
-    // 1. 底层大号柔光层：模拟辉光晕染，零高斯模糊开销
-    og.font = '700 ' + Math.round(baseSize * 1.08) + 'px -apple-system,"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","SimSun",serif';
+    // 1. 底层大号柔光层：模拟辉光晕染，零实时高斯模糊开销
+    og.font = '700 ' + Math.round(baseSize * 1.07) + 'px -apple-system,"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","SimSun",serif';
     og.textAlign = 'center';
     og.textBaseline = 'middle';
     og.fillStyle = 'rgba(240,200,105,0.22)';
     og.fillText(ch, cx, cy);
 
     // 2. 中层微光层
-    og.font = '700 ' + Math.round(baseSize * 1.03) + 'px -apple-system,"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","SimSun",serif';
-    og.fillStyle = 'rgba(255,233,168,0.38)';
+    og.font = '700 ' + Math.round(baseSize * 1.02) + 'px -apple-system,"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","SimSun",serif';
+    og.fillStyle = 'rgba(255,233,168,0.36)';
     og.fillText(ch, cx, cy);
 
     // 3. 顶层实体字
@@ -286,11 +284,10 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   }
 
   /* ---------- 背景精灵图 (Sprite) 烘焙系统 ---------- */
-  // 彻底消除每一帧实时调用 createRadialGradient 产生的垃圾回收停顿与性能雪崩
   let nebulaSprite = null;
   function getNebulaSprite(){
     if(nebulaSprite) return nebulaSprite;
-    const size = 256;
+    const size = 192;
     const c = document.createElement('canvas');
     c.width = size; c.height = size;
     const g = c.getContext('2d');
@@ -310,7 +307,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   let starSprite = null;
   function getStarSprite(){
     if(starSprite) return starSprite;
-    const size = 64;
+    const size = 48;
     const c = document.createElement('canvas');
     c.width = size; c.height = size;
     const g = c.getContext('2d');
@@ -336,21 +333,18 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
 
   /* ---------- resize & viewport ---------- */
   function resize(){
-    // 移动端限制最大 DPR 为 1.5，桌面端为 2.0，兼顾视网膜清晰度与极低显存功耗
-    const isMobile = window.innerWidth < 768;
-    DPR = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
+    isMobile = window.innerWidth < 768;
+    // 移动端限制 DPR 至 1.25：超视网膜屏细腻度无损，但像素填充量减少 36%~60%
+    DPR = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 2);
     W = cvs.clientWidth; H = cvs.clientHeight;
     cvs.width = Math.round(W*DPR); cvs.height = Math.round(H*DPR);
     ctx.setTransform(DPR,0,0,DPR,0,0);
-    bgc.width = Math.round(W*DPR); bgc.height = Math.round(H*DPR);
-    bx.setTransform(DPR,0,0,DPR,0,0);
     CX = W/2; CY = H/2;
     aspect = W / (H || 1);
 
-    // 焦距计算：竖屏手机自适应增强纵深感
+    // 焦距计算
     FOCAL = (aspect < 1 ? Math.max(W, H * 0.58) : Math.min(W, H)) * 1.05;
 
-    // 清空字符缓存以适应新的 DPR
     glyphCache.clear();
     buildBg();
   }
@@ -375,15 +369,14 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   const flashEl = document.getElementById('flash');
 
   /* ---------- timeline ---------- */
-  const T_INTRO = 1500;      // void + core glyph
-  const T_RUN   = 7100;      // the accelerating fly-through
-  const T_FLASH = 650;       // white burst
+  const T_INTRO = 1500;
+  const T_RUN   = 7100;
+  const T_FLASH = 650;
   const T_END   = T_INTRO + T_RUN + T_FLASH;
 
   let t0 = performance.now();
   let finished = false;
 
-  // 跨标签页及锁屏时间补偿
   let isHidden = false;
   let hiddenStartTime = 0;
   document.addEventListener('visibilitychange', function(){
@@ -423,9 +416,11 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     const fs = isBin ? 46 : (isCore ? 96+Math.random()*70 : 62+Math.random()*56);
     const sizeW = Math.max(0.66, Math.min(1.28, 1.30 - fs*0.0032));
 
-    // 根据屏幕横纵比自适应散布范围，手机竖屏不散失，桌面宽屏气势磅礴
     const spreadX = aspect < 1 ? 580 : 1150;
     const spreadY = aspect < 1 ? 920 : 720;
+
+    // 移动端减少旋转计算
+    const rot = isMobile ? (Math.random() < 0.3 ? (Math.random()*2-1)*0.12 : 0) : (Math.random()*2-1)*0.16;
 
     glyphs.push({
       ch: character,
@@ -434,7 +429,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
       z: Z_FAR * (0.86 + Math.random()*0.14),
       fs: fs,
       colorIdx: colorIdx,
-      rot: (Math.random()*2-1)*0.16,
+      rot: rot,
       w: sizeW * (0.85 + Math.random()*0.30)
     });
   }
@@ -484,13 +479,6 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
       rg.addColorStop(0.45,'rgba(212,226,255,'+(a*0.45).toFixed(3)+')');
       rg.addColorStop(1,'rgba(170,195,255,0)');
       g.fillStyle=rg; g.beginPath(); g.arc(x,y,r*3.2,0,6.2832); g.fill();
-      if(Math.random()<0.16){
-        g.strokeStyle='rgba(255,255,255,'+(a*0.55).toFixed(3)+')'; g.lineWidth=0.7;
-        g.beginPath();
-        g.moveTo(x-r*4.5,y); g.lineTo(x+r*4.5,y);
-        g.moveTo(x,y-r*4.5); g.lineTo(x,y+r*4.5);
-        g.stroke();
-      }
     }
     return c;
   }
@@ -521,54 +509,56 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
 
   function buildBg(){
     if(!W || !H) return;
-    const tw=Math.ceil(W*1.5), th=Math.ceil(H*1.4);
-    const stars = makeStars(tw,th,280);
+    const scaleFactor = isMobile ? 1.25 : 1.45;
+    const tw=Math.ceil(W*scaleFactor), th=Math.ceil(H*scaleFactor);
+    const starCount = isMobile ? 140 : 260;
+    const stars = makeStars(tw,th,starCount);
     const far   = makeCurtain(tw,th, Math.max(72, W*0.110), Math.max(12, Math.min(W,H)*0.017), 0.04, 0.16);
     const near  = makeCurtain(tw,th, Math.max(58, W*0.075), Math.max(16, Math.min(W,H)*0.028), 0.06, 0.30);
     bgLayers = [
-      {tex:stars, rate:0.016, ax:0.40, ay:0.36, a:0.90},
-      {tex:far,   rate:0.048, ax:0.42, ay:0.38, a:0.52},
-      {tex:near,  rate:0.105, ax:0.44, ay:0.40, a:0.78}
+      {tex:stars, rate:0.016, ax:0.38, ay:0.34, a:0.90},
+      {tex:far,   rate:0.048, ax:0.40, ay:0.36, a:0.50},
+      {tex:near,  rate:0.105, ax:0.42, ay:0.38, a:0.75}
     ];
   }
 
   function drawBgfx(now){
     const t=now/1000;
-    bx.clearRect(0,0,W,H);
-    bx.globalCompositeOperation='lighter';
+    ctx.globalCompositeOperation='lighter';
 
-    // 1. 星云微光：使用离屏 Sprite 绘制，零每帧渐变对象开销
+    // 1. 星云微光
     const neb = getNebulaSprite();
-    for(let i=0;i<3;i++){
-      const nx=W*(0.28+0.22*i)+Math.sin(t*0.05+i)*W*0.05;
-      const ny=H*0.46+Math.cos(t*0.04+i*1.7)*H*0.12;
-      const R=Math.min(W,H)*(0.55+0.12*i);
-      bx.drawImage(neb, nx-R, ny-R, R*2, R*2);
+    const nebCount = isMobile ? 2 : 3;
+    for(let i=0;i<nebCount;i++){
+      const nx=W*(0.28+0.25*i)+Math.sin(t*0.05+i)*W*0.04;
+      const ny=H*0.46+Math.cos(t*0.04+i*1.7)*H*0.10;
+      const R=Math.min(W,H)*(0.52+0.12*i);
+      ctx.drawImage(neb, nx-R, ny-R, R*2, R*2);
     }
 
-    // 2. 视差图层：星空 / 远景柱幕 / 近景柱幕
+    // 2. 视差图层
     for(let i=0;i<bgLayers.length;i++){
       const L=bgLayers[i];
       const ox=(W-L.tex.width)/2  + (L.tex.width -W)*L.ax*0.5*Math.sin(t*L.rate + i*1.3);
       const oy=(H-L.tex.height)/2 + (L.tex.height-H)*L.ay*0.5*Math.sin(t*L.rate*0.73 + i*2.1);
-      bx.globalAlpha=L.a;
-      bx.drawImage(L.tex, ox, oy);
+      ctx.globalAlpha=L.a;
+      ctx.drawImage(L.tex, ox, oy);
     }
 
-    // 3. 闪烁星芒：使用预烘焙星芒 Sprite，消除每帧 10 次路径描边与渐变创建
+    // 3. 闪烁星芒
     const star = getStarSprite();
-    for(let i=0;i<10;i++){
+    const starCount = isMobile ? 5 : 9;
+    for(let i=0;i<starCount;i++){
       const ph=i*2.399;
-      const x=(Math.sin(ph*3.1)*0.5+0.5)*W + Math.sin(t*0.11+ph)*12;
-      const y=(Math.cos(ph*2.3)*0.5+0.5)*H + Math.cos(t*0.09+ph)*12;
+      const x=(Math.sin(ph*3.1)*0.5+0.5)*W + Math.sin(t*0.11+ph)*10;
+      const y=(Math.cos(ph*2.3)*0.5+0.5)*H + Math.cos(t*0.09+ph)*10;
       const tw=0.5+0.5*Math.sin(t*(1.1+i*0.13)+ph);
-      const sz=12+tw*24;
-      bx.globalAlpha=Math.min(1, tw*0.85);
-      bx.drawImage(star, x-sz/2, y-sz/2, sz, sz);
+      const sz=isMobile ? (10+tw*16) : (12+tw*24);
+      ctx.globalAlpha=Math.min(1, tw*0.82);
+      ctx.drawImage(star, x-sz/2, y-sz/2, sz, sz);
     }
 
-    bx.globalAlpha=1;
-    bx.globalCompositeOperation='source-over';
+    ctx.globalAlpha=1;
   }
 
   /* ---------- render loop ---------- */
@@ -605,7 +595,6 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
       }
     }
 
-    // core glyph disappears when the run starts
     if(el > T_INTRO*0.82 && !coreEl.classList.contains('gone')) coreEl.classList.add('gone');
 
     /* ---- world update ---- */
@@ -613,9 +602,11 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     if(running){
       const speed = 400 * sm;
       const gate = Math.min(1, Math.max(0, (el - 820) / 680));
-      const target = Math.round((70 + sm*12) * gate);
+      // 移动端动态限制粒子数，手机端维持在 32~65 个最优充盈区间，消除 GPU 拥塞
+      const maxTarget = isMobile ? (32 + sm*2.5) : (70 + sm*12);
+      const target = Math.round(maxTarget * gate);
       let guard = 0;
-      while(glyphs.length < target && guard < 40){ spawn(tt); guard++; }
+      while(glyphs.length < target && guard < 25){ spawn(tt); guard++; }
 
       for(let i=glyphs.length-1; i>=0; i--){
         const g = glyphs[i];
@@ -624,18 +615,21 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
       }
     }
 
-    /* ---- clear tunnel canvas ---- */
+    /* ---- 1. 清屏 (单一 Canvas 仅需清空一次) ---- */
     ctx.globalCompositeOperation = 'source-over';
-    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, W, H);
 
-    /* ---- radial speed streaks (hyperdrive) ---- */
-    // 批量单次路径描边优化，零 GC 渐变创建
+    /* ---- 2. 背景特效 ---- */
+    drawBgfx(now);
+
+    /* ---- 3. 放射状超光速流线 ---- */
     const streakAlpha = Math.max(0, (sm-5)/12);
     if(streakAlpha > 0.01 && running){
       ctx.globalCompositeOperation = 'lighter';
-      const count = Math.min(65, Math.floor(60*streakAlpha) + 8);
+      const count = isMobile ? Math.min(32, Math.floor(28*streakAlpha) + 4) : Math.min(65, Math.floor(60*streakAlpha) + 8);
       ctx.strokeStyle = 'rgba(255,233,168,' + (0.12*streakAlpha).toFixed(3) + ')';
-      ctx.lineWidth = 1.3;
+      ctx.lineWidth = 1.2;
       ctx.beginPath();
       for(let i=0;i<count;i++){
         const ang = Math.random()*Math.PI*2;
@@ -649,7 +643,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
       ctx.stroke();
     }
 
-    /* ---- draw glyphs (GPU drawImage 高速贴图) ---- */
+    /* ---- 4. 飞驰字流 (GPU 高速贴图 + 状态机极简优化) ---- */
     if(running && glyphs.length > 0){
       ctx.globalCompositeOperation = 'lighter';
       for(let i=0;i<glyphs.length;i++){
@@ -658,10 +652,8 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
         const sx = CX + g.x * sc;
         const sy = CY + g.y * sc;
 
-        // 视锥剪裁
-        if(sx < -400 || sx > W+400 || sy < -400 || sy > H+400) continue;
+        if(sx < -300 || sx > W+300 || sy < -300 || sy > H+300) continue;
 
-        // alpha: fade-in from far, fade-out near
         let a = 1;
         if(g.z > Z_FAR-560) a *= Math.max(0, (Z_FAR - g.z)/560);
         if(g.z < 260) a *= Math.max(0, (g.z - Z_NEAR)/(260-Z_NEAR));
@@ -671,27 +663,31 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
         const scaleRatio = (g.fs / sprite.baseSize) * sc;
         const drawSize = sprite.fullSize * scaleRatio;
 
-        ctx.save();
         ctx.globalAlpha = Math.min(1, a) * 0.95;
-        ctx.translate(sx, sy);
-        if(g.rot) ctx.rotate(g.rot);
-        ctx.drawImage(sprite.canvas, -drawSize/2, -drawSize/2, drawSize, drawSize);
-        ctx.restore();
+
+        // 无旋转粒子直接绘制，规避频繁 save()/restore() 状态栈切换
+        if(g.rot){
+          ctx.save();
+          ctx.translate(sx, sy);
+          ctx.rotate(g.rot);
+          ctx.drawImage(sprite.canvas, -drawSize/2, -drawSize/2, drawSize, drawSize);
+          ctx.restore();
+        } else {
+          ctx.drawImage(sprite.canvas, sx - drawSize/2, sy - drawSize/2, drawSize, drawSize);
+        }
       }
     }
 
-    /* ---- 背景特效渲染 ---- */
-    drawBgfx(now);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
 
-    /* ---- HUD readouts (GPU transform 零重排 + 适度节流) ---- */
+    /* ---- 5. HUD 读数与进度 ---- */
     const prog = Math.min(1, Math.max(0, el/T_END));
     const speedRatio = Math.min(1, Math.max(0, sm/20));
     
-    // 进度条使用 GPU transform: scaleX，彻底消除浏览器 Layout/Reflow 卡顿
     spdBar.style.transform = 'scaleX(' + speedRatio.toFixed(4) + ')';
     barlove.style.transform = 'scaleX(' + prog.toFixed(4) + ')';
 
-    // 文本每 3 帧微更新一次，降低 DOM 节点字符串更新开销
     if(frameCount % 3 === 0){
       const zShown = el<=T_END ? Math.max(0, Math.round(Z_FAR*(1-prog))) : 0;
       hudZ.textContent = 'Z ' + String(Z_FAR).padStart(4,'0') + ' → ' + String(zShown).padStart(4,'0');
@@ -706,7 +702,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
       spdNum.textContent = '×' + sm.toFixed(1);
     }
 
-    /* ---- trigger flash + title ---- */
+    /* ---- 6. trigger flash + title ---- */
     if(!finished && el > T_END){
       finished = true;
       glyphs = [];
