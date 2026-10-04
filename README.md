@@ -2,6 +2,8 @@
 
 > 让一个汉字「国」穿越竹简、纸、印刷、电、计算机、芯片与人工智能。从竹简到芯片的中国信息之路。
 
+🔗 **线上访问 (GitHub Pages)**: [https://EscoffierZhou.github.io/yiziqiannian/](https://EscoffierZhou.github.io/yiziqiannian/)
+
 ---
 
 ## 📖 项目简介
