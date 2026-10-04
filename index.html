@@ -198,6 +198,12 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
 (function(){
   "use strict";
 
+  // 规范化 URL：自动去除地址栏末尾的 index.html，保持纯净根域名
+  if (window.location.pathname.endsWith('/index.html') || window.location.pathname.endsWith('index.html')) {
+    const cleanPath = window.location.pathname.replace(/\/index\.html$/, '/').replace(/index\.html$/, '');
+    window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
+  }
+
   const cvs = document.getElementById('tunnel');
   const ctx = cvs.getContext('2d', {alpha:true});
   const bgc = document.getElementById('bgfx');
