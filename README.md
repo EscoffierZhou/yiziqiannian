@@ -2,10 +2,6 @@
 
 > 让一个汉字「国」穿越竹简、纸、印刷、电、计算机、芯片与人工智能。从竹简到芯片的中国信息之路。
 
-🔗 **线上访问 (GitHub Pages)**:
-- 🌌 **开屏 CG 穿梭动画 (站点主入口)**: [https://EscoffierZhou.github.io/yiziqiannian/](https://EscoffierZhou.github.io/yiziqiannian/)
-- 🏛️ **《一字千年》展馆主厅**: [https://EscoffierZhou.github.io/yiziqiannian/main.html](https://EscoffierZhou.github.io/yiziqiannian/main.html)
-
 ---
 
 ## 📖 项目简介
