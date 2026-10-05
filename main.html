@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>一字千年 · 从竹简到芯片的中国信息之路</title>
-  <link rel="stylesheet" href="css/style.css?v=20261002_09" />
+  <link rel="stylesheet" href="css/style.css?v=20261005_01" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
@@ -446,9 +446,10 @@
       <div class="encode-lab reveal">
         <p class="encode-lab__label">输入一个汉字，看它如何变成数据：</p>
         <div class="encode-input-row">
-          <input class="encode-input" id="encodeInput" type="text" maxlength="1" value="国" placeholder="国" />
+          <input class="encode-input" id="encodeInput" type="text" maxlength="10" value="国" placeholder="国" />
           <button class="thin-btn" id="encodeRun">拆解</button>
         </div>
+        <div class="encode-status-hint" id="encodeStatusHint">计算机汉字编码引擎 · 实时解析</div>
 
         <div class="encode-chain" id="encodeChain">
           <div class="encode-layer" data-layer="char"><span class="encode-layer__k">字符</span><span class="encode-layer__v" id="encChar">国</span></div>
@@ -1038,13 +1039,87 @@
       <div class="ending-inner reveal">
         <p class="ending-prompt">现在，轮到你留下一个字。</p>
         <div class="encode-input-row ending-input-row">
-          <input class="encode-input ending-input" id="finalInput" type="text" maxlength="1" value="家" placeholder="家" />
+          <input class="encode-input ending-input" id="finalInput" type="text" maxlength="10" value="家" placeholder="家" />
           <button class="thin-btn" id="finalRun">凝聚</button>
         </div>
 
         <div class="converge-stage" id="convergeStage">
           <div class="converge-char" id="convergeChar">家</div>
           <canvas class="converge-canvas" id="convergeCanvas" width="800" height="560"></canvas>
+        </div>
+
+        <!-- 比赛 8.5 条规范：文明印记·四维意象 (字义分析 / 文化联想 / 意象描述 / 当代解释) -->
+        <div class="imprint-dashboard" id="imprintDashboard">
+          <div class="imprint-card-grid">
+            <div class="imprint-card" data-dim="etymology">
+              <div class="imprint-card__head">
+                <span class="imprint-card__icon">🏛️</span>
+                <span class="imprint-card__title">字义分析</span>
+                <span class="imprint-card__sub">说文解字 · 造字之始</span>
+              </div>
+              <p class="imprint-card__body" id="imprintEtymology">会意字，宀为屋，豕为畜，示上古定居农耕、人畜共居之所。《说文》释“家，居也”，本义为住所，引申为家庭、家族。</p>
+            </div>
+
+            <div class="imprint-card" data-dim="culture">
+              <div class="imprint-card__head">
+                <span class="imprint-card__icon">📜</span>
+                <span class="imprint-card__title">文化联想</span>
+                <span class="imprint-card__sub">家国同构 · 历史回响</span>
+              </div>
+              <p class="imprint-card__body" id="imprintCulture">家国同构，儒家讲修身齐家治国平天下；杜甫“烽火连三月，家书抵万金”，贺知章“少小离家老大回”，皆以家为血脉根脉与天下秩序起点。</p>
+            </div>
+
+            <div class="imprint-card" data-dim="imagery">
+              <div class="imprint-card__head">
+                <span class="imprint-card__icon">🏮</span>
+                <span class="imprint-card__title">意象描述</span>
+                <span class="imprint-card__sub">简纸印电芯 · 载体流转</span>
+              </div>
+              <p class="imprint-card__body" id="imprintImagery">竹简刀刻，宀下豕形棱角分明；宣纸墨晕，化作屋檐炊烟与门楣春联；活字拓印、电报点划，家书越山河；芯片硅片里，又缩成发光坐标与归途字节。</p>
+            </div>
+
+            <div class="imprint-card" data-dim="modern">
+              <div class="imprint-card__head">
+                <span class="imprint-card__icon">💡</span>
+                <span class="imprint-card__title">当代解释</span>
+                <span class="imprint-card__sub">微缩算力 · 智能新生</span>
+              </div>
+              <p class="imprint-card__body" id="imprintModern">在数字世界，家是云端相册、视频通话和智能家居的温暖网络；在芯片与神经网络深处，它是情感锚点与身份根目录，提醒漂泊的数据与人心终有归处。</p>
+            </div>
+          </div>
+
+          <!-- 比赛第 8.5 节规范：AI 使用与 Prompt 留存记录 -->
+          <div class="imprint-meta-bar">
+            <div class="imprint-ai-tag">
+              <span class="ai-dot"></span>
+              <span id="imprintAiStatus">AI 交互辅助 · DeepSeek-Flash 实时驱动</span>
+            </div>
+            <button class="imprint-log-toggle" id="imprintLogToggle" type="button">📖 查看 Prompt 留存与生成记录</button>
+          </div>
+
+          <!-- 可折叠的 Prompt 留存与生成日志面板 -->
+          <div class="imprint-log-panel" id="imprintLogPanel" style="display: none;">
+            <div class="log-panel-header">
+              <span>【数媒竞赛规范 · 第 8.5 条】AI 交互辅助生成档案留存</span>
+              <span class="log-model-badge">Model: deepseek-flash</span>
+            </div>
+            <div class="log-item">
+              <span class="log-label">调用规范说明：</span>
+              <span class="log-content">符合策划案第 8.5 节要求：AI 仅作为交互辅助，由用户输入汉字触发生成。全篇历史叙事框架与核心创意由团队人工原创整理。</span>
+            </div>
+            <div class="log-item">
+              <span class="log-label">调用时间与状态：</span>
+              <span class="log-content" id="imprintLogTime">2026-10-05 · 状态：成功 · 耗时约 1.2s</span>
+            </div>
+            <div class="log-item">
+              <span class="log-label">系统 Prompt：</span>
+              <pre class="log-prompt" id="imprintLogPrompt"></pre>
+            </div>
+            <div class="log-item">
+              <span class="log-label">模型原始响应 (JSON)：</span>
+              <pre class="log-output" id="imprintLogOutput"></pre>
+            </div>
+          </div>
         </div>
 
         <div class="ending-lines" id="endingLines">
@@ -1070,6 +1145,6 @@
 
   </main>
 
-  <script src="js/main.js?v=20261002_09"></script>
+  <script src="js/main.js?v=20261005_01"></script>
 </body>
 </html>

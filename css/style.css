@@ -750,10 +750,43 @@ button { cursor: pointer; border: none; background: none; }
   padding: 12px 18px; text-align: center; min-width: 110px; transition: all .35s var(--ease);
 }
 .encode-layer.lit { border-color: var(--cyan); box-shadow: 0 0 22px rgba(114,214,208,.3); }
+.encode-layer.is-error {
+  border-color: rgba(224, 122, 95, 0.65);
+  background: rgba(224, 122, 95, 0.08);
+  box-shadow: 0 0 16px rgba(224, 122, 95, 0.2);
+}
+.encode-layer.is-error .encode-layer__v,
+.encode-layer.is-error .encode-layer__v--mono {
+  color: #e07a5f;
+  font-family: var(--sans);
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  line-height: 1.5;
+}
 .encode-layer__k { display: block; font-family: var(--sans); font-size: 11px; letter-spacing: 3px; color: var(--txt-dim); margin-bottom: 5px; }
 .encode-layer__v { font-family: var(--serif); font-size: 26px; color: var(--cold-white); }
 .encode-layer__v--mono { font-family: var(--mono); font-size: 15px; letter-spacing: 1px; color: var(--cyan); }
 .encode-arrow { color: rgba(114,214,208,.4); font-size: 18px; }
+
+.encode-status-hint {
+  margin-top: 12px;
+  font-size: 12px;
+  color: rgba(114, 214, 208, 0.75);
+  letter-spacing: 1px;
+  min-height: 18px;
+  transition: all 0.3s ease;
+}
+.encode-status-hint.is-loading {
+  color: var(--gold);
+}
+.encode-status-hint.is-error {
+  color: #e07a5f;
+}
+.thin-btn:disabled,
+.thin-btn.is-loading {
+  opacity: 0.65;
+  cursor: wait;
+}
 
 .encode-canvas { display: block; width: 100%; max-width: 640px; margin: 22px auto 0; height: 220px; opacity: .9; }
 
@@ -1420,6 +1453,183 @@ button { cursor: pointer; border: none; background: none; }
   margin-top: 52px; font-size: clamp(48px, 11vw, 100px); font-weight: 300;
   letter-spacing: 16px; color: var(--cold-white); text-shadow: 0 0 50px rgba(184,154,98,.3);
 }
+
+/* ============================================================
+   文明印记 · 四维意象卡片与 AI 合规抽屉 (尾声)
+   ============================================================ */
+.imprint-dashboard {
+  margin-top: 24px;
+  width: 100%;
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+.imprint-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.imprint-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(184, 154, 98, 0.28);
+  border-radius: 8px;
+  padding: 18px 20px;
+  backdrop-filter: blur(12px);
+  transition: all 0.4s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+.imprint-card:hover {
+  border-color: var(--gold);
+  background: rgba(184, 154, 98, 0.06);
+  box-shadow: 0 0 24px rgba(184, 154, 98, 0.18);
+  transform: translateY(-2px);
+}
+.imprint-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 3px; height: 100%;
+  background: var(--gold);
+  opacity: 0.6;
+}
+.imprint-card[data-dim="etymology"]::before { background: #c9a769; }
+.imprint-card[data-dim="culture"]::before { background: #e3d6b5; }
+.imprint-card[data-dim="imagery"]::before { background: #72d6d0; }
+.imprint-card[data-dim="modern"]::before { background: #7bed9f; }
+
+.imprint-card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.imprint-card__icon {
+  font-size: 16px;
+}
+.imprint-card__title {
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--cold-white);
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+.imprint-card__sub {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--txt-dim);
+  letter-spacing: 1px;
+  margin-left: auto;
+}
+.imprint-card__body {
+  font-family: var(--serif);
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: rgba(233, 228, 216, 0.88);
+  letter-spacing: 0.5px;
+}
+
+/* 比赛 8.5 节合规栏与日志抽屉 */
+.imprint-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding: 8px 14px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  font-size: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.imprint-ai-tag {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--cyan);
+  font-family: var(--mono);
+}
+.ai-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+.imprint-log-toggle {
+  background: transparent;
+  border: 1px solid rgba(184, 154, 98, 0.35);
+  color: var(--gold);
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+.imprint-log-toggle:hover {
+  background: rgba(184, 154, 98, 0.15);
+  border-color: var(--gold);
+}
+.imprint-log-panel {
+  margin-top: 12px;
+  padding: 16px;
+  background: rgba(10, 8, 15, 0.85);
+  border: 1px dashed rgba(184, 154, 98, 0.3);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--txt-dim);
+  text-align: left;
+}
+.log-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.log-model-badge {
+  background: rgba(114, 214, 208, 0.15);
+  color: var(--cyan);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+}
+.log-item {
+  margin-bottom: 10px;
+}
+.log-label {
+  color: var(--cold-white);
+  display: block;
+  margin-bottom: 4px;
+}
+.log-content {
+  color: rgba(233, 228, 216, 0.7);
+  line-height: 1.6;
+}
+.log-prompt, .log-output {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  padding: 10px;
+  max-height: 150px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: rgba(114, 214, 208, 0.85);
+  font-size: 11px;
+  line-height: 1.5;
+}
 .ending-sub { margin-top: 10px; font-size: 15px; letter-spacing: 6px; color: var(--txt-dim); }
 .ending-motto { margin-top: 26px; font-size: 14px; letter-spacing: 3px; color: var(--gold); }
 .ring-btn--dark { margin-top: 30px; }
@@ -1445,6 +1655,7 @@ button { cursor: pointer; border: none; background: none; }
   .woodblock-grid { grid-template-columns: repeat(4, 1fr); }
   .type-tray-grid { grid-template-columns: repeat(4, 1fr); }
   .press-grid { grid-template-columns: repeat(4, 1fr); }
+  .imprint-card-grid { grid-template-columns: 1fr; }
   .converge-stage { height: 360px; }
   .converge-canvas { height: 340px; }
   .glyph-stage { width: 60vw; }
