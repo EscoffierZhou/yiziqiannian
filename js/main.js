@@ -1778,11 +1778,13 @@
   const finalInput = $("#finalInput");
   const finalRun = $("#finalRun");
   const convergeStage = $("#convergeStage");
+  const convergeCurtain = $("#convergeCurtain");
   const convergeChar = $("#convergeChar");
   const convergeCanvas = $("#convergeCanvas");
   const ccx = convergeCanvas.getContext("2d");
   const endingLines = $("#endingLines");
 
+  const imprintDashboard = $("#imprintDashboard");
   const imprintEtymology = $("#imprintEtymology");
   const imprintCulture = $("#imprintCulture");
   const imprintImagery = $("#imprintImagery");
@@ -1990,10 +1992,22 @@
     const data = res.data;
     const isError = data["字义分析"] === "请输入正确的汉字" || data["字义分析"].includes("请输入正确的");
 
-    if (imprintEtymology) imprintEtymology.textContent = data["字义分析"] || "—";
-    if (imprintCulture) imprintCulture.textContent = data["文化联想"] || "—";
-    if (imprintImagery) imprintImagery.textContent = data["意象描述"] || "—";
-    if (imprintModern) imprintModern.textContent = data["当代解释"] || "—";
+    if (imprintEtymology) {
+      imprintEtymology.textContent = data["字义分析"] || "(请输入一个文字)";
+      imprintEtymology.classList.toggle("is-waiting", !data["字义分析"] || isError);
+    }
+    if (imprintCulture) {
+      imprintCulture.textContent = data["文化联想"] || "(请输入一个文字)";
+      imprintCulture.classList.toggle("is-waiting", !data["文化联想"] || isError);
+    }
+    if (imprintImagery) {
+      imprintImagery.textContent = data["意象描述"] || "(请输入一个文字)";
+      imprintImagery.classList.toggle("is-waiting", !data["意象描述"] || isError);
+    }
+    if (imprintModern) {
+      imprintModern.textContent = data["当代解释"] || "(请输入一个文字)";
+      imprintModern.classList.toggle("is-waiting", !data["当代解释"] || isError);
+    }
 
     if (imprintAiStatus) {
       if (isError) {
@@ -2058,8 +2072,7 @@
       });
     }
   }
-  spawnConverge();
-
+  let hasConverged = false;
   let convergeRunning = false;
   function drawConverge() {
     const W = convergeCanvas.width, H = convergeCanvas.height;
@@ -2095,10 +2108,11 @@
 
   const convergeObs = new IntersectionObserver((entries) => {
     entries.forEach((en) => {
-      convergeRunning = en.isIntersecting;
-      if (convergeRunning) {
-        convergeLoop();
-        endingLines.classList.add("show");
+      if (hasConverged) {
+        convergeRunning = en.isIntersecting;
+        if (convergeRunning) {
+          convergeLoop();
+        }
       }
     });
   }, { threshold: 0.25 });
@@ -2108,7 +2122,13 @@
   async function runFinal() {
     if (isGeneratingFinal) return;
     const raw = (finalInput.value || "").trim();
-    if (!raw) return;
+    if (!raw) {
+      finalInput.classList.add("input-shake");
+      finalInput.placeholder = "请先输入一个汉字再点击凝聚";
+      finalInput.focus();
+      setTimeout(() => finalInput.classList.remove("input-shake"), 800);
+      return;
+    }
 
     isGeneratingFinal = true;
     finalRun.disabled = true;
@@ -2116,12 +2136,26 @@
     const origBtnText = finalRun.textContent;
     finalRun.textContent = "AI 凝思中...";
 
+    // 揭开幕布并启动粒子汇聚
+    hasConverged = true;
+    if (convergeCurtain) {
+      convergeCurtain.classList.add("curtain--opened");
+      convergeCurtain.setAttribute("aria-hidden", "true");
+    }
+
     convergeChar.textContent = raw.slice(0, 1);
     convergeChar.style.opacity = "0.4";
 
-    // 重新爆发七色汇聚粒子
+    // 启动粒子汇聚动画
+    convergeRunning = true;
     convergeParticles.length = 0;
     spawnConverge();
+    convergeLoop();
+
+    // 激活四维意象动效
+    if (imprintDashboard) {
+      imprintDashboard.classList.add("is-active");
+    }
 
     if (imprintAiStatus) {
       imprintAiStatus.textContent = "⚡ DeepSeek 正在解析四维意象与文化内涵...";
@@ -2150,19 +2184,34 @@
     }
   });
 
-  // 初始填充默认「家」的预置解析与合规日志
-  applyEndingImprint({
-    source: "deepseek",
-    data: LOCAL_IMPRINT_PRESETS["家"],
-    time: "1.18",
-    rawOutput: JSON.stringify(LOCAL_IMPRINT_PRESETS["家"], null, 2)
-  });
-
   /* ============================================================
      12. 尾声 · 重新开始 + 键盘翻页
   ============================================================ */
   $("#restartBtn").addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // 重置尾声状态：合上幕布、停止粒子、清空输入与四维
+    hasConverged = false;
+    convergeRunning = false;
+    convergeParticles.length = 0;
+    ccx.clearRect(0, 0, convergeCanvas.width, convergeCanvas.height);
+    if (convergeCurtain) {
+      convergeCurtain.classList.remove("curtain--opened");
+      convergeCurtain.removeAttribute("aria-hidden");
+    }
+    if (convergeChar) convergeChar.textContent = "";
+    if (finalInput) {
+      finalInput.value = "";
+      finalInput.placeholder = "输入一个字，如：家、和、华...";
+    }
+    if (imprintDashboard) imprintDashboard.classList.remove("is-active");
+    if (imprintEtymology) { imprintEtymology.textContent = "(请输入一个文字)"; imprintEtymology.classList.add("is-waiting"); }
+    if (imprintCulture) { imprintCulture.textContent = "(请输入一个文字)"; imprintCulture.classList.add("is-waiting"); }
+    if (imprintImagery) { imprintImagery.textContent = "(请输入一个文字)"; imprintImagery.classList.add("is-waiting"); }
+    if (imprintModern) { imprintModern.textContent = "(请输入一个文字)"; imprintModern.classList.add("is-waiting"); }
+    if (imprintAiStatus) imprintAiStatus.textContent = "AI 交互辅助 · 静候题字凝聚";
+    endingLines.classList.remove("show");
+
     setTimeout(playOpening, 600);
   });
 
