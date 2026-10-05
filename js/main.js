@@ -1199,12 +1199,37 @@
     applyEncodeResult(result);
   }
 
-  encodeRun.addEventListener("click", runEncode);
+  encodeRun.addEventListener("click", () => {
+    if (document.activeElement === encodeInput) encodeInput.blur();
+    runEncode();
+    setTimeout(() => {
+      const lab = document.querySelector(".encode-lab");
+      if (lab) lab.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 150);
+  });
   encodeInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
+      if (document.activeElement === encodeInput) encodeInput.blur();
       runEncode();
+      setTimeout(() => {
+        const lab = document.querySelector(".encode-lab");
+        if (lab) lab.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 150);
     }
+  });
+  encodeInput.addEventListener("blur", () => {
+    [100, 300].forEach((delay) => {
+      setTimeout(() => {
+        const lab = document.querySelector(".encode-lab");
+        if (lab) {
+          const rect = lab.getBoundingClientRect();
+          if (rect.top < -50 || rect.bottom > window.innerHeight + 150) {
+            lab.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+      }, delay);
+    });
   });
 
   // 初始状态仅显示静态字形与编码，不自动播放粒子动画，等待用户主动点击「拆解」
@@ -2118,6 +2143,13 @@
   }, { threshold: 0.25 });
   convergeObs.observe(convergeStage);
 
+  // 移动端防键盘弹回视口跳动：多级锚定尾声舞台
+  function anchorSceneEnding(smooth = true) {
+    const endingScene = document.getElementById("scene-ending");
+    if (!endingScene) return;
+    endingScene.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+  }
+
   let isGeneratingFinal = false;
   async function runFinal() {
     if (isGeneratingFinal) return;
@@ -2128,6 +2160,11 @@
       finalInput.focus();
       setTimeout(() => finalInput.classList.remove("input-shake"), 800);
       return;
+    }
+
+    // 移动端输入收尾：立即失去焦点收起软键盘，避免键盘收缩动画期间视口被甩出
+    if (document.activeElement === finalInput) {
+      finalInput.blur();
     }
 
     isGeneratingFinal = true;
@@ -2168,6 +2205,19 @@
       imprintAiStatus.textContent = `⚡ DeepSeek 正在解析「${targetChar}」的四维意象与文化内涵...`;
     }
 
+    // 软键盘弹回关键时机（80ms, 250ms, 450ms）反复锁住尾声视野，彻底消除上跳
+    [80, 250, 450].forEach((delay) => {
+      setTimeout(() => {
+        const endingScene = document.getElementById("scene-ending");
+        if (endingScene) {
+          const rect = endingScene.getBoundingClientRect();
+          if (rect.top > window.innerHeight * 0.3 || rect.bottom < window.innerHeight * 0.4) {
+            endingScene.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }
+      }, delay);
+    });
+
     try {
       const res = await fetchEndingImprint(raw);
       applyEndingImprint(res);
@@ -2189,6 +2239,21 @@
       e.preventDefault();
       runFinal();
     }
+  });
+
+  // 移动端软键盘收起防跳：监听 blur 事件进行多级平滑校准回位
+  finalInput.addEventListener("blur", () => {
+    [100, 280, 480].forEach((delay) => {
+      setTimeout(() => {
+        const endingScene = document.getElementById("scene-ending");
+        if (endingScene) {
+          const rect = endingScene.getBoundingClientRect();
+          if (rect.top > window.innerHeight * 0.35 || rect.bottom < window.innerHeight * 0.35) {
+            endingScene.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }
+      }, delay);
+    });
   });
 
   /* ============================================================
