@@ -1993,20 +1993,20 @@
     const isError = data["字义分析"] === "请输入正确的汉字" || data["字义分析"].includes("请输入正确的");
 
     if (imprintEtymology) {
-      imprintEtymology.textContent = data["字义分析"] || "(请输入一个文字)";
-      imprintEtymology.classList.toggle("is-waiting", !data["字义分析"] || isError);
+      imprintEtymology.textContent = data["字义分析"] || "—";
+      imprintEtymology.classList.toggle("is-waiting", isError);
     }
     if (imprintCulture) {
-      imprintCulture.textContent = data["文化联想"] || "(请输入一个文字)";
-      imprintCulture.classList.toggle("is-waiting", !data["文化联想"] || isError);
+      imprintCulture.textContent = data["文化联想"] || "—";
+      imprintCulture.classList.toggle("is-waiting", isError);
     }
     if (imprintImagery) {
-      imprintImagery.textContent = data["意象描述"] || "(请输入一个文字)";
-      imprintImagery.classList.toggle("is-waiting", !data["意象描述"] || isError);
+      imprintImagery.textContent = data["意象描述"] || "—";
+      imprintImagery.classList.toggle("is-waiting", isError);
     }
     if (imprintModern) {
-      imprintModern.textContent = data["当代解释"] || "(请输入一个文字)";
-      imprintModern.classList.toggle("is-waiting", !data["当代解释"] || isError);
+      imprintModern.textContent = data["当代解释"] || "—";
+      imprintModern.classList.toggle("is-waiting", isError);
     }
 
     if (imprintAiStatus) {
@@ -2152,13 +2152,20 @@
     spawnConverge();
     convergeLoop();
 
-    // 激活四维意象动效
+    // 激活四维意象动效并显示加载环状态：「正在处理中...正在揭示「(具体的字)」」
+    const targetChar = raw.slice(0, 1) || raw;
+    const loadingHtml = `<span class="imprint-loading-inline"><span class="imprint-spin-ring"></span>正在处理中...正在揭示「${targetChar}」</span>`;
+    if (imprintEtymology) { imprintEtymology.innerHTML = loadingHtml; imprintEtymology.classList.add("is-waiting"); }
+    if (imprintCulture) { imprintCulture.innerHTML = loadingHtml; imprintCulture.classList.add("is-waiting"); }
+    if (imprintImagery) { imprintImagery.innerHTML = loadingHtml; imprintImagery.classList.add("is-waiting"); }
+    if (imprintModern) { imprintModern.innerHTML = loadingHtml; imprintModern.classList.add("is-waiting"); }
+
     if (imprintDashboard) {
       imprintDashboard.classList.add("is-active");
     }
 
     if (imprintAiStatus) {
-      imprintAiStatus.textContent = "⚡ DeepSeek 正在解析四维意象与文化内涵...";
+      imprintAiStatus.textContent = `⚡ DeepSeek 正在解析「${targetChar}」的四维意象与文化内涵...`;
     }
 
     try {
@@ -2204,11 +2211,12 @@
       finalInput.value = "";
       finalInput.placeholder = "输入一个字，如：家、和、华...";
     }
+    const resetLoadingHtml = `<span class="imprint-loading-inline"><span class="imprint-spin-ring"></span>正在处理中...静候题字凝聚</span>`;
     if (imprintDashboard) imprintDashboard.classList.remove("is-active");
-    if (imprintEtymology) { imprintEtymology.textContent = "(请输入一个文字)"; imprintEtymology.classList.add("is-waiting"); }
-    if (imprintCulture) { imprintCulture.textContent = "(请输入一个文字)"; imprintCulture.classList.add("is-waiting"); }
-    if (imprintImagery) { imprintImagery.textContent = "(请输入一个文字)"; imprintImagery.classList.add("is-waiting"); }
-    if (imprintModern) { imprintModern.textContent = "(请输入一个文字)"; imprintModern.classList.add("is-waiting"); }
+    if (imprintEtymology) { imprintEtymology.innerHTML = resetLoadingHtml; imprintEtymology.classList.add("is-waiting"); }
+    if (imprintCulture) { imprintCulture.innerHTML = resetLoadingHtml; imprintCulture.classList.add("is-waiting"); }
+    if (imprintImagery) { imprintImagery.innerHTML = resetLoadingHtml; imprintImagery.classList.add("is-waiting"); }
+    if (imprintModern) { imprintModern.innerHTML = resetLoadingHtml; imprintModern.classList.add("is-waiting"); }
     if (imprintAiStatus) imprintAiStatus.textContent = "AI 交互辅助 · 静候题字凝聚";
     endingLines.classList.remove("show");
 
