@@ -1728,6 +1728,62 @@ button { cursor: pointer; border: none; background: none; }
   line-height: 1.5;
 }
 
+/* Token 用量与账户余额徽章 */
+.log-token-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.token-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--txt-dim);
+}
+.token-chip strong {
+  margin-left: 4px;
+  color: var(--cold-white);
+  font-weight: 600;
+}
+.token-chip--total {
+  border-color: rgba(114, 214, 208, 0.4);
+  background: rgba(114, 214, 208, 0.08);
+}
+.token-chip--total strong {
+  color: var(--cyan);
+}
+.token-chip--balance {
+  border-color: rgba(184, 154, 98, 0.4);
+  background: rgba(184, 154, 98, 0.08);
+}
+.token-chip--balance strong {
+  color: var(--gold);
+}
+.token-refresh-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--cold-white);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.token-refresh-btn:hover {
+  background: rgba(114, 214, 208, 0.2);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.token-refresh-btn:active {
+  transform: scale(0.95);
+}
+
 /* 第 2~5 行：四维意象横条列表 */
 .imprint-bar-list {
   display: flex;
