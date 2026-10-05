@@ -1870,7 +1870,7 @@
   // DeepSeek 尾声四维意象解析配置
   const DEEPSEEK_ENDING_CONFIG = {
     baseUrl: "https://api.deepseek.com",
-    model: "deepseek-chat",
+    model: "deepseek-flash",
     timeoutMs: 16000
   };
 
@@ -1942,7 +1942,14 @@
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+        let detail = `HTTP ${response.status} ${response.statusText}`;
+        try {
+          const errJson = await response.json();
+          if (errJson && errJson.error && errJson.error.message) {
+            detail += `: ${errJson.error.message}`;
+          }
+        } catch (_) {}
+        throw new Error(detail);
       }
       const jsonRes = await response.json();
       const content = jsonRes.choices && jsonRes.choices[0] && jsonRes.choices[0].message && jsonRes.choices[0].message.content;
@@ -1959,14 +1966,20 @@
       clearTimeout(timeoutId);
       console.error("DeepSeek 解析请求异常:", err);
       const elapsedSec = ((performance.now() - t0) / 1000).toFixed(2);
+      let errMsg = "请求出现波动，请稍后重新点击「凝聚」尝试。";
+      if (err.message && (err.message.includes("402") || err.message.includes("Insufficient Balance"))) {
+        errMsg = "DeepSeek 账户余额不足 (Insufficient Balance)，请前往开放平台充值";
+      } else if (err.message && err.message.includes("401")) {
+        errMsg = "DeepSeek API Key 鉴权失败，请检查密钥是否有效";
+      }
       const errNotice = {
         "字符": trimmed,
-        "字义分析": "网络请求出现波动，请稍后重新点击「凝聚」尝试。",
-        "文化联想": "网络请求出现波动，请稍后重新点击「凝聚」尝试。",
-        "意象描述": "网络请求出现波动，请稍后重新点击「凝聚」尝试。",
-        "当代解释": "网络请求出现波动，请稍后重新点击「凝聚」尝试。"
+        "字义分析": errMsg,
+        "文化联想": errMsg,
+        "意象描述": errMsg,
+        "当代解释": errMsg
       };
-      return { source: "error", data: errNotice, time: elapsedSec, rawOutput: String(err) };
+      return { source: "error", errorText: errMsg, data: errNotice, time: elapsedSec, rawOutput: String(err) };
     }
   }
 
@@ -1995,7 +2008,7 @@
       if (res.source === "validation") {
         imprintAiStatus.textContent = "⚠ 请输入正确的单个汉字";
       } else if (res.source === "error") {
-        imprintAiStatus.textContent = "⚠ 解析请求出现波动，请稍后重试";
+        imprintAiStatus.textContent = res.errorText ? `⚠ ${res.errorText}` : "⚠ 解析请求出现波动，请稍后重试";
       } else {
         imprintAiStatus.textContent = "✓ 汉字意象解析完成";
       }
