@@ -1822,8 +1822,6 @@
   const tokenTotal = $("#tokenTotal");
   const tokenPrompt = $("#tokenPrompt");
   const tokenCompletion = $("#tokenCompletion");
-  const tokenBalance = $("#tokenBalance");
-  const tokenRefreshBtn = $("#tokenRefreshBtn");
 
   // ============================================================
   // DeepSeek API 密钥安全二进制加载与快速动态解密引擎 (非明文存储)
@@ -1993,34 +1991,7 @@
     }
   }
 
-  // 异步查询 DeepSeek 账户实时可用余额与额度状态
-  async function queryDeepSeekBalance() {
-    if (!tokenBalance) return;
-    try {
-      const apiKey = await getSecureApiKey();
-      const res = await fetch("https://api.deepseek.com/user/balance", {
-        headers: { "Authorization": `Bearer ${apiKey}` }
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data && data.is_available && Array.isArray(data.balance_infos) && data.balance_infos[0]) {
-        const info = data.balance_infos[0];
-        tokenBalance.textContent = `¥${info.total_balance} ${info.currency || "CNY"}`;
-      } else {
-        tokenBalance.textContent = "—";
-      }
-    } catch (e) {
-      console.warn("DeepSeek 余额查询出现波动:", e);
-      tokenBalance.textContent = "暂不可查";
-    }
-  }
 
-  if (tokenRefreshBtn) {
-    tokenRefreshBtn.addEventListener("click", () => {
-      tokenBalance.textContent = "查询中...";
-      queryDeepSeekBalance();
-    });
-  }
 
   function applyEndingImprint(res) {
     const data = res.data;
@@ -2079,9 +2050,6 @@
       if (tokenCompletion) tokenCompletion.textContent = "—";
     }
 
-    // 触发账户余额静默更新
-    queryDeepSeekBalance();
-
     if (imprintLogPrompt) {
       imprintLogPrompt.textContent = DEEPSEEK_ENDING_PROMPT;
     }
@@ -2100,9 +2068,6 @@
       const isHidden = imprintLogPanel.style.display === "none";
       imprintLogPanel.style.display = isHidden ? "block" : "none";
       imprintLogToggle.textContent = isHidden ? "✕ 收起解析详情" : "📖 查看解析详情";
-      if (isHidden) {
-        queryDeepSeekBalance();
-      }
     });
   }
 

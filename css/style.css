@@ -1758,31 +1758,6 @@ button { cursor: pointer; border: none; background: none; }
 .token-chip--total strong {
   color: var(--cyan);
 }
-.token-chip--balance {
-  border-color: rgba(184, 154, 98, 0.4);
-  background: rgba(184, 154, 98, 0.08);
-}
-.token-chip--balance strong {
-  color: var(--gold);
-}
-.token-refresh-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: var(--cold-white);
-  border-radius: 4px;
-  padding: 3px 8px;
-  font-size: 10px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-.token-refresh-btn:hover {
-  background: rgba(114, 214, 208, 0.2);
-  border-color: var(--cyan);
-  color: var(--cyan);
-}
-.token-refresh-btn:active {
-  transform: scale(0.95);
-}
 
 /* 第 2~5 行：四维意象横条列表 */
 .imprint-bar-list {
