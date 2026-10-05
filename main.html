@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=overlays-content" />
   <title>一字千年 · 从竹简到芯片的中国信息之路</title>
-  <link rel="stylesheet" href="css/style.css?v=20261005_06" />
+  <link rel="stylesheet" href="css/style.css?v=20261005_08" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
@@ -1063,29 +1063,29 @@
           <canvas class="converge-canvas" id="convergeCanvas" width="800" height="560"></canvas>
         </div>
 
-        <!-- 比赛 8.5 条规范：文明印记·五行布局 (DeepSeek状态条置顶 + 四维意象横条) -->
+        <!-- 文明印记·五行布局 (状态条置顶 + 四维意象横条) -->
         <div class="imprint-dashboard" id="imprintDashboard">
-          <!-- 第 1 行：DeepSeek 状态与 Prompt 留存开关 -->
+          <!-- 第 1 行：状态条与解析详情开关 -->
           <div class="imprint-meta-bar">
             <div class="imprint-ai-tag">
               <span class="ai-dot"></span>
-              <span id="imprintAiStatus">AI 交互辅助 · 静候题字凝聚</span>
+              <span id="imprintAiStatus">静候题字凝聚</span>
             </div>
-            <button class="imprint-log-toggle" id="imprintLogToggle" type="button">📖 查看 Prompt 留存与生成记录</button>
+            <button class="imprint-log-toggle" id="imprintLogToggle" type="button">📖 查看解析详情</button>
           </div>
 
-          <!-- 可折叠的 Prompt 留存与生成日志面板 -->
+          <!-- 可折叠的 Prompt 与生成记录面板 -->
           <div class="imprint-log-panel" id="imprintLogPanel" style="display: none;">
             <div class="log-item">
-              <span class="log-label">调用时间与状态：</span>
-              <span class="log-content" id="imprintLogTime">等待用户题字并点击「凝聚」</span>
+              <span class="log-label">生成时间：</span>
+              <span class="log-content" id="imprintLogTime">等待题字并点击「凝聚」</span>
             </div>
             <div class="log-item">
-              <span class="log-label">系统 Prompt：</span>
+              <span class="log-label">提示词 (Prompt)：</span>
               <pre class="log-prompt" id="imprintLogPrompt"></pre>
             </div>
             <div class="log-item">
-              <span class="log-label">模型原始响应 (JSON)：</span>
+              <span class="log-label">返回内容：</span>
               <pre class="log-output" id="imprintLogOutput"></pre>
             </div>
           </div>
@@ -1157,6 +1157,6 @@
 
   </main>
 
-  <script src="js/main.js?v=20261005_06"></script>
+  <script src="js/main.js?v=20261005_08"></script>
 </body>
 </html>
