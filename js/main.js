@@ -1828,9 +1828,9 @@
   const KEY_MASK = [0x59, 0x69, 0x5a, 0x69, 0x51, 0x69, 0x61, 0x6e, 0x4e, 0x69, 0x61, 0x6e, 0x32, 0x30, 0x32, 0x36];
   // 离线/本地 file:// 环境加密载荷（纯密文字节流，绝无明文字符串）
   const BACKUP_CIPHER_VAULT = new Uint8Array([
-    89, 90, 81, 78, 1, 163, 127, 25, 130, 196, 93, 144, 46,
-    201, 180, 163, 255, 215, 177, 21, 229, 150, 131, 220, 246, 44, 160, 24, 177,
-    158, 75, 216, 236, 39, 193, 53, 211, 224, 115, 202, 227, 103, 136, 99, 167, 184, 92, 204
+    89, 90, 81, 78, 1, 187, 92, 45, 162, 73, 219, 88, 14, 118, 98, 38, 21, 82, 30,
+    201, 172, 105, 84, 110, 20, 21, 50, 134, 234, 12, 125, 121, 95, 23, 121, 141,
+    218, 15, 75, 43, 82, 100, 35, 113, 248, 20, 25, 73
   ]);
 
   function parseBinaryVault(u8Array) {
@@ -1852,7 +1852,7 @@
   async function getSecureApiKey() {
     if (cachedApiKey) return cachedApiKey;
     try {
-      const res = await fetch("data/key.bin?v=20261005_01");
+      const res = await fetch("data/key.bin?v=20261005_02");
       if (!res.ok) throw new Error("Load failed");
       const ab = await res.arrayBuffer();
       const key = parseBinaryVault(new Uint8Array(ab));
