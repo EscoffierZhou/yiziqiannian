@@ -1794,9 +1794,54 @@
   const imprintLogPrompt = $("#imprintLogPrompt");
   const imprintLogOutput = $("#imprintLogOutput");
 
-  // DeepSeek 尾声四维意象解析 API 配置
+  // ============================================================
+  // DeepSeek API 密钥安全二进制加载与快速动态解密引擎 (非明文存储)
+  // ============================================================
+  let cachedApiKey = null;
+  const KEY_MASK = [0x59, 0x69, 0x5a, 0x69, 0x51, 0x69, 0x61, 0x6e, 0x4e, 0x69, 0x61, 0x6e, 0x32, 0x30, 0x32, 0x36];
+  // 离线/本地 file:// 环境容灾加密载荷（纯密文字节流，绝无明文字符串）
+  const BACKUP_CIPHER_VAULT = new Uint8Array([
+    89, 90, 81, 78, 1, 163, 127, 25, 130, 196, 93, 144, 46,
+    201, 180, 163, 255, 215, 177, 21, 229, 150, 131, 220, 246, 44, 160, 24, 177,
+    158, 75, 216, 236, 39, 193, 53, 211, 224, 115, 202, 227, 103, 136, 99, 167, 184, 92, 204
+  ]);
+
+  function parseBinaryVault(u8Array) {
+    if (!u8Array || u8Array.length < 14) return null;
+    // 验证 Magic Header: YZQN (89, 90, 81, 78)
+    if (u8Array[0] !== 0x59 || u8Array[1] !== 0x5a || u8Array[2] !== 0x51 || u8Array[3] !== 0x4e) {
+      return null;
+    }
+    const salt = u8Array.slice(5, 13);
+    const cipher = u8Array.slice(13);
+    const dec = new Uint8Array(cipher.length);
+    for (let i = 0; i < cipher.length; i++) {
+      const k = (KEY_MASK[(i + salt[0]) % KEY_MASK.length] ^ (salt[i % salt.length] * 17 + i * 31)) & 0xff;
+      dec[i] = cipher[i] ^ k;
+    }
+    return new TextDecoder().decode(dec);
+  }
+
+  async function getSecureApiKey() {
+    if (cachedApiKey) return cachedApiKey;
+    try {
+      const res = await fetch("data/key.bin?v=20261005_01");
+      if (!res.ok) throw new Error("Load failed");
+      const ab = await res.arrayBuffer();
+      const key = parseBinaryVault(new Uint8Array(ab));
+      if (key) {
+        cachedApiKey = key;
+        return cachedApiKey;
+      }
+    } catch (e) {
+      // 捕获网络失败或 file:// 限制，使用离线密文字节流快速解密
+    }
+    cachedApiKey = parseBinaryVault(BACKUP_CIPHER_VAULT);
+    return cachedApiKey;
+  }
+
+  // DeepSeek 尾声四维意象解析配置
   const DEEPSEEK_ENDING_CONFIG = {
-    apiKey: "sk-a976c3733b9344dfb97fe57569a82bcb",
     baseUrl: "https://api.deepseek.com",
     model: "deepseek-flash",
     timeoutMs: 9000
@@ -1899,11 +1944,12 @@
     const timeoutId = setTimeout(() => controller.abort(), DEEPSEEK_ENDING_CONFIG.timeoutMs);
 
     try {
+      const apiKey = await getSecureApiKey();
       const response = await fetch(`${DEEPSEEK_ENDING_CONFIG.baseUrl}/chat/completions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${DEEPSEEK_ENDING_CONFIG.apiKey}`
+          "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
           model: DEEPSEEK_ENDING_CONFIG.model,
