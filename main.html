@@ -4,10 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=overlays-content" />
   <title>一字千年 · 从竹简到芯片的中国信息之路</title>
-  <link rel="stylesheet" href="css/style.css?v=20261005_12" />
+  <link rel="stylesheet" href="css/style.css?v=20261006_01" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+  <script src="js/sfx_data.js"></script>
 </head>
 <body>
 
@@ -41,6 +42,17 @@
     <span class="fab-icon">🔄</span>
     <span class="fab-text">横屏模式</span>
   </button>
+
+  <!-- 全局音效与背景音乐控制悬浮钮 -->
+  <button class="sound-fab" id="soundFab" aria-label="声音开关" title="切换背景音乐与音效 (按 M 快捷静音)">
+    <span class="sound-fab__icon" id="soundFabIcon">🔊</span>
+    <span class="sound-fab__text" id="soundFabText">原声 ON</span>
+  </button>
+
+  <!-- 展馆全局环境 BGM -->
+  <audio id="museumBgm" loop preload="auto">
+    <source src="audio/bgm_museum.mp3" type="audio/mpeg" />
+  </audio>
 
   <!-- 边缘 · 文明进度环（隐藏，鼠标靠近右缘时浮现） -->
   <nav class="ring-nav" id="ringNav" aria-label="文明进度环">
@@ -1165,6 +1177,6 @@
 
   </main>
 
-  <script src="js/main.js?v=20261005_12"></script>
+  <script src="js/main.js?v=20261006_01"></script>
 </body>
 </html>

@@ -2839,3 +2839,64 @@ button { cursor: pointer; border: none; background: none; }
   }
 }
 
+/* ============================================================
+   全局声音控制浮动按钮 (BGM + 拟音总控)
+============================================================ */
+.sound-fab {
+  position: fixed;
+  top: 18px;
+  right: 22px;
+  z-index: 998;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(10, 16, 26, 0.78);
+  border: 1px solid rgba(184, 154, 98, 0.45);
+  color: var(--gold-b);
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), 0 0 10px rgba(184, 154, 98, 0.2);
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+  touch-action: manipulation;
+}
+.sound-fab:hover {
+  background: rgba(184, 154, 98, 0.16);
+  border-color: var(--gold);
+  color: #fff;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(184, 154, 98, 0.4);
+  transform: translateY(-1px);
+}
+.sound-fab:active {
+  transform: translateY(1px) scale(0.97);
+}
+.sound-fab.is-muted {
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--txt-dim);
+  background: rgba(10, 16, 26, 0.6);
+  box-shadow: none;
+}
+.sound-fab__icon {
+  font-size: 13px;
+  line-height: 1;
+}
+.sound-fab__text {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .sound-fab {
+    top: 14px;
+    right: 14px;
+    padding: 5px 10px;
+    font-size: 10px;
+  }
+}
+
+

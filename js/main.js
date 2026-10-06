@@ -25,6 +25,90 @@
   const firstChar = (s) => Array.from((s || "").trim())[0] || "国";
 
   /* ============================================================
+     0. 全局展馆音频引擎：Base64 纯内存拟音 (SFX) + 环境 BGM 总控
+  ============================================================ */
+  let isAudioMuted = false;
+  let bgmStarted = false;
+  const museumBgm = $("#museumBgm");
+  const soundFab = $("#soundFab");
+  const soundFabIcon = $("#soundFabIcon");
+  const soundFabText = $("#soundFabText");
+
+  // SFX 防抖计时表 (防止多指狂点或连击破音)
+  const lastSfxTime = {};
+
+  function playSFX(name, vol = 0.85, minInterval = 50) {
+    if (isAudioMuted) return;
+    const now = performance.now();
+    if (lastSfxTime[name] && now - lastSfxTime[name] < minInterval) return;
+    lastSfxTime[name] = now;
+
+    const dataUri = window.MUSEUM_SFX_BANK && window.MUSEUM_SFX_BANK[name];
+    const src = dataUri || `audio/sfx_${name}.mp3`;
+    try {
+      const a = new Audio(src);
+      a.volume = Math.max(0, Math.min(1, vol));
+      a.play().catch(() => {});
+    } catch (_) {}
+  }
+
+  function updateSoundUI() {
+    if (!soundFab) return;
+    soundFab.classList.toggle("is-muted", isAudioMuted);
+    if (soundFabIcon) soundFabIcon.textContent = isAudioMuted ? "🔇" : "🔊";
+    if (soundFabText) soundFabText.textContent = isAudioMuted ? "静音 OFF" : "原声 ON";
+  }
+
+  function toggleSound() {
+    isAudioMuted = !isAudioMuted;
+    if (museumBgm) {
+      if (isAudioMuted) {
+        museumBgm.pause();
+      } else {
+        museumBgm.volume = 0.22;
+        museumBgm.play().catch(() => {});
+      }
+    }
+    updateSoundUI();
+  }
+
+  function startBgmOnFirstGesture() {
+    if (bgmStarted || isAudioMuted || !museumBgm) return;
+    bgmStarted = true;
+    museumBgm.volume = 0.22;
+    museumBgm.play().catch(() => {
+      bgmStarted = false;
+    });
+  }
+
+  if (soundFab) {
+    soundFab.addEventListener("click", toggleSound);
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "m" || e.key === "M") {
+      if (document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA")) return;
+      toggleSound();
+    }
+  });
+
+  // 页面首发手势解锁全局环境 BGM
+  window.addEventListener("click", startBgmOnFirstGesture, { passive: true, once: true });
+  window.addEventListener("scroll", startBgmOnFirstGesture, { passive: true, once: true });
+  window.addEventListener("touchstart", startBgmOnFirstGesture, { passive: true, once: true });
+
+  // 切后台暂停，回前台恢复
+  document.addEventListener("visibilitychange", () => {
+    if (!museumBgm || isAudioMuted) return;
+    if (document.hidden) {
+      museumBgm.pause();
+    } else if (bgmStarted) {
+      museumBgm.play().catch(() => {});
+    }
+  });
+
+  window.playSFX = playSFX;
+
+  /* ============================================================
      1. 滚动进度 + 文明进度环 + 揭示动画
   ============================================================ */
   const scrollProgress = $("#scrollProgress");
@@ -439,6 +523,7 @@
 
   function selectBambooSlip(idx) {
     if (idx < 0 || idx >= slipElements.length) return;
+    playSFX("bamboo", 0.75);
     cancelAnimationFrame(momentumId);
     currentSlipIdx = idx;
     
@@ -719,6 +804,7 @@
   }
   paperSheet.addEventListener("pointerdown", (e) => {
     cancelAnimationFrame(paperMomentum);
+    playSFX("paper", 0.85);
     pdrag = true;
     const r = paperSheet.getBoundingClientRect();
     porigX = r.left + r.width / 2 - paperStage.getBoundingClientRect().left;
@@ -847,6 +933,7 @@
   let blockWarnTimer = 0;
   if (blockTryNewBtn) {
     blockTryNewBtn.addEventListener("click", () => {
+      playSFX("printBlock", 0.95);
       clearTimeout(blockWarnTimer);
       if (printViewBlock) {
         printViewBlock.classList.remove("shake-effect");
@@ -880,6 +967,7 @@
   // 活字飞入拼排动画
   let typeAnimTimer = 0;
   function composeClassic(bookKey) {
+    playSFX("printType", 0.85);
     clearTimeout(typeAnimTimer);
     const data = classicsData[bookKey] || classicsData.datong;
     if (pressBookTitle) pressBookTitle.textContent = data.title;
@@ -925,6 +1013,7 @@
   function setPrintMode(mode) {
     printModeBtns.forEach((b) => b.classList.toggle("is-active", b.dataset.mode === mode));
     if (mode === "type") {
+      playSFX("printType", 0.85);
       if (printViewBlock) printViewBlock.style.display = "none";
       if (printViewType) printViewType.style.display = "block";
       if (printClassics) printClassics.style.display = "flex";
@@ -936,6 +1025,7 @@
       }
       composeClassic("datong");
     } else {
+      playSFX("printBlock", 0.95);
       if (printViewBlock) printViewBlock.style.display = "block";
       if (printViewType) printViewType.style.display = "none";
       if (printClassics) printClassics.style.display = "none";
@@ -956,6 +1046,7 @@
     pill.addEventListener("click", () => {
       classicPills.forEach((p) => p.classList.remove("is-active"));
       pill.classList.add("is-active");
+      playSFX("printType", 0.8);
       composeClassic(pill.dataset.book);
     });
   });
@@ -1009,9 +1100,24 @@
       telecomViews.forEach((v) => v.classList.toggle("is-active", v.dataset.view === targetStage));
       if (targetStage === "telegraph") {
         playMorsePulse();
+      } else if (targetStage === "phone") {
+        playSFX("telecomSignal", 0.85);
+      } else if (targetStage === "computer") {
+        playSFX("keyboard", 0.8);
+      } else if (targetStage === "letter") {
+        playSFX("paper", 0.75);
       }
     });
   });
+
+  const telecomCardPhone = $(".telecom-card--phone");
+  if (telecomCardPhone) {
+    telecomCardPhone.addEventListener("click", () => playSFX("telecomSignal", 0.85));
+  }
+  const telecomCardComp = $(".telecom-card--computer");
+  if (telecomCardComp) {
+    telecomCardComp.addEventListener("click", () => playSFX("keyboard", 0.8));
+  }
 
   if (telegraphCodeBtn) {
     telegraphCodeBtn.addEventListener("click", () => {
@@ -1129,6 +1235,7 @@
   let encAnim = 0, encStart = 0;
   function dissolveChar(ch) {
     cancelAnimationFrame(encAnim);
+    playSFX("decompose", 0.85);
     const off = document.createElement("canvas");
     off.width = off.height = 120;
     const o = off.getContext("2d");
@@ -1218,6 +1325,7 @@
       }, 150);
     }
   });
+  encodeInput.addEventListener("input", () => playSFX("keyboard", 0.6));
   encodeInput.addEventListener("blur", () => {
     [100, 300].forEach((delay) => {
       setTimeout(() => {
@@ -2252,6 +2360,7 @@
       runFinal();
     }
   });
+  finalInput.addEventListener("input", () => playSFX("keyboard", 0.6));
 
   // 移动端软键盘收起防跳：监听 blur 事件进行多级平滑校准回位
   finalInput.addEventListener("blur", () => {
