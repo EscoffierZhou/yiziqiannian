@@ -1174,7 +1174,7 @@
 
   let currentBinData = "0101 0110 1111 1101";
 
-  function applyEncodeResult(result) {
+  function applyEncodeResult(result, shouldAnimate = true) {
     const isError = result["字符"] === "请输入正确的汉字" ||
                     result["Unicode"] === "请输入正确的汉字" ||
                     result["二进制"] === "请输入正确的汉字" ||
@@ -1203,9 +1203,11 @@
       drawEncodeError();
     } else {
       currentBinData = result["二进制"] || "0101 0110 1111 1101";
-      [0, 1, 2, 3].forEach((i) => setTimeout(() => lightLayers(i), i * 260));
-      setTimeout(() => lightLayers(-1), 1200);
-      dissolveChar(result["字符"]);
+      if (shouldAnimate) {
+        [0, 1, 2, 3].forEach((i) => setTimeout(() => lightLayers(i), i * 260));
+        setTimeout(() => lightLayers(-1), 1200);
+        dissolveChar(result["字符"]);
+      }
     }
   }
 
@@ -1340,14 +1342,14 @@
     });
   });
 
-  // 初始状态仅显示静态字形与编码，不自动播放粒子动画，等待用户主动点击「拆解」
+  // 初始状态仅显示静态字形与编码，不自动播放粒子动画与音效，等待用户主动点击「拆解」
   function initEncodeCanvas() {
     applyEncodeResult({
       "字符": "国",
       "Unicode": "U+56FD · 22269",
       "二进制": "0101 0110 1111 1101",
       "数据": "E5 9B BD"
-    });
+    }, false);
     const W = encodeCanvas.width, H = encodeCanvas.height;
     ecx.clearRect(0, 0, W, H);
     ecx.font = "600 100px serif";
