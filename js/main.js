@@ -72,15 +72,6 @@
     updateSoundUI();
   }
 
-  function startBgmOnFirstGesture() {
-    if (bgmStarted || isAudioMuted || !museumBgm) return;
-    bgmStarted = true;
-    museumBgm.volume = 0.22;
-    museumBgm.play().catch(() => {
-      bgmStarted = false;
-    });
-  }
-
   if (soundFab) {
     soundFab.addEventListener("click", toggleSound);
   }
@@ -91,10 +82,39 @@
     }
   });
 
-  // 页面首发手势解锁全局环境 BGM
-  window.addEventListener("click", startBgmOnFirstGesture, { passive: true, once: true });
-  window.addEventListener("scroll", startBgmOnFirstGesture, { passive: true, once: true });
-  window.addEventListener("touchstart", startBgmOnFirstGesture, { passive: true, once: true });
+  function unlockBgm() {
+    if (bgmStarted || isAudioMuted || !museumBgm) return;
+    museumBgm.volume = 0.22;
+    const p = museumBgm.play();
+    if (p && typeof p.then === "function") {
+      p.then(() => {
+        bgmStarted = true;
+        cleanupUnlockListeners();
+      }).catch(() => {
+        bgmStarted = false;
+      });
+    }
+  }
+
+  const unlockEvents = ["click", "touchstart", "touchend", "pointerdown", "keydown"];
+  function cleanupUnlockListeners() {
+    unlockEvents.forEach(evt => window.removeEventListener(evt, unlockBgm));
+  }
+  unlockEvents.forEach(evt => {
+    window.addEventListener(evt, unlockBgm, { passive: true });
+  });
+
+  // 尝试首屏自动恢复播放（部分移动端浏览器已继承用户交互激活状态）
+  if (museumBgm && !isAudioMuted) {
+    museumBgm.volume = 0.22;
+    const autoP = museumBgm.play();
+    if (autoP && typeof autoP.then === "function") {
+      autoP.then(() => {
+        bgmStarted = true;
+        cleanupUnlockListeners();
+      }).catch(() => {});
+    }
+  }
 
   // 切后台暂停，回前台恢复
   document.addEventListener("visibilitychange", () => {

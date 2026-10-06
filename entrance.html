@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <title>一字千年 · 进入</title>
+<link rel="prefetch" href="audio/bgm_museum.m4a" />
+<link rel="prefetch" href="audio/bgm_museum.mp3" />
 <script src="js/opening_audio_data.js"></script>
 <style>
 :root{
@@ -910,6 +912,13 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
         });
       }
     }
+
+    // 性能优化：利用用户观看开场 CG 的 8~10 秒空闲信道，静默在后台预拉取展馆背景音乐到本地缓存
+    try {
+      const bgmPreload = new Audio();
+      bgmPreload.src = 'audio/bgm_museum.m4a';
+      bgmPreload.preload = 'auto';
+    } catch (_) {}
   }
 
   if(gateBtn){
@@ -948,11 +957,25 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   skipBtn.addEventListener('touchend', function(e){ e.preventDefault(); revealFinal(); }, {passive:false});
 
   const SITE = 'main.html';
+  let isEnteringSite = false;
   
   function goSite(e){
     if(e) e.stopPropagation();
-    fadeAudio(0, 220, ()=>{ window.location.href = SITE; });
-    setTimeout(()=>{ window.location.href = SITE; }, 260);
+    if(isEnteringSite) return;
+    isEnteringSite = true;
+
+    // 播放 [3] 雕版定版-压印闷响.mp3 (Base64 纯内存内联，0 毫秒即点即响)
+    if(!isMuted){
+      try {
+        const enterAudio = new Audio(window.SFX_ENTER_BASE64 || 'audio/sfx_print_block.mp3');
+        enterAudio.volume = 1.0;
+        enterAudio.play().catch(()=>{});
+      } catch(_) {}
+    }
+
+    // 平滑淡出开场海风背景音乐，并在压印沉闷重音落定后平稳跳转到展馆 (420ms)
+    fadeAudio(0, 320, ()=>{});
+    setTimeout(()=>{ window.location.href = SITE; }, 420);
   }
 
   const enterBtn = document.getElementById('enter');
