@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
 <title>一字千年 · 进入</title>
+<script src="js/opening_audio_data.js"></script>
 <style>
 :root{
   --bg:#000000;
@@ -280,9 +281,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     <span class="icon">🔊</span><span class="txt">音效 ON</span>
   </button>
   <audio id="openingAudio" preload="auto">
-    <source src="audio/opening_ocean.wav" type="audio/wav" />
-    <source src="audio/opening_ocean.mp3" type="audio/mpeg" />
-    <source src="audio/[1]ocean{2.0}倍速版本.wav" type="audio/wav" />
+    <source src="audio/opening_ocean_192k.mp3" type="audio/mpeg" />
   </audio>
 </div>
 
@@ -461,6 +460,10 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
 
   /* ---------- audio synchronization engine ---------- */
   const audioEl = document.getElementById('openingAudio');
+  if(window.OPENING_AUDIO_BASE64){
+    audioEl.src = window.OPENING_AUDIO_BASE64;
+    try { audioEl.load(); } catch(e){}
+  }
   const sndBtn = document.getElementById('sndBtn');
   let isMuted = false;
   let audioStarted = false;
