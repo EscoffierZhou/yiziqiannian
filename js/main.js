@@ -226,32 +226,77 @@
   const btnCloseOrientGuide = $("#btnCloseOrientGuide");
   const mobileOrientFab = $("#mobileOrientFab");
 
+  let toastTimer = null;
+  function showToast(msg, duration = 3000) {
+    let t = $("#globalToast");
+    if (!t) {
+      t = document.createElement("div");
+      t.id = "globalToast";
+      t.className = "global-toast";
+      document.body.appendChild(t);
+    }
+    t.innerHTML = msg;
+    t.classList.add("is-show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      t.classList.remove("is-show");
+    }, duration);
+  }
+
   async function lockToLandscape() {
+    let orientationLocked = false;
+    const docEl = document.documentElement;
+
+    // 1. 尝试全屏
     try {
-      const docEl = document.documentElement;
-      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        if (docEl.requestFullscreen) {
-          await docEl.requestFullscreen();
-        } else if (docEl.webkitRequestFullscreen) {
-          await docEl.webkitRequestFullscreen();
-        }
+      const reqFs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+      if (reqFs && !document.fullscreenElement && !document.webkitFullscreenElement) {
+        await reqFs.call(docEl);
       }
-    } catch (e) {
-      console.warn("Fullscreen request error or blocked:", e);
+    } catch (fsErr) {
+      console.warn("Fullscreen request:", fsErr);
     }
 
-    try {
+    // 2. 尝试屏幕方向锁定
+    const tryOrientation = async () => {
       if (screen.orientation && screen.orientation.lock) {
-        await screen.orientation.lock("landscape");
+        return await screen.orientation.lock("landscape");
       } else if (screen.lockOrientation) {
-        screen.lockOrientation("landscape");
+        return screen.lockOrientation("landscape");
       } else if (screen.webkitLockOrientation) {
-        screen.webkitLockOrientation("landscape");
+        return screen.webkitLockOrientation("landscape");
       } else if (screen.mozLockOrientation) {
-        screen.mozLockOrientation("landscape");
+        return screen.mozLockOrientation("landscape");
       }
-    } catch (e) {
-      console.warn("Screen orientation lock error:", e);
+      throw new Error("Screen orientation API not supported");
+    };
+
+    try {
+      await tryOrientation();
+      orientationLocked = true;
+    } catch (_) {
+      // 部分安卓系统在全屏动画过程中短暂锁死，等待 150ms 重试
+      await new Promise(r => setTimeout(r, 150));
+      try {
+        await tryOrientation();
+        orientationLocked = true;
+      } catch (e2) {
+        console.warn("Orientation lock final failure:", e2);
+      }
+    }
+
+    // 3. 震动触觉反馈（若设备支持）
+    try {
+      if (navigator.vibrate) navigator.vibrate(40);
+    } catch (_) {}
+
+    // 4. 用户反馈与友好提示
+    if (mobileOrientGuide) mobileOrientGuide.classList.remove("is-visible");
+
+    if (orientationLocked || window.innerWidth > window.innerHeight) {
+      showToast("✦ 已切换为全屏横屏模式", 2500);
+    } else {
+      showToast("💡 若未自动翻转，请开启手机控制中心的【自动旋转】并横放手机", 4000);
     }
   }
 
@@ -267,11 +312,14 @@
     }
   }
 
+  const handleLandscapeTrigger = (e) => {
+    if (e) e.preventDefault();
+    lockToLandscape();
+  };
+
   if (btnAutoLandscape) {
-    btnAutoLandscape.addEventListener("click", () => {
-      lockToLandscape();
-      if (mobileOrientGuide) mobileOrientGuide.classList.remove("is-visible");
-    });
+    btnAutoLandscape.addEventListener("click", handleLandscapeTrigger);
+    btnAutoLandscape.addEventListener("touchend", handleLandscapeTrigger, { passive: false });
   }
 
   if (btnCloseOrientGuide) {
@@ -281,7 +329,8 @@
   }
 
   if (mobileOrientFab) {
-    mobileOrientFab.addEventListener("click", lockToLandscape);
+    mobileOrientFab.addEventListener("click", handleLandscapeTrigger);
+    mobileOrientFab.addEventListener("touchend", handleLandscapeTrigger, { passive: false });
   }
 
   window.addEventListener("resize", checkMobileOrientation);

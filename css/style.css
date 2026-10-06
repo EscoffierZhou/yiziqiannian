@@ -405,7 +405,19 @@ button { cursor: pointer; border: none; background: none; }
    第二幕 · 纸
    ============================================================ */
 .scene--paper { background: linear-gradient(180deg, #14100a 0%, #100c07 100%); }
-.paper-stage { margin-top: 30px; text-align: center; min-height: 360px; position: relative; }
+.paper-stage { margin-top: 30px; text-align: center; min-height: 400px; position: relative; }
+.paper-stage .hint,
+.paper-hint {
+  color: #FFFFFF !important;
+  text-align: center !important;
+  font-size: 13px;
+  letter-spacing: 2.5px;
+  font-weight: 500;
+  margin: 355px auto 16px;
+  display: block;
+  width: 100%;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.45);
+}
 .paper-sheet {
   position: absolute; left: 50%; top: 40px; width: 230px; height: 300px; margin-left: -115px;
   background: linear-gradient(160deg, #f4ecd7 0%, #e3d6b5 100%);
@@ -2540,6 +2552,7 @@ button { cursor: pointer; border: none; background: none; }
   white-space: nowrap;
   box-shadow: 0 2px 10px rgba(114, 214, 208, 0.35);
   transition: transform 0.2s;
+  touch-action: manipulation;
 }
 .orient-btn--lock:active {
   transform: scale(0.95);
@@ -2897,6 +2910,35 @@ button { cursor: pointer; border: none; background: none; }
     padding: 5px 10px;
     font-size: 10px;
   }
+}
+
+/* 全局轻提示 Toast */
+.global-toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(14, 22, 36, 0.94);
+  border: 1px solid rgba(114, 214, 208, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(114, 214, 208, 0.2);
+  color: var(--cold-white);
+  padding: 10px 22px;
+  border-radius: 30px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  z-index: 100000;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.35s var(--ease);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 90vw;
+  text-align: center;
+}
+.global-toast.is-show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 
