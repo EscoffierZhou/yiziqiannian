@@ -130,6 +130,12 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.4em;color:rgba(240,200,105,.5);
   padding:6px 2px;transition:color .3s;touch-action:manipulation}
 .skip:hover{color:var(--gold)}
+.snd-btn{position:absolute;z-index:10;bottom:26px;right:28px;background:none;border:0;cursor:pointer;
+  font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.3em;color:rgba(240,200,105,.65);
+  padding:6px 4px;transition:all .3s ease;touch-action:manipulation;display:flex;align-items:center;gap:6px}
+.snd-btn:hover{color:var(--gold-b);text-shadow:0 0 10px rgba(240,200,105,.5)}
+.snd-btn.muted{color:rgba(240,200,105,.35)}
+.snd-btn .icon{font-size:13px;line-height:1}
 .barlove{position:absolute;top:0;left:0;height:2px;z-index:11;width:100%;
   background:linear-gradient(90deg,var(--red),var(--gold));box-shadow:0 0 14px rgba(240,200,105,.6);
   transform-origin:left center;transform:scaleX(0);will-change:transform}
@@ -142,6 +148,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   .spd .num{font-size:20px}
   .hud .tl{left:16px;top:18px}
   .skip{left:16px;bottom:20px}
+  .snd-btn{right:16px;bottom:20px;font-size:10px;letter-spacing:.18em}
   .core .glyph{text-shadow:0 0 22px rgba(255,233,168,.65),0 0 45px rgba(240,200,105,.4);}
   .cap .lbl{text-shadow:0 0 20px rgba(240,200,105,.45);}
 }
@@ -193,6 +200,14 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   <div class="flash" id="flash"></div>
   <div class="barlove" id="barlove"></div>
   <button class="skip" id="skip">跳过 SKIP</button>
+  <button class="snd-btn" id="sndBtn" type="button" title="点击切换音效状态">
+    <span class="icon">🔊</span><span class="txt">音效 ON</span>
+  </button>
+  <audio id="openingAudio" preload="auto">
+    <source src="audio/opening_ocean.wav" type="audio/wav" />
+    <source src="audio/opening_ocean.mp3" type="audio/mpeg" />
+    <source src="audio/[1]ocean{2.0}倍速版本.wav" type="audio/wav" />
+  </audio>
 </div>
 
 <script>
@@ -368,6 +383,66 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   const finalEl = document.getElementById('final');
   const flashEl = document.getElementById('flash');
 
+  /* ---------- audio synchronization engine ---------- */
+  const audioEl = document.getElementById('openingAudio');
+  const sndBtn = document.getElementById('sndBtn');
+  let isMuted = false;
+  let audioStarted = false;
+
+  function updateSndUI(){
+    if(!sndBtn || !audioEl) return;
+    const isOff = isMuted || audioEl.muted || audioEl.paused;
+    sndBtn.classList.toggle('muted', isOff);
+    const icon = sndBtn.querySelector('.icon');
+    const txt = sndBtn.querySelector('.txt');
+    if(icon) icon.textContent = isOff ? '🔇' : '🔊';
+    if(txt) txt.textContent = isOff ? '音效 OFF' : '音效 ON';
+  }
+
+  function fadeAudio(targetVol, duration, onComplete){
+    if(!audioEl){
+      if(onComplete) onComplete();
+      return;
+    }
+    const startVol = audioEl.volume;
+    const startTime = performance.now();
+    (function step(now){
+      const p = Math.min(1, (now - startTime) / Math.max(1, duration));
+      audioEl.volume = Math.max(0, Math.min(1, startVol + (targetVol - startVol) * p));
+      if(p < 1){
+        requestAnimationFrame(step);
+      } else {
+        if(onComplete) onComplete();
+      }
+    })(startTime);
+  }
+
+  function syncAndPlayAudio(){
+    if(!audioEl || isMuted || finished) return;
+
+    // 动态音画对齐：将音频游标对齐至视觉时间戳（秒）
+    const elapsedSec = Math.max(0, (performance.now() - t0) / 1000);
+    if(elapsedSec < 9.0){
+      try {
+        if(Math.abs(audioEl.currentTime - elapsedSec) > 0.12){
+          audioEl.currentTime = elapsedSec;
+        }
+      } catch(e){}
+    }
+
+    const p = audioEl.play();
+    if(p && typeof p.then === 'function'){
+      p.then(()=>{
+        audioStarted = true;
+        updateSndUI();
+      }).catch(err => {
+        // 捕获现代浏览器 Autoplay 策略拦截（NotAllowedError），静默就绪手势解锁
+        audioStarted = false;
+        updateSndUI();
+      });
+    }
+  }
+
   /* ---------- timeline ---------- */
   const T_INTRO = 1500;
   const T_RUN   = 7100;
@@ -383,11 +458,17 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     if(document.hidden){
       isHidden = true;
       hiddenStartTime = performance.now();
+      if(audioEl && !audioEl.paused){
+        audioEl.pause();
+      }
     } else {
       if(isHidden){
         const pauseDur = performance.now() - hiddenStartTime;
         t0 += pauseDur;
         isHidden = false;
+        if(audioEl && !finished && !isMuted){
+          syncAndPlayAudio();
+        }
       }
     }
   });
@@ -714,8 +795,9 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     requestAnimationFrame(frame);
   }
 
-  // 初始启动
+  // 初始启动与音频同步播放
   resize();
+  syncAndPlayAudio();
   requestAnimationFrame(frame);
 
   /* ---------- interactions & mobile support ---------- */
@@ -732,6 +814,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     document.querySelector('.hud').style.opacity = .35;
     spdBar.style.transform = 'scaleX(1)';
     barlove.style.transform = 'scaleX(1)';
+    fadeAudio(0, 350, ()=>{ if(audioEl) audioEl.pause(); });
   }
 
   const skipBtn = document.getElementById('skip');
@@ -742,7 +825,8 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   
   function goSite(e){
     if(e) e.stopPropagation();
-    window.location.href = SITE;
+    fadeAudio(0, 220, ()=>{ window.location.href = SITE; });
+    setTimeout(()=>{ window.location.href = SITE; }, 260);
   }
 
   const enterBtn = document.getElementById('enter');
@@ -758,8 +842,40 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     if(finalEl.classList.contains('show')) goSite();
   });
   stageEl.addEventListener('touchend', function(e){
-    if(finalEl.classList.contains('show') && e.target !== skipBtn) goSite();
+    if(finalEl.classList.contains('show') && e.target !== skipBtn && e.target !== sndBtn) goSite();
   }, {passive:true});
+
+  // 全局手势唤醒补偿（应对浏览器严格的 Autoplay 自动播放拦截机制）
+  function handleUserGestureUnlock(){
+    if(finished || isMuted) return;
+    if(!audioStarted || (audioEl && audioEl.paused)){
+      syncAndPlayAudio();
+    }
+  }
+  window.addEventListener('click', handleUserGestureUnlock, { passive: true });
+  window.addEventListener('touchstart', handleUserGestureUnlock, { passive: true });
+  window.addEventListener('keydown', handleUserGestureUnlock, { passive: true });
+
+  // 声音开关按钮交互
+  if(sndBtn){
+    sndBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if(!audioEl) return;
+      if(audioEl.paused || isMuted){
+        isMuted = false;
+        audioEl.muted = false;
+        audioEl.volume = 1;
+        syncAndPlayAudio();
+      } else {
+        isMuted = true;
+        audioEl.pause();
+        updateSndUI();
+      }
+    });
+    sndBtn.addEventListener('touchend', function(e){
+      e.stopPropagation();
+    }, {passive:true});
+  }
 })();
 </script>
 </body>
