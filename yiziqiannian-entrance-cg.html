@@ -151,6 +151,74 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   .snd-btn{right:16px;bottom:20px;font-size:10px;letter-spacing:.18em}
   .core .glyph{text-shadow:0 0 22px rgba(255,233,168,.65),0 0 45px rgba(240,200,105,.4);}
   .cap .lbl{text-shadow:0 0 20px rgba(240,200,105,.45);}
+  .gate-btn{padding: 10px 28px; font-size: 12px; letter-spacing: .32em}
+  .gate-sub{font-size: 8.5px; letter-spacing: .16em}
+}
+
+/* ---------- 启幕交互引导（Awwwards 级视听解锁设计） ---------- */
+.gate-action{
+  margin-top: clamp(24px, 4.5vh, 42px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  transition: opacity .5s ease, transform .5s cubic-bezier(.16,1,.3,1);
+  animation: fadeup 1.2s 0.6s both;
+}
+.gate-action.gone{
+  opacity: 0;
+  transform: scale(0.92);
+  pointer-events: none;
+}
+.gate-btn{
+  background: rgba(240, 200, 105, 0.08);
+  border: 1px solid rgba(240, 200, 105, 0.55);
+  color: var(--gold-b);
+  border-radius: 40px;
+  padding: 12px 38px;
+  font-family: inherit;
+  font-size: clamp(13px, 1.8vw, 16px);
+  letter-spacing: .42em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 26px rgba(240, 200, 105, 0.22), inset 0 0 14px rgba(240, 200, 105, 0.09);
+  transition: all .35s ease;
+  touch-action: manipulation;
+}
+.gate-btn::before{
+  content: "";
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: linear-gradient(90deg, transparent, rgba(240, 200, 105, 0.32), transparent);
+  transform: translateX(-120%);
+  animation: sheen 3.2s 1.5s infinite;
+}
+.gate-btn:hover{
+  background: rgba(240, 200, 105, 0.18);
+  color: #fff;
+  border-color: var(--gold);
+  box-shadow: 0 0 42px rgba(240, 200, 105, 0.5);
+  transform: scale(1.03);
+}
+.gate-btn:active{
+  transform: scale(0.96);
+}
+.gate-star{
+  color: var(--gold);
+  font-size: 11px;
+}
+.gate-sub{
+  margin-top: 14px;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: clamp(9px, 1.3vw, 11px);
+  letter-spacing: .25em;
+  color: rgba(240, 200, 105, 0.55);
+  text-transform: uppercase;
 }
 </style>
 </head>
@@ -180,17 +248,25 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
 
   <nav class="tlbar" id="tlbar"></nav>
 
-  <!-- intro glyph -->
+  <!-- intro gate: 东方美学启幕引导 -->
   <div class="core" id="core">
-    <div class="glyph">國</div>
+    <div class="glyph">国</div>
     <div class="q">一个字，走了多远？</div>
+    <div class="gate-action" id="gateAction">
+      <button class="gate-btn" id="gateBtn" type="button" aria-label="点击启幕开启体验">
+        <span class="gate-star">✦</span>
+        <span class="gate-txt">点 击 启 幕</span>
+        <span class="gate-star">✦</span>
+      </button>
+      <div class="gate-sub">CLICK TO ENTER · 建议佩戴耳机 开启视听</div>
+    </div>
   </div>
 
   <!-- final title -->
   <div class="final" id="final">
     <div class="mark">
       <h1>一字千年</h1>
-      <div class="seal">國</div>
+      <div class="seal">国</div>
     </div>
     <p class="sub">从竹简到芯片，中国人的信息之路仍在继续。</p>
     <button class="enter" id="enter">进&nbsp;入</button>
@@ -451,6 +527,9 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
 
   let t0 = performance.now();
   let finished = false;
+  let gateOpen = false;
+  const gateAction = document.getElementById('gateAction');
+  const gateBtn = document.getElementById('gateBtn');
 
   let isHidden = false;
   let hiddenStartTime = 0;
@@ -657,6 +736,8 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     last = now;
     frameCount++;
 
+    // 门控：gate 未打开时，持续将 t0 锁定在当前帧，动画时间线冻结在 0
+    if(!gateOpen){ t0 = now; }
     const el = now - t0;
 
     /* ---- phase logic ---- */
@@ -795,15 +876,54 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     requestAnimationFrame(frame);
   }
 
-  // 初始启动与音频同步播放
+  // 初始启动：Canvas 渲染循环立即运行（背景星空可见），但动画时间线冻结在 0 等待 gate 点击
   resize();
-  syncAndPlayAudio();
   requestAnimationFrame(frame);
+
+  // 启幕交互：用户首次点击，同时解锁音频播放与启动动画物理时间轴
+  function openGate(){
+    if(gateOpen) return;
+    gateOpen = true;
+    t0 = performance.now(); // 重置视觉时间基准 = 此刻
+    if(gateAction){
+      gateAction.classList.add('gone');
+      setTimeout(()=>{ if(gateAction) gateAction.style.display = 'none'; }, 600);
+    }
+
+    // 在用户原生交互事件同步栈内触发 play()，严格满足浏览器安全策略
+    if(audioEl && !isMuted){
+      audioEl.currentTime = 0;
+      audioEl.volume = 1;
+      const p = audioEl.play();
+      if(p && typeof p.then === 'function'){
+        p.then(()=>{
+          audioStarted = true;
+          updateSndUI();
+        }).catch(err => {
+          console.warn('音频播放异常:', err);
+        });
+      }
+    }
+  }
+
+  if(gateBtn){
+    gateBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      openGate();
+    });
+    gateBtn.addEventListener('touchend', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      openGate();
+    }, {passive:false});
+  }
 
   /* ---------- interactions & mobile support ---------- */
   function revealFinal(){
     if(finished) return;
     finished = true;
+    gateOpen = true;
+    if(gateAction) gateAction.style.display = 'none';
     t0 = performance.now() - (T_END + 1);
     flashEl.classList.add('go');
     glyphs = [];
@@ -834,20 +954,37 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   enterBtn.addEventListener('touchend', goSite, {passive:true});
 
   document.addEventListener('keydown', function(e){
-    if(e.key === 'Enter'){ e.preventDefault(); goSite(); }
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      if(!gateOpen){
+        openGate();
+        return;
+      }
+      if(finalEl.classList.contains('show')) goSite();
+    }
   });
 
   const stageEl = document.getElementById('stage');
   stageEl.addEventListener('click', function(){
+    if(!gateOpen){
+      openGate();
+      return;
+    }
     if(finalEl.classList.contains('show')) goSite();
   });
   stageEl.addEventListener('touchend', function(e){
+    if(!gateOpen){
+      if(e.target !== skipBtn && e.target !== sndBtn){
+        openGate();
+      }
+      return;
+    }
     if(finalEl.classList.contains('show') && e.target !== skipBtn && e.target !== sndBtn) goSite();
   }, {passive:true});
 
-  // 全局手势唤醒补偿（应对浏览器严格的 Autoplay 自动播放拦截机制）
+  // 全局手势唤醒补偿（应对切后台重回等边缘情况）
   function handleUserGestureUnlock(){
-    if(finished || isMuted) return;
+    if(!gateOpen || finished || isMuted) return;
     if(!audioStarted || (audioEl && audioEl.paused)){
       syncAndPlayAudio();
     }
