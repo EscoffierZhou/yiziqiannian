@@ -514,6 +514,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
       } catch(e){}
     }
 
+    startTailFade();                     // 启动「结尾渐隐」守护，避免音乐收尾硬切
     const p = audioEl.play();
     if(p && typeof p.then === 'function'){
       p.then(()=>{
@@ -526,6 +527,27 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
       });
     }
   }
+
+  /* 结尾渐隐：音轨最后约 1.3 秒内把音量沿 smoothstep 平滑收到 0，
+     不依赖音源文件本身的收尾方式，保证听感上一定是「渐渐消失」而不是突然静音 */
+  let tailFadeRAF = null;
+  function startTailFade(){
+    if(tailFadeRAF) return;
+    (function step(){
+      tailFadeRAF = requestAnimationFrame(step);
+      if(!audioEl || finished || isMuted || audioEl.paused) return;
+      const dur = audioEl.duration;
+      if(!dur || !isFinite(dur)) return;
+      const tail = Math.min(1.3, dur * 0.15);        // 约最后 1.3 秒
+      const remain = dur - audioEl.currentTime;
+      if(remain <= tail){
+        const q = Math.max(0, remain / tail);        // 1 → 0
+        const e = q * q * (3 - 2 * q);               // smoothstep 缓出
+        if(audioEl.volume > e) audioEl.volume = e;   // 只降不升，随播放自然收尾
+      }
+    })();
+  }
+  function stopTailFade(){ if(tailFadeRAF){ cancelAnimationFrame(tailFadeRAF); tailFadeRAF = null; } }
 
   /* ---------- timeline ---------- */
   const T_INTRO = 1500;
@@ -902,6 +924,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     if(audioEl && !isMuted){
       audioEl.currentTime = 0;
       audioEl.volume = 1;
+      startTailFade();
       const p = audioEl.play();
       if(p && typeof p.then === 'function'){
         p.then(()=>{
@@ -949,7 +972,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     document.querySelector('.hud').style.opacity = .35;
     spdBar.style.transform = 'scaleX(1)';
     barlove.style.transform = 'scaleX(1)';
-    fadeAudio(0, 350, ()=>{ if(audioEl) audioEl.pause(); });
+    fadeAudio(0, 1400, ()=>{ if(audioEl) audioEl.pause(); });
   }
 
   const skipBtn = document.getElementById('skip');
@@ -973,9 +996,9 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
       } catch(_) {}
     }
 
-    // 平滑淡出开场海风背景音乐，并在压印沉闷重音落定后平稳跳转到展馆 (420ms)
-    fadeAudio(0, 320, ()=>{});
-    setTimeout(()=>{ window.location.href = SITE; }, 420);
+    // 第一段（开场海风）缓缓淡出，衔接第二段（展馆 BGM）的淡入，避免硬切
+    fadeAudio(0, 900, ()=>{ if(audioEl) audioEl.pause(); });
+    setTimeout(()=>{ window.location.href = SITE; }, 1000);
   }
 
   const enterBtn = document.getElementById('enter');

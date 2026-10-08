@@ -12,6 +12,7 @@
   --beige:       #E9E4D8;   /* 米白 */
   --paper-white: #F3F0E8;   /* 宣纸白 */
   --gold:        #B89A62;   /* 古铜金 */
+  --gold-b:      #FFE9A8;   /* 亮金（高亮态，与入口页保持一致） */
   --cyan:        #72D6D0;   /* 数字青 */
   --cold-white:  #E9F4F3;   /* 冷白 */
   --cinnabar:    #9E302C;   /* 朱砂（仅用于关键交互态） */
@@ -59,18 +60,47 @@ button { cursor: pointer; border: none; background: none; }
   z-index: 90; transition: width .08s linear;
 }
 
-/* ---------- 4. 边缘文明进度环 ---------- */
+/* ---------- 3.1 顶部章节提示词条 ---------- */
+.top-words {
+  position: fixed; top: 0; left: 0; width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(10px, 1.6vw, 30px);
+  height: 56px; padding: 0 clamp(20px, 14vw, 210px);
+  background: linear-gradient(180deg, rgba(6,6,7,.88) 0%, rgba(6,6,7,.62) 62%, rgba(6,6,7,0) 100%);
+  border-bottom: 1px solid rgba(184, 154, 98, .1);
+  z-index: 88; pointer-events: none;
+  font-family: var(--sans);
+}
+.top-word {
+  pointer-events: auto; position: relative;
+  background: none; border: 0; padding: 4px 2px; cursor: pointer;
+  font-family: inherit; font-size: 12px; letter-spacing: .18em;
+  color: rgba(214, 208, 196, .5); white-space: nowrap;
+  transition: color .28s var(--ease), transform .28s var(--ease);
+}
+.top-word::after {
+  content: ""; position: absolute; left: 50%; bottom: -1px; width: 0; height: 1px;
+  background: var(--gold-b); transform: translateX(-50%);
+  transition: width .3s var(--ease);
+}
+.top-word:hover { color: var(--gold-b); }
+.top-word:hover::after { width: 70%; }
+.top-word.is-active { color: var(--gold-b); }
+.top-word.is-active::after { width: 100%; box-shadow: 0 0 8px rgba(240, 200, 105, .8); }
+
+/* ---------- 4. 边缘文明进度轴 ---------- */
 .ring-nav {
   position: fixed; right: 0; top: 50%; transform: translateY(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: 18px;
-  padding: 20px 16px 20px 22px; z-index: 80;
+  display: flex; flex-direction: column; align-items: center; gap: 24px;
+  padding: 26px 16px 26px 22px; z-index: 80;
   opacity: 0; pointer-events: none;
   transition: opacity .45s var(--ease);
 }
 .ring-nav.is-visible { opacity: 1; pointer-events: auto; }
 
+/* 轴底细线：right 取 29.5px，使 1px 线中心精确落在节点圆点上（cx = 30px 处） */
 .ring-nav__rail {
-  position: absolute; right: 26px; top: 30px; bottom: 30px; width: 1px;
+  position: absolute; right: 29.5px; top: 40px; bottom: 40px; width: 1px;
   background: rgba(184, 154, 98, .16); overflow: hidden;
 }
 .ring-nav__fill {
@@ -78,29 +108,43 @@ button { cursor: pointer; border: none; background: none; }
   background: linear-gradient(180deg, var(--gold), var(--cyan));
   transition: height .2s var(--ease-out);
 }
+/* 轴上的密集刻度小点（参考样式）：中心同样对齐到 cx = 30px */
+.ring-nav::before {
+  content: ""; position: absolute; right: 27.5px; top: 40px; bottom: 40px; width: 5px;
+  background-image: radial-gradient(circle, rgba(184, 154, 98, .5) 0 1.2px, transparent 1.6px);
+  background-size: 5px 13px; background-repeat: repeat-y; background-position: center top;
+  pointer-events: none;
+}
 
 .ring-node {
   position: relative; display: flex; align-items: center; justify-content: center;
-  width: 14px; height: 14px; z-index: 1;
+  width: 28px; height: 28px; z-index: 1; cursor: pointer;
 }
+/* 章节节点：默认与刻度融合的小点 */
 .ring-node__dot {
-  display: block; width: 6px; height: 6px; border-radius: 50%;
-  border: 1px solid rgba(184, 154, 98, .6); background: transparent;
+  display: block; width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(184, 154, 98, .5);
   transition: all .35s var(--ease);
 }
-.ring-node:hover .ring-node__dot { transform: scale(1.5); border-color: var(--gold); }
+.ring-node:hover .ring-node__dot {
+  background: var(--gold); transform: scale(1.9);
+  box-shadow: 0 0 10px rgba(240, 200, 105, .85);
+}
+/* 当前章节：发光标记 + 光晕圆环（参考样式） */
 .ring-node.is-active .ring-node__dot {
-  background: var(--gold); border-color: var(--gold);
-  box-shadow: 0 0 10px rgba(184, 154, 98, .7);
-  transform: scale(1.35);
+  width: 9px; height: 9px; background: var(--gold-b);
+  box-shadow: 0 0 0 3px rgba(184, 154, 98, .16), 0 0 14px rgba(240, 200, 105, .95);
 }
 .ring-node__label {
-  position: absolute; right: 22px; white-space: nowrap;
-  font-family: var(--sans); font-size: 11px; letter-spacing: 2px;
+  position: absolute; right: 26px; white-space: nowrap;
+  font-family: var(--sans); font-size: 10px; letter-spacing: 2px;
   color: var(--txt-dim); opacity: 0; transform: translateX(4px);
   transition: all .3s var(--ease); pointer-events: none;
+  text-shadow: 0 0 10px rgba(0, 0, 0, .95);
 }
 .ring-node:hover .ring-node__label { opacity: 1; transform: translateX(0); }
+/* 当前章节名称常驻显示，右侧轴更容易被发现 */
+.ring-node.is-active .ring-node__label { opacity: 1; transform: translateX(0); color: var(--gold-b); }
 
 /* ---------- 5. 通用场景结构 ---------- */
 .scene {
@@ -1910,6 +1954,7 @@ button { cursor: pointer; border: none; background: none; }
 @media (max-width: 720px) {
   .scene { padding: 90px 5vw 70px; }
   .ring-nav { display: none; }
+  .top-words { display: none; }
   .telecom-keywords { gap: 14px; }
   .telecom-metrics { grid-template-columns: 1fr; gap: 8px; }
   .encode-chain { gap: 8px; }
@@ -2470,17 +2515,17 @@ button { cursor: pointer; border: none; background: none; }
    ============================================================ */
 .mobile-orient-guide {
   position: fixed;
-  top: 14px;
+  top: 12px;
   left: 50%;
-  transform: translateX(-50%) translateY(-140%);
+  transform: translateX(-50%) translateY(-160%);
   width: calc(100% - 24px);
-  max-width: 480px;
+  max-width: 460px;
   z-index: 9999;
-  background: rgba(10, 18, 30, 0.94);
-  border: 1px solid rgba(114, 214, 208, 0.45);
+  background: rgba(11, 12, 14, 0.95);
+  border: 1px solid rgba(184, 154, 98, 0.5);
   backdrop-filter: blur(12px);
   border-radius: 10px;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(114, 214, 208, 0.2);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(184, 154, 98, 0.16);
   transition: transform 0.45s var(--ease), opacity 0.45s var(--ease);
   opacity: 0;
   pointer-events: none;
@@ -2490,6 +2535,8 @@ button { cursor: pointer; border: none; background: none; }
   opacity: 1;
   pointer-events: auto;
 }
+/* 引导条出现时把右上角声音按钮下移，避免互相遮挡 */
+body.orient-open .sound-fab { top: 108px; }
 .orient-guide-content {
   display: flex;
   align-items: center;
@@ -2503,7 +2550,7 @@ button { cursor: pointer; border: none; background: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--cyan);
+  color: var(--gold);
 }
 .phone-rotate-svg {
   width: 32px;
@@ -2543,14 +2590,14 @@ button { cursor: pointer; border: none; background: none; }
   font-family: var(--sans);
   font-size: 12px;
   font-weight: 700;
-  color: #08111d;
-  background: linear-gradient(135deg, #72d6d0 0%, #2ed573 100%);
+  color: #14110b;
+  background: linear-gradient(135deg, var(--gold-b) 0%, var(--gold) 100%);
   border: none;
   padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 2px 10px rgba(114, 214, 208, 0.35);
+  box-shadow: 0 2px 10px rgba(184, 154, 98, 0.35);
   transition: transform 0.2s;
   touch-action: manipulation;
 }
@@ -2580,16 +2627,16 @@ button { cursor: pointer; border: none; background: none; }
   display: none;
   align-items: center;
   gap: 6px;
-  background: rgba(10, 18, 30, 0.9);
-  border: 1px solid rgba(114, 214, 208, 0.45);
-  color: var(--cyan);
+  background: rgba(11, 12, 14, 0.9);
+  border: 1px solid rgba(184, 154, 98, 0.5);
+  color: var(--gold-b);
   padding: 8px 14px;
   border-radius: 100px;
   font-family: var(--sans);
   font-size: 12px;
   font-weight: 600;
   backdrop-filter: blur(8px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 12px rgba(114, 214, 208, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 12px rgba(184, 154, 98, 0.22);
   cursor: pointer;
   transition: all 0.25s var(--ease);
 }
@@ -2613,6 +2660,9 @@ button { cursor: pointer; border: none; background: none; }
     padding: 70px 16px 50px !important;
   }
   .ring-nav {
+    display: none !important;
+  }
+  .top-words {
     display: none !important;
   }
   .scene-title {
@@ -2793,6 +2843,10 @@ button { cursor: pointer; border: none; background: none; }
 @media screen and (orientation: landscape) and (max-height: 600px),
        screen and (orientation: landscape) and (max-width: 1050px) {
   .mobile-orient-fab {
+    display: none !important;
+  }
+  /* 矮屏（横屏手机）下顶部词条收起，避免与画面争抢空间 */
+  .top-words {
     display: none !important;
   }
   .scene {

@@ -16,6 +16,19 @@
   <!-- 顶部极细滚动进度条 -->
   <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
+  <!-- 顶部章节提示词条：与右侧进度轴联动，点击直达对应章节 -->
+  <nav class="top-words" id="topWords" aria-label="章节提示">
+    <button class="top-word is-active" data-target="scene-opening">序</button>
+    <button class="top-word" data-target="scene-bamboo">竹简</button>
+    <button class="top-word" data-target="scene-paper">纸</button>
+    <button class="top-word" data-target="scene-print">印刷</button>
+    <button class="top-word" data-target="scene-telecom">电</button>
+    <button class="top-word" data-target="scene-computer">计算机</button>
+    <button class="top-word" data-target="scene-chip">芯片</button>
+    <button class="top-word" data-target="scene-ai">AI</button>
+    <button class="top-word" data-target="scene-ending">尾</button>
+  </nav>
+
   <!-- 移动端横屏沉浸体验提示条 -->
   <aside class="mobile-orient-guide" id="mobileOrientGuide" aria-label="横屏体验引导">
     <div class="orient-guide-content">
@@ -23,8 +36,8 @@
         <svg class="phone-rotate-svg" viewBox="0 0 48 48">
           <rect x="12" y="6" width="24" height="36" rx="4" fill="none" stroke="currentColor" stroke-width="2.5"/>
           <circle cx="24" cy="36" r="1.5" fill="currentColor"/>
-          <path d="M6 24 C6 14 14 6 24 6" fill="none" stroke="#72d6d0" stroke-width="2.5" stroke-dasharray="4 2"/>
-          <polygon points="24,2 28,6 24,10" fill="#72d6d0"/>
+          <path d="M6 24 C6 14 14 6 24 6" fill="none" stroke="#b89a62" stroke-width="2.5" stroke-dasharray="4 2"/>
+          <polygon points="24,2 28,6 24,10" fill="#b89a62"/>
         </svg>
       </div>
       <div class="orient-text">
@@ -1173,7 +1186,7 @@
 
       <footer class="site-footer">
         <p>《一字千年》· 2026 第十四届全国大学生数字媒体科技作品及创意竞赛</p>
-        <p class="site-footer__tech">技术实现：HTML · CSS · JavaScript · SVG · Canvas（纯前端，无外部依赖）</p>
+        <p class="site-footer__tech">技术实现：HTML · CSS · JavaScript · SVG · Canvas</p>
       </footer>
     </section>
 

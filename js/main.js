@@ -59,14 +59,42 @@
     if (soundFabText) soundFabText.textContent = isAudioMuted ? "静音 OFF" : "原声 ON";
   }
 
+  // 展馆 BGM 目标音量 + 平滑淡入淡出（衔接入口页开场音乐，避免硬切）
+  const BGM_VOL = 0.22;
+  let bgmFadeRAF = null;
+
+  function fadeBgm(target, duration, onDone) {
+    if (!museumBgm) { if (onDone) onDone(); return; }
+    if (bgmFadeRAF) { cancelAnimationFrame(bgmFadeRAF); bgmFadeRAF = null; }
+    const from = museumBgm.volume;
+    const dur = Math.max(1, duration);
+    const start = performance.now();
+    bgmFadeRAF = requestAnimationFrame(function step(now) {
+      const p = Math.min(1, (now - start) / dur);
+      const e = p * p * (3 - 2 * p);   // smoothstep，听感更顺
+      museumBgm.volume = Math.max(0, Math.min(1, from + (target - from) * e));
+      if (p < 1) {
+        bgmFadeRAF = requestAnimationFrame(step);
+      } else {
+        bgmFadeRAF = null;
+        if (onDone) onDone();
+      }
+    });
+  }
+
+  function stopBgmWithFade(duration) {
+    if (!museumBgm) return;
+    fadeBgm(0, duration || 600, () => { try { museumBgm.pause(); } catch (_) {} });
+  }
+
   function toggleSound() {
     isAudioMuted = !isAudioMuted;
     if (museumBgm) {
       if (isAudioMuted) {
-        museumBgm.pause();
-      } else {
-        museumBgm.volume = 0.22;
-        museumBgm.play().catch(() => {});
+        stopBgmWithFade(500);
+      } else if (bgmStarted) {
+        const p = museumBgm.play();
+        if (p && typeof p.then === "function") p.then(() => fadeBgm(BGM_VOL, 700)).catch(() => {});
       }
     }
     updateSoundUI();
@@ -84,11 +112,12 @@
 
   function unlockBgm() {
     if (bgmStarted || isAudioMuted || !museumBgm) return;
-    museumBgm.volume = 0.22;
+    museumBgm.volume = 0;
     const p = museumBgm.play();
     if (p && typeof p.then === "function") {
       p.then(() => {
         bgmStarted = true;
+        fadeBgm(BGM_VOL, 2200);   // 由 0 缓缓淡入，承接入口页的淡出
         cleanupUnlockListeners();
       }).catch(() => {
         bgmStarted = false;
@@ -106,11 +135,12 @@
 
   // 尝试首屏自动恢复播放（部分移动端浏览器已继承用户交互激活状态）
   if (museumBgm && !isAudioMuted) {
-    museumBgm.volume = 0.22;
+    museumBgm.volume = 0;
     const autoP = museumBgm.play();
     if (autoP && typeof autoP.then === "function") {
       autoP.then(() => {
         bgmStarted = true;
+        fadeBgm(BGM_VOL, 2200);
         cleanupUnlockListeners();
       }).catch(() => {});
     }
@@ -120,9 +150,10 @@
   document.addEventListener("visibilitychange", () => {
     if (!museumBgm || isAudioMuted) return;
     if (document.hidden) {
-      museumBgm.pause();
+      stopBgmWithFade(400);
     } else if (bgmStarted) {
-      museumBgm.play().catch(() => {});
+      const p = museumBgm.play();
+      if (p && typeof p.then === "function") p.then(() => fadeBgm(BGM_VOL, 900)).catch(() => {});
     }
   });
 
@@ -135,6 +166,7 @@
   const ringNav = $("#ringNav");
   const ringFill = $("#ringFill");
   const ringNodes = $$(".ring-node");
+  const topWords = $$(".top-word");
   const scenes = $$(".scene");
 
   function onScroll() {
@@ -149,6 +181,8 @@
     let currentId = scenes[0] ? scenes[0].id : "";
     for (const s of scenes) if (s.offsetTop <= mid) currentId = s.id;
     ringNodes.forEach((n) => n.classList.toggle("is-active", n.dataset.target === currentId));
+    topWords.forEach((w) => w.classList.toggle("is-active", w.dataset.target === currentId));
+    syncRingVisibility(false);
   }
 
   let scrollTick = false;
@@ -166,9 +200,22 @@
     });
   });
 
-  // 进度环：鼠标靠近右缘才浮现
+  // 顶部章节提示词条：与右侧进度轴同一套目标，点击直达对应章节
+  topWords.forEach((w) => {
+    w.addEventListener("click", () => {
+      const el = document.getElementById(w.dataset.target);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    });
+  });
+
+  // 进度环：滚过序章后常驻显示；鼠标靠近右缘时也可提前浮现
+  let ringPinned = false;
+  function syncRingVisibility(edgeHover) {
+    if (!ringPinned && window.scrollY > window.innerHeight * 0.6) ringPinned = true;
+    ringNav.classList.toggle("is-visible", ringPinned || !!edgeHover);
+  }
   document.addEventListener("mousemove", (e) => {
-    ringNav.classList.toggle("is-visible", e.clientX > window.innerWidth - 90);
+    syncRingVisibility(e.clientX > window.innerWidth - 110);
   }, { passive: true });
 
   // 揭示动画
@@ -291,7 +338,7 @@
     } catch (_) {}
 
     // 4. 用户反馈与友好提示
-    if (mobileOrientGuide) mobileOrientGuide.classList.remove("is-visible");
+    if (mobileOrientGuide) setOrientGuideVisible(false);
 
     if (orientationLocked || window.innerWidth > window.innerHeight) {
       showToast("✦ 已切换为全屏横屏模式", 2500);
@@ -300,16 +347,20 @@
     }
   }
 
+  // 横屏引导条：仅「移动端 + 竖屏 + 未关闭过」时出现，且不遮挡右上角声音按钮
+  const ORIENT_DISMISS_KEY = "yzqn_orient_guide_dismissed";
+  function isOrientGuideDismissed() {
+    try { return localStorage.getItem(ORIENT_DISMISS_KEY) === "1"; } catch (_) { return false; }
+  }
+  function setOrientGuideVisible(on) {
+    if (!mobileOrientGuide) return;
+    mobileOrientGuide.classList.toggle("is-visible", !!on);
+    document.body.classList.toggle("orient-open", !!on);
+  }
   function checkMobileOrientation() {
     const isPortrait = window.innerHeight > window.innerWidth;
     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent) || window.innerWidth < 820;
-    if (mobileOrientGuide) {
-      if (isMobileDevice && isPortrait) {
-        mobileOrientGuide.classList.add("is-visible");
-      } else {
-        mobileOrientGuide.classList.remove("is-visible");
-      }
-    }
+    setOrientGuideVisible(isMobileDevice && isPortrait && !isOrientGuideDismissed());
   }
 
   const handleLandscapeTrigger = (e) => {
@@ -324,7 +375,8 @@
 
   if (btnCloseOrientGuide) {
     btnCloseOrientGuide.addEventListener("click", () => {
-      if (mobileOrientGuide) mobileOrientGuide.classList.remove("is-visible");
+      try { localStorage.setItem(ORIENT_DISMISS_KEY, "1"); } catch (_) {}
+      setOrientGuideVisible(false);
     });
   }
 
@@ -335,7 +387,7 @@
 
   window.addEventListener("resize", checkMobileOrientation);
   window.addEventListener("orientationchange", checkMobileOrientation);
-  setTimeout(checkMobileOrientation, 600);
+  setTimeout(checkMobileOrientation, 1200);
 
   // 首触与开启按钮联动：在移动端用户点击开启体验时，顺势唤起全屏与横屏锁定
   $("#startBtn").addEventListener("click", () => {
@@ -592,7 +644,7 @@
 
   function selectBambooSlip(idx) {
     if (idx < 0 || idx >= slipElements.length) return;
-    playSFX("bamboo", 0.75);
+    playSFX("bamboo", 0.35);
     cancelAnimationFrame(momentumId);
     currentSlipIdx = idx;
     
