@@ -506,7 +506,9 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
 
     // 动态音画对齐：将音频游标对齐至视觉时间戳（秒）
     const elapsedSec = Math.max(0, (performance.now() - t0) / 1000);
-    if(elapsedSec < 9.0){
+    // 音轨已延长出尾奏，对齐上限改用真实时长，保证整段音画同步
+    const limitSec = (audioEl.duration && isFinite(audioEl.duration)) ? audioEl.duration - 0.15 : 12;
+    if(elapsedSec < limitSec){
       try {
         if(Math.abs(audioEl.currentTime - elapsedSec) > 0.12){
           audioEl.currentTime = elapsedSec;
@@ -553,10 +555,15 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   const T_INTRO = 1500;
   const T_RUN   = 7100;
   const T_FLASH = 650;
-  const T_END   = T_INTRO + T_RUN + T_FLASH;
+  // T_CORE：核心动画收束点（汉字隧道飞完 + 闪白定板）
+  const T_CORE  = T_INTRO + T_RUN + T_FLASH;
+  // T_OUTRO：尾声「时间总轴」时长 —— 重要节点依次点亮，与音乐尾奏同步收束
+  const T_OUTRO = 3400;
+  const T_END   = T_CORE + T_OUTRO;
 
   let t0 = performance.now();
   let finished = false;
+  let coreDone = false;   // 核心动画是否已收束（此后进入尾声总轴）
   let gateOpen = false;
   const gateAction = document.getElementById('gateAction');
   const gateBtn = document.getElementById('gateBtn');
@@ -754,6 +761,99 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   /* ---------- render loop ---------- */
   let last = performance.now();
   let lastStageIdx = -1;
+
+  /* ---------- 尾声 · 时间总轴（重要节点：序 → 竹简 → … → 人工智能） ---------- */
+  const TL_LABELS = ['序'].concat(CHAPTERS.map(function(c){ return c.label; }));
+  let outroIdx = -1;
+
+  function drawTimeline(op){
+    const y  = H * 0.655;
+    const x0 = W * 0.09, x1 = W * 0.91;
+    const n  = TL_LABELS.length;
+    const stepX = (x1 - x0) / (n - 1);
+    const head  = x0 + (x1 - x0) * op;
+    const fs = Math.max(10, Math.min(14, W * 0.011));
+
+    ctx.save();
+    // 首尾淡入淡出，与闪白、标题定格自然衔接
+    const fadeIn  = Math.min(1, op / 0.09);
+    const fadeOut = op > 0.93 ? Math.max(0, 1 - (op - 0.93) / 0.07) : 1;
+    ctx.globalAlpha = fadeIn * fadeOut;
+
+    // 轴区压暗带：让总轴文字在星幕背景上依然清晰
+    const bandTop = y - 62, bandBot = y + 62;
+    const band = ctx.createLinearGradient(0, bandTop, 0, bandBot);
+    band.addColorStop(0,    'rgba(0,0,0,0)');
+    band.addColorStop(0.40, 'rgba(0,0,0,.80)');
+    band.addColorStop(0.60, 'rgba(0,0,0,.80)');
+    band.addColorStop(1,    'rgba(0,0,0,0)');
+    ctx.fillStyle = band;
+    ctx.fillRect(0, bandTop, W, bandBot - bandTop);
+
+    // 轴线底
+    ctx.strokeStyle = 'rgba(184,154,98,.20)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
+
+    // 已推进的轴线（金)
+    const grad = ctx.createLinearGradient(x0, 0, x1, 0);
+    grad.addColorStop(0,   'rgba(184,154,98,.45)');
+    grad.addColorStop(0.6, 'rgba(240,200,105,.85)');
+    grad.addColorStop(1,   'rgba(255,233,168,.98)');
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x0 - 2, y - 3, Math.max(0, head - x0) + 4, 6);
+    ctx.clip();
+    ctx.strokeStyle = grad; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
+    ctx.restore();
+
+    // 行进光头
+    const hg = ctx.createRadialGradient(head, y, 0, head, y, 26);
+    hg.addColorStop(0, 'rgba(255,233,168,.85)');
+    hg.addColorStop(1, 'rgba(255,233,168,0)');
+    ctx.fillStyle = hg;
+    ctx.beginPath(); ctx.arc(head, y, 26, 0, Math.PI * 2); ctx.fill();
+
+    // 轴标题
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = 'rgba(184,154,98,.6)';
+    ctx.font = '400 ' + Math.max(9, fs - 2) + 'px system-ui, -apple-system, "Microsoft YaHei", sans-serif';
+    ctx.fillText('一 字 千 年 · 文 明 信 息 之 路', (x0 + x1) / 2, y - 30);
+
+    // 重要节点：菱形刻度，走过即点亮
+    ctx.font = '500 ' + fs + 'px system-ui, -apple-system, "Microsoft YaHei", sans-serif';
+    for(let i = 0; i < n; i++){
+      const mx = x0 + stepX * i;
+      const lit = Math.min(1, Math.max(0, (head - mx) / (stepX * 0.45)));
+      const s = 5 + lit * 3;
+      ctx.save();
+      ctx.translate(mx, y); ctx.rotate(Math.PI / 4);
+      if(lit > 0.001){
+        ctx.shadowColor = 'rgba(255,233,168,.95)';
+        ctx.shadowBlur = 8 + lit * 16;
+        ctx.fillStyle = 'rgba(255,233,168,' + (0.5 + 0.5 * lit).toFixed(3) + ')';
+        ctx.fillRect(-s / 2, -s / 2, s, s);
+      } else {
+        ctx.strokeStyle = 'rgba(184,154,98,.5)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(-s / 2, -s / 2, s, s);
+      }
+      ctx.restore();
+      // 点亮瞬间的扩散环
+      if(lit > 0.02 && lit < 1){
+        ctx.strokeStyle = 'rgba(255,233,168,' + (0.45 * (1 - lit)).toFixed(3) + ')';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(mx, y, 6 + lit * 24, 0, Math.PI * 2); ctx.stroke();
+      }
+      // 节点名
+      ctx.fillStyle = lit > 0.15
+        ? 'rgba(255,233,168,' + (0.35 + 0.65 * lit).toFixed(3) + ')'
+        : 'rgba(233,228,216,.42)';
+      ctx.fillText(TL_LABELS[i], mx, y + fs + 12);
+    }
+    ctx.restore();
+  }
   let frameCount = 0;
 
   function frame(now){
@@ -790,7 +890,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     if(el > T_INTRO*0.82 && !coreEl.classList.contains('gone')) coreEl.classList.add('gone');
 
     /* ---- world update ---- */
-    const running = el <= T_END;
+    const running = el <= T_CORE;
     if(running){
       const speed = 400 * sm;
       const gate = Math.min(1, Math.max(0, (el - 820) / 680));
@@ -874,33 +974,53 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     ctx.globalCompositeOperation = 'source-over';
 
     /* ---- 5. HUD 读数与进度 ---- */
-    const prog = Math.min(1, Math.max(0, el/T_END));
+    const prog = Math.min(1, Math.max(0, el/T_CORE));
     const speedRatio = Math.min(1, Math.max(0, sm/20));
     
     spdBar.style.transform = 'scaleX(' + speedRatio.toFixed(4) + ')';
     barlove.style.transform = 'scaleX(' + prog.toFixed(4) + ')';
 
     if(frameCount % 3 === 0){
-      const zShown = el<=T_END ? Math.max(0, Math.round(Z_FAR*(1-prog))) : 0;
+      const zShown = el<=T_CORE ? Math.max(0, Math.round(Z_FAR*(1-prog))) : 0;
       hudZ.textContent = 'Z ' + String(Z_FAR).padStart(4,'0') + ' → ' + String(zShown).padStart(4,'0');
       if(el<=T_INTRO){ 
         hudEra.textContent = '虚空 · VOID'; 
-      } else if(el<=T_END){ 
+      } else if(el<=T_CORE){ 
         const c = CHAPTERS[Math.min(6,Math.floor(tt*CHAPTERS.length))]; 
         hudEra.textContent = c.idx+' · '+c.label+' — '+c.era; 
+      } else if(el<=T_END){
+        // 尾声：读数由「时间总轴」逻辑随节点推进写入，此处不覆盖
       } else { 
         hudEra.textContent = '一字千年 · YI ZI QIAN NIAN'; 
       }
       spdNum.textContent = '×' + sm.toFixed(1);
     }
 
-    /* ---- 6. trigger flash + title ---- */
-    if(!finished && el > T_END){
-      finished = true;
+    /* ---- 6. 核心收束：闪白定板，随后进入尾声 ---- */
+    if(!coreDone && el > T_CORE){
+      coreDone = true;
       glyphs = [];
       flashEl.classList.add('go');
       document.getElementById('skip').style.display = 'none';
-      setTimeout(()=> finalEl.classList.add('show'), 420);
+    }
+
+    /* ---- 7. 尾声 · 时间总轴：重要节点依次点亮，与音乐尾奏同步收束 ---- */
+    if(coreDone && !finished && el <= T_END){
+      const op = Math.min(1, Math.max(0, (el - T_CORE) / T_OUTRO));
+      drawTimeline(op);
+      const k = Math.min(TL_LABELS.length - 1, Math.floor(op * TL_LABELS.length));
+      if(k !== outroIdx){
+        outroIdx = k;
+        // 总轴经过的节点在底部 HUD 同步累计点亮
+        nodes.forEach((n, i)=> n.classList.toggle('on', i >= 1 && i <= k));
+        hudEra.textContent = TL_LABELS[k];
+      }
+    }
+
+    /* ---- 8. 尾声结束 → 标题定格 ---- */
+    if(!finished && el > T_END){
+      finished = true;
+      setTimeout(()=> finalEl.classList.add('show'), 260);
     }
 
     requestAnimationFrame(frame);
@@ -960,6 +1080,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
   function revealFinal(){
     if(finished) return;
     finished = true;
+    coreDone = true;
     gateOpen = true;
     if(gateAction) gateAction.style.display = 'none';
     t0 = performance.now() - (T_END + 1);
@@ -973,6 +1094,12 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
     spdBar.style.transform = 'scaleX(1)';
     barlove.style.transform = 'scaleX(1)';
     fadeAudio(0, 1400, ()=>{ if(audioEl) audioEl.pause(); });
+  }
+
+  // 尾声期间点击/按键 → 跳过总轴动画，直接定格标题
+  function endOutro(){
+    if(!coreDone || finished) return;
+    t0 = performance.now() - (T_END + 1);
   }
 
   const skipBtn = document.getElementById('skip');
@@ -1013,6 +1140,7 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
         return;
       }
       if(finalEl.classList.contains('show')) goSite();
+      else if(coreDone && !finished) endOutro();
     }
   });
 
@@ -1022,7 +1150,8 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
       openGate();
       return;
     }
-    if(finalEl.classList.contains('show')) goSite();
+    if(finalEl.classList.contains('show')){ goSite(); return; }
+    if(coreDone && !finished) endOutro();   // 尾声总轴期间点击 → 直接收束
   });
   stageEl.addEventListener('touchend', function(e){
     if(!gateOpen){
@@ -1031,7 +1160,9 @@ canvas{position:absolute;top:0;right:0;bottom:0;left:0;inset:0;width:100%;height
       }
       return;
     }
-    if(finalEl.classList.contains('show') && e.target !== skipBtn && e.target !== sndBtn) goSite();
+    if(e.target === skipBtn || e.target === sndBtn) return;
+    if(finalEl.classList.contains('show')) goSite();
+    else if(coreDone && !finished) endOutro();
   }, {passive:true});
 
   // 全局手势唤醒补偿（应对切后台重回等边缘情况）
